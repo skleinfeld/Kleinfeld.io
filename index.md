@@ -4,20 +4,20 @@ title: Home
 permalink: /
 ---
 
-<!-- HERO (dark with soft color blobs) -->
+<!-- HERO -->
 <section class="relative overflow-hidden">
-  <!-- background blobs -->
+  <!-- soft dark gradient -->
   <div class="pointer-events-none absolute inset-0 -z-10">
-    <div class="absolute -top-40 left-1/2 -translate-x-1/2 h-[580px] w-[1200px] rounded-full blur-3xl"
+    <div class="absolute -top-44 left-1/2 -translate-x-1/2 h-[520px] w-[1200px] rounded-full blur-3xl"
          style="background:radial-gradient(ellipse at center, rgba(10,132,255,.18), rgba(191,90,242,.12) 45%, transparent 65%)"></div>
   </div>
 
-  <div class="wrap mx-auto px-4 sm:px-6 pt-10 sm:pt-14 pb-10">
+  <div class="wrap mx-auto px-4 sm:px-6 pt-10 sm:pt-14 pb-8">
     <div class="grid grid-cols-1 sm:grid-cols-[120px,1fr] gap-6 items-center">
-      <!-- Headshot with conic accent ring -->
+      <!-- Headshot with subtle accent ring -->
       <div class="flex sm:block justify-center">
         <div class="relative h-28 w-28 sm:h-32 sm:w-32 rounded-full p-[2px]"
-             style="background:conic-gradient(from 180deg, #0A84FF, #BF5AF2, #FF375F, #FF9F0A, #FFD60A, #30D158, #0A84FF)">
+             style="background:conic-gradient(from 180deg, #0A84FF, #BF5AF2, #0A84FF)">
           <img src="{{ '/SBK-Headshot.jpeg' | relative_url }}" alt="Headshot of Saul B. Kleinfeld"
                class="h-full w-full rounded-full object-cover ring-1 ring-d-line shadow-card bg-d-card">
         </div>
@@ -27,11 +27,11 @@ permalink: /
         <h1 class="text-4xl sm:text-5xl font-semibold tracking-tight">Saul B. Kleinfeld</h1>
         <p class="mt-2 text-lg text-d-sub">Systems Builder & Playbook Architect — Product × Sports</p>
 
-        <!-- colorful role chips -->
+        <!-- role chips -->
         <div class="mt-4 flex flex-wrap gap-2">
-          <span class="inline-flex items-center px-3 py-1.5 rounded-full text-[13px] bg-a-blue/15 text-a-blue">Senior PM @ RazorMetrics</span>
-          <span class="inline-flex items-center px-3 py-1.5 rounded-full text-[13px] bg-a-purple/15 text-a-purple">VP, Rookie League (NTABL)</span>
-          <span class="inline-flex items-center px-3 py-1.5 rounded-full text-[13px] bg-a-pink/15 text-a-pink">MSA — Northwestern</span>
+          <span class="inline-flex items-center px-3 py-1.5 rounded-full text-[13px] bg-white/10 text-d-fg">Senior PM @ RazorMetrics</span>
+          <span class="inline-flex items-center px-3 py-1.5 rounded-full text-[13px] bg-white/10 text-d-fg">VP, Rookie League (NTABL)</span>
+          <span class="inline-flex items-center px-3 py-1.5 rounded-full text-[13px] bg-white/10 text-d-fg">MSA — Northwestern</span>
         </div>
 
         <div class="mt-6 flex flex-wrap gap-3">
@@ -49,64 +49,35 @@ permalink: /
   </div>
 </section>
 
-<!-- “COLOR SPECS” STRIP (Apple infographic vibe) -->
-<section class="wrap mx-auto px-4 sm:px-6">
-  <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-    <div class="rounded-xl bg-a-blue/15 p-3 text-center">
-      <div class="text-[12px] text-d-sub">Experience</div>
-      <div class="text-xl font-semibold">15+ yrs</div>
-    </div>
-    <div class="rounded-xl bg-a-purple/15 p-3 text-center">
-      <div class="text-[12px] text-d-sub">Leadership</div>
-      <div class="text-xl font-semibold">VP, NTABL</div>
-    </div>
-    <div class="rounded-xl bg-a-green/15 p-3 text-center">
-      <div class="text-[12px] text-d-sub">Treks</div>
-      <div class="text-xl font-semibold">25+</div>
-    </div>
-    <div class="rounded-xl bg-a-yellow/15 p-3 text-center">
-      <div class="text-[12px] text-d-sub">Focus</div>
-      <div class="text-xl font-semibold">Product Ops</div>
-    </div>
-    <div class="rounded-xl bg-a-orange/15 p-3 text-center">
-      <div class="text-[12px] text-d-sub">Leagues</div>
-      <div class="text-xl font-semibold">Expos / Bulls</div>
-    </div>
-    <div class="rounded-xl bg-a-pink/15 p-3 text-center">
-      <div class="text-[12px] text-d-sub">Program</div>
-      <div class="text-xl font-semibold">Northwestern</div>
-    </div>
-  </div>
-</section>
-
-<!-- HIGHLIGHTS (two cards — Config Tool removed) -->
-<section class="wrap mx-auto px-4 sm:px-6 py-10">
+<!-- HIGHLIGHTS (compact, no preview text) -->
+<section class="wrap mx-auto px-4 sm:px-6 py-8">
   <h2 class="text-2xl font-semibold">Highlights</h2>
 
   <div class="mt-6 grid sm:grid-cols-2 gap-6">
-    <!-- Highlight 1 -->
-    <article class="rounded-2xl bg-d-card shadow-card border border-d-line p-5">
-      <div class="flex items-center gap-2">
-        <span class="h-2.5 w-2.5 rounded-full bg-a-purple"></span>
-        <h3 class="font-medium">League Growth & Media (NTABL)</h3>
+    <!-- NTABL -->
+    <a href="{{ '/sports/' | relative_url }}"
+       class="group block rounded-2xl bg-d-card border border-d-line p-5 shadow-card hover:bg-white/5 transition-colors">
+      <div class="flex items-center gap-4">
+        <img src="{{ '/ntabl-logo.png' | relative_url }}" alt="NTABL" class="h-10 w-10 rounded-md bg-white/90 object-contain p-1">
+        <div>
+          <h3 class="font-medium">League Growth & Media (NTABL)</h3>
+          <p class="text-[13px] text-d-sub mt-1">View work</p>
+        </div>
       </div>
-      <p class="mt-2 text-[15px] text-d-fg/90">
-        Expanded the Rookie League, launched livestream “Game of the Week,” and built sponsor inventory playbooks.
-      </p>
-      <a href="{{ '/sports/' | relative_url }}" class="mt-3 inline-block text-[15px] alink">Explore sports</a>
-    </article>
+    </a>
 
-    <!-- Highlight 2 -->
-    <article class="rounded-2xl bg-d-card shadow-card border border-d-line p-5">
-      <div class="flex items-center gap-2">
-        <span class="h-2.5 w-2.5 rounded-full bg-a-blue"></span>
-        <h3 class="font-medium">Northwestern Projects</h3>
+    <!-- Northwestern -->
+    <a href="{{ '/sports/' | relative_url }}"
+       class="group block rounded-2xl bg-d-card border border-d-line p-5 shadow-card hover:bg-white/5 transition-colors">
+      <div class="flex items-center gap-4">
+        <img src="{{ '/northwestern-seal.png' | relative_url }}" alt="Northwestern University"
+             class="h-10 w-10 rounded-md bg-white/90 object-contain p-1">
+        <div>
+          <h3 class="font-medium">Northwestern University MSA Coursework</h3>
+          <p class="text-[13px] text-d-sub mt-1">View projects</p>
+        </div>
       </div>
-      <p class="mt-2 text-[15px] text-d-fg/90">
-        Coursework in sports analytics—dashboards and notebooks on player development and league operations.
-      </p>
-      <a href="{{ '/sports/' | relative_url }}" class="mt-3 inline-block text-[15px] alink">View projects</a>
-    </article>
+    </a>
   </div>
 </section>
 

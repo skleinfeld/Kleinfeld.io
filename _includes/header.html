@@ -1,14 +1,15 @@
-<header class="sticky top-0 z-50 bg-white/80 backdrop-blur border-b border-a-line">
+<header class="sticky top-0 z-50 bg-d-card/90 backdrop-blur border-b border-d-line">
   <div class="wrap mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
-    <a href="{{ '/' | relative_url }}" class="font-medium tracking-tight">kleinfeld.io</a>
-    <nav class="hidden sm:flex items-center gap-6 text-[15px] text-a-black/90">
+    <a href="{{ '/' | relative_url }}" class="font-medium tracking-tight text-d-fg">kleinfeld.io</a>
+
+    <nav class="hidden sm:flex items-center gap-6 text-[15px]">
       {% assign here = page.url %}
-      <a href="{{ '/' | relative_url }}" class="{% if here == '/' %}font-medium{% endif %}">Home</a>
-      <a href="{{ '/biography/' | relative_url }}" class="{% if here contains '/biography' %}font-medium{% endif %}">Biography</a>
-      <a href="{{ '/resume/' | relative_url }}" class="{% if here contains '/resume' %}font-medium{% endif %}">Resume</a>
-      <a href="{{ '/photos/' | relative_url }}" class="{% if here contains '/photos' %}font-medium{% endif %}">Photos</a>
-      <a href="{{ '/sports/' | relative_url }}" class="{% if here contains '/sports' %}font-medium{% endif %}">Sports</a>
-      <a href="{{ '/contact/' | relative_url }}" class="{% if here contains '/contact' %}font-medium{% endif %}">Contact</a>
+      <a href="{{ '/' | relative_url }}" class="transition-colors {{ here == '/' | ternary: 'text-d-fg', 'text-d-sub hover:text-d-fg' }}">Home</a>
+      <a href="{{ '/biography/' | relative_url }}" class="transition-colors {{ here contains '/biography' | ternary: 'text-d-fg', 'text-d-sub hover:text-d-fg' }}">Biography</a>
+      <a href="{{ '/resume/' | relative_url }}" class="transition-colors {{ here contains '/resume' | ternary: 'text-d-fg', 'text-d-sub hover:text-d-fg' }}">Resume</a>
+      <a href="{{ '/photos/' | relative_url }}" class="transition-colors {{ here contains '/photos' | ternary: 'text-d-fg', 'text-d-sub hover:text-d-fg' }}">Photos</a>
+      <a href="{{ '/sports/' | relative_url }}" class="transition-colors {{ here contains '/sports' | ternary: 'text-d-fg', 'text-d-sub hover:text-d-fg' }}">Sports</a>
+      <a href="{{ '/contact/' | relative_url }}" class="transition-colors {{ here contains '/contact' | ternary: 'text-d-fg', 'text-d-sub hover:text-d-fg' }}">Contact</a>
     </nav>
   </div>
 </header>
