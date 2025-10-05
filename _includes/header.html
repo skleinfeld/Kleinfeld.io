@@ -1,0 +1,14 @@
+<header class="sticky top-0 z-50 bg-white/80 backdrop-blur border-b border-a-line">
+  <div class="wrap mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
+    <a href="{{ '/' | relative_url }}" class="font-medium tracking-tight">kleinfeld.io</a>
+    <nav class="hidden sm:flex items-center gap-6 text-[15px] text-a-black/90">
+      {% assign here = page.url %}
+      <a href="{{ '/' | relative_url }}" class="{% if here == '/' %}font-medium{% endif %}">Home</a>
+      <a href="{{ '/biography/' | relative_url }}" class="{% if here contains '/biography' %}font-medium{% endif %}">Biography</a>
+      <a href="{{ '/resume/' | relative_url }}" class="{% if here contains '/resume' %}font-medium{% endif %}">Resume</a>
+      <a href="{{ '/photos/' | relative_url }}" class="{% if here contains '/photos' %}font-medium{% endif %}">Photos</a>
+      <a href="{{ '/sports/' | relative_url }}" class="{% if here contains '/sports' %}font-medium{% endif %}">Sports</a>
+      <a href="{{ '/contact/' | relative_url }}" class="{% if here contains '/contact' %}font-medium{% endif %}">Contact</a>
+    </nav>
+  </div>
+</header>

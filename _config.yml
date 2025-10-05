@@ -1,0 +1,7 @@
+title: kleinfeld.io
+description: Saul B. Kleinfeld — Systems Builder & Playbook Architect
+url: https://kleinfeld.io
+baseurl: ""  # keep empty for root domain
+markdown: kramdown
+timezone: America/Chicago
+plugins: []  # keep empty for GitHub Pages default

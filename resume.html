@@ -1,0 +1,21 @@
+---
+layout: default
+title: Resume
+permalink: /resume/
+---
+
+<section class="wrap mx-auto px-4 sm:px-6 py-12 sm:py-16">
+  <h1 class="text-3xl sm:text-4xl font-semibold">Resume</h1>
+  <p class="mt-3 text-a-gray">Download the latest résumé or view it inline.</p>
+
+  <div class="mt-6 flex flex-wrap gap-3">
+    <a href="{{ '/Sports_PdM _Saul_Kleinfeld_Resume.pdf' | relative_url | uri_escape }}"
+       class="inline-flex items-center rounded-full bg-a-black text-white px-4 py-2 text-sm hover:opacity-90">Download PDF</a>
+    <a href="{{ '/Sports_PdM _Saul_Kleinfeld_Resume.pdf' | relative_url | uri_escape }}"
+       class="inline-flex items-center rounded-full border border-a-line px-4 py-2 text-sm hover:bg-white" target="_blank" rel="noopener">Open in new tab</a>
+  </div>
+
+  <div class="mt-6 rounded-2xl border border-a-line bg-white shadow overflow-hidden">
+    <iframe title="Resume preview" src="{{ '/Sports_PdM _Saul_Kleinfeld_Resume.pdf' | relative_url | uri_escape }}" class="w-full h-[720px]"></iframe>
+  </div>
+</section>
