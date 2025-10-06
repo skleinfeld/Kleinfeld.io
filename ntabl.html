@@ -1,12 +1,36 @@
 ---
 layout: default
-title: NTABL — Career Batting
+title: NTABL — Interactive Stats
 permalink: /ntabl/
 ---
 
 <section class="wrap-wide" style="padding:40px 0;">
-  <h1 style="font-size:22px;font-weight:700;margin:0 0 16px">NTABL</h1>
+  <h1 style="font-size:22px;font-weight:700;margin:0 0 18px">NTABL</h1>
 
+  <!-- Controls -->
+  <div class="card" style="margin:0 auto 16px;padding:16px;display:flex;gap:12px;flex-wrap:wrap;align-items:center">
+    <div>
+      <label for="f-year" style="display:block;font-size:12px;color:#a5adb6;margin-bottom:6px">Year</label>
+      <select id="f-year" class="ntabl-select"></select>
+    </div>
+    <div>
+      <label for="f-season" style="display:block;font-size:12px;color:#a5adb6;margin-bottom:6px">Season</label>
+      <select id="f-season" class="ntabl-select"></select>
+    </div>
+    <div>
+      <label for="f-division" style="display:block;font-size:12px;color:#a5adb6;margin-bottom:6px">Division</label>
+      <select id="f-division" class="ntabl-select"></select>
+    </div>
+    <div>
+      <label for="f-team" style="display:block;font-size:12px;color:#a5adb6;margin-bottom:6px">Team</label>
+      <select id="f-team" class="ntabl-select"></select>
+    </div>
+    <div style="margin-left:auto;display:flex;gap:8px">
+      <button id="btn-reset" class="btn alt" type="button">Reset Filters</button>
+    </div>
+  </div>
+
+  <!-- Table -->
   <div class="surface" style="margin:0 auto;">
     <div class="ntabl-wrap">
       <table id="ntabl-table" class="ntabl-table" aria-describedby="ntabl-note">
@@ -16,113 +40,206 @@ permalink: /ntabl/
       </table>
     </div>
     <div id="ntabl-note" style="font-size:12px;color:#667085;padding:10px 12px 14px">
-      Derived metrics shown if provided by the CSV (AVG, OBP, SLG, OPS).
+      Click a column header to sort. Filters are derived from the CSV. Metrics (AVG/OBP/SLG/OPS) shown if present.
     </div>
   </div>
 </section>
 
+<!-- PapaParse for CSV -->
 <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+
 <script>
 (function(){
+  /* -------------------- CONFIG -------------------- */
   const CSV_PATH = "/personal-batting-career.csv";
-  const table   = document.getElementById('ntabl-table');
+
+  // Column layout and which are text vs numeric (for alignment & sort)
+  const COLUMNS = [
+    'Year','Season','Division','Team',
+    'GP','PA','AB','R','H','1B','2B','3B','HR','RBI',
+    'BB','HBP','SO','K-L','SB','TB','AVG','OBP','SLG','OPS','SF','SAC'
+  ];
+  const TEXT_COLS = new Set(['Year','Season','Division','Team']);
+  const METRIC_COLS = new Set(['AVG','OBP','SLG','OPS']);
+
+  // Preferred ordering for filters
+  const ORDER_YEAR = ['2025','2024'];
+  const ORDER_SEASON = ['Summer','Fall','Spring'];
+
+  /* -------------------- DOM REFS -------------------- */
+  const table = document.getElementById('ntabl-table');
   const theadEl = table.querySelector('thead');
   const tbodyEl = table.querySelector('tbody');
   const tfootEl = table.querySelector('tfoot');
 
-  const COLUMNS = [
-    'Season','Division','Team','Last','First',
-    'GP','PA','AB','R','H','1B','2B','3B','HR','RBI',
-    'BB','HBP','SO','K-L','SB','TB','AVG','OBP','SLG','OPS','SF','SAC'
-  ];
-  const TEXT_COLS = new Set(['Season','Division','Team','Last','First']);
+  const fYear = document.getElementById('f-year');
+  const fSeason = document.getElementById('f-season');
+  const fDivision = document.getElementById('f-division');
+  const fTeam = document.getElementById('f-team');
+  const btnReset = document.getElementById('btn-reset');
 
-  const normalizeKey = k => String(k).trim().replace(/\u2013|\u2014/g,'-').replace(/\s+/g,' ').toLowerCase();
-  const aliases = {
-    'season':'Season','division':'Division','team':'Team','last':'Last','first':'First',
-    'gp':'GP','g':'GP','pa':'PA','ab':'AB','r':'R','h':'H','1b':'1B','2b':'2B','3b':'3B','hr':'HR','rbi':'RBI',
-    'bb':'BB','so':'SO','k-l':'K-L','k l':'K-L','hbp':'HBP','sb':'SB','tb':'TB',
-    'avg':'AVG','obp':'OBP','slg':'SLG','ops':'OPS','sf':'SF','sac':'SAC'
-  };
+  /* -------------------- STATE -------------------- */
+  let rawRows = [];
+  let rows = [];        // normalized + derived (Year/Season)
+  let filtered = [];    // after filters
+  let sortKey = null;   // column key
+  let sortDir = 1;      // 1=asc, -1=desc
 
-  function normalizeRows(rows){
-    return rows.map(row=>{
-      const out = {};
-      Object.entries(row).forEach(([k,v])=>{
-        const key = aliases[normalizeKey(k)] || k;
-        out[key] = v;
+  /* -------------------- HELPERS -------------------- */
+  const normKey = s => String(s||'').trim().toLowerCase();
+  const numLike = v => v !== '' && v !== null && !isNaN(v);
+  const to3 = v => Number(v).toFixed(3).replace(/^0/,'');
+  const title = s => s.replace(/\b(\w)/g, (m)=>m.toUpperCase());
+
+  // build select options
+  function setOptions(select, list, labelAll='All'){
+    select.innerHTML = '';
+    const optAll = document.createElement('option');
+    optAll.value = ''; optAll.textContent = labelAll;
+    select.appendChild(optAll);
+    list.forEach(v => {
+      const o = document.createElement('option');
+      o.value = v; o.textContent = v; select.appendChild(o);
+    });
+  }
+
+  // parsing "Summer 2024" -> { season:"Summer", year:"2024" }
+  function splitSeasonYear(v){
+    const m = String(v||'').match(/(Summer|Fall|Spring)\s+(\d{4})/i);
+    if(!m) return { season:'', year:'' };
+    return { season: title(m[1].toLowerCase()), year: m[2] };
+    // title ensures Summer/Fall/Spring capitalized
+  }
+
+  // Create totals row for numeric columns
+  function totalsOf(rows, cols){
+    const t = {};
+    cols.forEach(c => t[c] = TEXT_COLS.has(c) ? '' : 0);
+    rows.forEach(r=>{
+      cols.forEach(c=>{
+        if(TEXT_COLS.has(c) || METRIC_COLS.has(c)) return;
+        if(numLike(r[c])) t[c] += (+r[c]||0);
       });
-      return out;
     });
+    return t;
   }
 
-  function selectAndOrder(rows){
-    if(!rows || !rows.length) return { cols:[], rows:[] };
-    const present = new Set(Object.keys(rows[0]));
-    const cols = COLUMNS.filter(c => present.has(c));
-    const filtered = rows.map(r=>{
-      const o = {}; cols.forEach(c => o[c] = r[c] ?? ''); return o;
-    });
-    return { cols, rows: filtered };
+  function compare(a,b,key){
+    const av = a[key], bv = b[key];
+    const aNum = numLike(av), bNum = numLike(bv);
+    if(aNum && bNum) return (av - bv) * sortDir;
+    return String(av||'').localeCompare(String(bv||'')) * sortDir;
   }
 
-  const numLike = v => (v!=='' && v!==null && !isNaN(v));
-  const isMetric = c => ['AVG','OBP','SLG','OPS'].includes(c);
-
+  /* -------------------- RENDER -------------------- */
   function buildHead(cols){
-    theadEl.innerHTML = '<tr>'+cols.map(c=>{
+    theadEl.innerHTML = '<tr>' + cols.map(c=>{
       const cls = TEXT_COLS.has(c) ? 't-text' : 't-num';
-      return `<th scope="col" class="${cls}" title="${c}">${c}</th>`;
-    }).join('')+'</tr>';
-  }
+      const arrow = (sortKey === c) ? (sortDir>0?' ▲':' ▼') : '';
+      return `<th data-col="${c}" class="${cls}" style="cursor:pointer" title="Sort by ${c}">${c}${arrow}</th>`;
+    }).join('') + '</tr>';
 
-  function buildBody(cols, rows){
-    tbodyEl.innerHTML = rows.map(r=>{
-      return '<tr>'+cols.map(c=>{
-        let val = r[c] ?? '';
-        if(isMetric(c) && numLike(val)){ val = Number(val).toFixed(3).replace(/^0/,''); }
-        const cls = TEXT_COLS.has(c) ? 't-text' : 't-num';
-        return `<td class="${cls}">${val}</td>`;
-      }).join('')+'</tr>';
-    }).join('');
-  }
-
-  function buildTotals(cols, rows){
-    const totals = {}; cols.forEach(c => totals[c] = TEXT_COLS.has(c) ? '' : 0);
-    cols.forEach(c=>{
-      if(TEXT_COLS.has(c) || isMetric(c)) return;
-      let sum = 0, any = false;
-      rows.forEach(r=>{
-        const v = r[c]; if(numLike(v)){ sum += (+v||0); any = true; }
+    // click-to-sort
+    theadEl.querySelectorAll('th').forEach(th=>{
+      th.addEventListener('click', ()=>{
+        const k = th.getAttribute('data-col');
+        if(sortKey === k) sortDir *= -1; else { sortKey = k; sortDir = 1; }
+        renderBodyFooter();
+        buildHead(cols); // update arrows
       });
-      totals[c] = any ? sum : '';
     });
-    tfootEl.innerHTML = '<tr>'+
-      cols.map((c,i)=>{
-        if(i===0) return '<th scope="row" class="t-text">Totals</th>';
-        const cls = TEXT_COLS.has(c) ? 't-text' : 't-num';
-        return `<td class="${cls}">${totals[c] ?? ''}</td>`;
-      }).join('') +
-    '</tr>';
   }
 
-  function render(raw){
-    const norm = normalizeRows(raw);
-    const { cols, rows } = selectAndOrder(norm);
-    if(!cols.length || !rows.length){
-      theadEl.innerHTML = '<tr><th>Error</th></tr>';
-      tbodyEl.innerHTML = '<tr><td style="padding:12px 14px;color:#c00">No rows/columns found in CSV.</td></tr>';
-      tfootEl.innerHTML = '';
-      return;
+  function renderBodyFooter(){
+    let view = filtered.slice();
+    if(sortKey){
+      view.sort((a,b)=>compare(a,b,sortKey));
     }
-    buildHead(cols); buildBody(cols, rows); buildTotals(cols, rows);
+
+    // Body
+    tbodyEl.innerHTML = view.map(r=>{
+      return '<tr>' + COLUMNS.map(c=>{
+        if(!Object.prototype.hasOwnProperty.call(r,c)) return '<td></td>';
+        let v = r[c];
+
+        if(METRIC_COLS.has(c) && numLike(v)) v = to3(v);
+        const cls = TEXT_COLS.has(c) ? 't-text' : 't-num';
+        return `<td class="${cls}">${v ?? ''}</td>`;
+      }).join('') + '</tr>';
+    }).join('');
+
+    // Footer totals
+    const totals = totalsOf(view, COLUMNS);
+    tfootEl.innerHTML = '<tr>' + COLUMNS.map((c,i)=>{
+      if(i===0) return '<th scope="row" class="t-text">Totals</th>';
+      const cls = TEXT_COLS.has(c) ? 't-text' : 't-num';
+      return `<td class="${cls}">${numLike(totals[c]) ? totals[c] : ''}</td>`;
+    }).join('') + '</tr>';
   }
 
+  /* -------------------- FILTERS -------------------- */
+  function applyFilters(){
+    const y = fYear.value;
+    const s = fSeason.value;
+    const d = fDivision.value.toLowerCase();
+    const t = fTeam.value;
+
+    filtered = rows.filter(r=>{
+      if(y && String(r.Year) !== y) return false;
+      if(s && String(r.Season) !== s) return false;
+      if(d && !normKey(r.Division).includes(d)) return false;
+      if(t && String(r.Team) !== t) return false;
+      return true;
+    });
+    renderBodyFooter();
+  }
+
+  function resetFilters(){
+    fYear.value = '';
+    fSeason.value = '';
+    fDivision.value = '';
+    fTeam.value = '';
+    applyFilters();
+  }
+
+  /* -------------------- INIT -------------------- */
   Papa.parse(CSV_PATH, {
     download:true, header:true, dynamicTyping:true, skipEmptyLines:'greedy',
-    complete: res => render(res.data),
+    complete: res => {
+      rawRows = res.data || [];
+
+      // Normalize + derive Year/Season
+      rows = rawRows
+        .filter(r => !!r.Season && String(r.Season).match(/\d{4}/)) // ignore a "Totals" row if you left one
+        .map(r=>{
+          const { season, year } = splitSeasonYear(r.Season);
+          return Object.assign({}, r, { Year: year, Season: season });
+        });
+
+      // Build unique filter sets
+      const years = Array.from(new Set(rows.map(r=>r.Year))).sort((a,b)=>ORDER_YEAR.indexOf(a)-ORDER_YEAR.indexOf(b));
+      const seasons = Array.from(new Set(rows.map(r=>r.Season))).sort((a,b)=>ORDER_SEASON.indexOf(a)-ORDER_SEASON.indexOf(b));
+      const divisions = Array.from(new Set(rows.map(r=>r.Division)));
+      const teams = Array.from(new Set(rows.map(r=>r.Team)));
+
+      setOptions(fYear, years, 'All Years');
+      setOptions(fSeason, seasons, 'All Seasons');
+      setOptions(fDivision, divisions, 'All Divisions');
+      setOptions(fTeam, teams, 'All Teams');
+
+      // Build head / initial filter render
+      buildHead(COLUMNS);
+      filtered = rows.slice();
+      renderBodyFooter();
+
+      // wire filters
+      fYear.addEventListener('change', applyFilters);
+      fSeason.addEventListener('change', applyFilters);
+      fDivision.addEventListener('change', applyFilters);
+      fTeam.addEventListener('change', applyFilters);
+      btnReset.addEventListener('click', resetFilters);
+    },
     error: err => {
-      console.error('CSV load error:', err);
       theadEl.innerHTML = '<tr><th>Error</th></tr>';
       tbodyEl.innerHTML = `<tr><td style="padding:12px 14px;color:#c00">Unable to load CSV (${err?.message||'unknown error'}). Check <code>${CSV_PATH}</code>.</td></tr>`;
       tfootEl.innerHTML = '';
@@ -130,3 +247,18 @@ permalink: /ntabl/
   });
 })();
 </script>
+
+<style>
+/* compact modern selects to match site */
+.ntabl-select{
+  appearance:none; -webkit-appearance:none; -moz-appearance:none;
+  background:#0f1113;
+  color:#e9eaec;
+  border:1px solid #222428;
+  border-radius:12px;
+  padding:10px 12px;
+  min-width:160px;
+  font-weight:600;
+}
+.ntabl-select:focus{outline:none;border-color:#2b2f35;box-shadow:0 0 0 3px rgba(124,58,237,.28)}
+</style>
