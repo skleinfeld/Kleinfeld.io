@@ -1,96 +1,54 @@
 ---
 layout: default
-title: Home
+title: Saul B. Kleinfeld — Systems Builder & Playbook Architect
 permalink: /
 ---
 
-<!-- HERO -->
-<section class="relative overflow-hidden">
-  <!-- soft dark gradient -->
-  <div class="pointer-events-none absolute inset-0 -z-10">
-    <div class="absolute -top-44 left-1/2 -translate-x-1/2 h-[560px] w-[1250px] rounded-full blur-3xl"
-         style="background:radial-gradient(ellipse at center, rgba(10,132,255,.18), rgba(191,90,242,.12) 45%, transparent 65%)"></div>
+<section class="wrap hero">
+  <img class="avatar" src="/SBK-Headshot.jpeg" alt="Saul B. Kleinfeld">
+  <h1>Saul B. Kleinfeld</h1>
+  <div class="tag">Systems Builder &amp; Playbook Architect — Product × Sports</div>
+
+  <div class="chips">
+    <span class="chip c1">Senior PM @ RazorMetrics</span>
+    <span class="chip c2">VP, Rookie League (NTABL)</span>
+    <span class="chip c3">MSA — Northwestern</span>
   </div>
 
-  <div class="wrap mx-auto px-4 sm:px-6 pt-10 sm:pt-14 pb-8">
-    <div class="grid grid-cols-1 sm:grid-cols-[152px,1fr] gap-6 items-center">
-      <!-- Larger headshot with accent ring -->
-      <div class="flex sm:block justify-center">
-        <div class="relative h-36 w-36 sm:h-40 sm:w-40 rounded-full p-[2.5px]"
-             style="background:conic-gradient(from 180deg, #0A84FF, #BF5AF2, #0A84FF)">
-          <img src="{{ '/SBK-Headshot.jpeg' | relative_url }}" alt="Headshot of Saul B. Kleinfeld"
-               class="h-full w-full rounded-full object-cover ring-1 ring-d-line shadow-card bg-d-card">
-        </div>
-      </div>
-
-      <div>
-        <h1 class="text-4xl sm:text-5xl font-semibold tracking-tight">Saul B. Kleinfeld</h1>
-        <p class="mt-2 text-lg text-d-sub">Systems Builder & Playbook Architect — Product × Sports</p>
-
-        <!-- role chips (moved up) -->
-        <div class="mt-4 flex flex-wrap gap-2">
-          <span class="inline-flex items-center px-3 py-1.5 rounded-full text-[13px] bg-white/10 text-d-fg">Senior PM @ RazorMetrics</span>
-          <span class="inline-flex items-center px-3 py-1.5 rounded-full text-[13px] bg-white/10 text-d-fg">VP, Rookie League (NTABL)</span>
-          <span class="inline-flex items-center px-3 py-1.5 rounded-full text-[13px] bg-white/10 text-d-fg">MSA — Northwestern</span>
-        </div>
-
-        <!-- brighter, larger welcome line -->
-        <p class="mt-5 text-[17px] sm:text-xl text-white/95">
-          Welcome — feel free to learn about my background, explore projects, and reach out anytime.
-        </p>
-      </div>
-    </div>
+  <div style="max-width:760px;margin:0 auto;color:#a8aeb4">
+    <h2 style="font-size:24px;margin:10px 0">Welcome</h2>
+    <p>
+      Welcome to my digital home. Here you can explore my journey as a product leader, baseball executive,
+      and student of the game. Feel free to learn more about my work, projects, and experiences—or get in touch directly.
+    </p>
   </div>
 </section>
 
-<!-- CURRENT FOCUS -->
-<section class="wrap mx-auto px-4 sm:px-6 py-8">
-  <h2 class="text-2xl font-semibold">Current Focus</h2>
+<section class="wrap section">
+  <h2 style="text-align:center;font-size:26px;margin:0 0 20px">Current Focus</h2>
 
-  <div class="mt-6 grid sm:grid-cols-2 gap-6">
-    <!-- NTABL -->
-    <a href="{{ '/sports/' | relative_url }}"
-       class="group block rounded-2xl bg-d-card border border-d-line p-5 shadow-card hover:bg-white/5 transition-colors">
-      <div class="flex items-center gap-4">
-        <img src="{{ '/ntabl-logo.png' | relative_url }}" alt="NTABL"
-             class="h-16 w-16 rounded-md bg-white/90 object-contain p-1.5">
-        <div>
-          <h3 class="font-medium">North Texas Amateur Baseball League</h3>
-          <p class="text-[13px] text-d-sub mt-1">View Stats &amp; League Information</p>
-        </div>
+  <div class="grid">
+    <article class="card">
+      <div class="row">
+        <img class="logo" src="/NTABL%20-%20Gann's%20Bulls%20Logo.png" alt="NTABL logo">
+        <h3 style="margin:0;font-size:20px">North Texas Amateur Baseball League</h3>
       </div>
-    </a>
+      <p>Overseeing league operations, team development, and live streaming while managing and playing for Gann’s Bulls.</p>
+      <a class="btn" href="/ntabl/">View Stats &amp; League Information</a>
+    </article>
 
-    <!-- Northwestern -->
-    <a href="{{ '/sports/' | relative_url }}"
-       class="group block rounded-2xl bg-d-card border border-d-line p-5 shadow-card hover:bg-white/5 transition-colors">
-      <div class="flex items-center gap-4">
-        <img src="{{ '/northwestern-seal.png' | relative_url }}" alt="Northwestern University"
-             class="h-16 w-16 rounded-md bg-white/90 object-contain p-1.5">
-        <div>
-          <h3 class="font-medium">Northwestern U</h3>
-          <p class="text-[13px] text-d-sub mt-0.5 italic">Master of Sports Administration &amp; Analytics</p>
-          <p class="text-[13px] text-d-sub mt-1">View Coursework</p>
-        </div>
+    <article class="card">
+      <div class="row">
+        <img class="logo" src="/northwestern-seal.png" alt="Northwestern University seal">
+        <h3 style="margin:0;font-size:20px">Northwestern U</h3>
       </div>
-    </a>
+      <p style="margin:.25rem 0 .5rem"><em>Master of Sports Administration &amp; Analytics</em></p>
+      <p>Coursework in sports analytics, operations, and player development. Includes dashboards, reports, and research projects.</p>
+      <a class="btn btn2" href="/coursework.html">View Coursework</a>
+    </article>
   </div>
-</section>
 
-<!-- QUICK LINKS (now also includes the hero CTAs) -->
-<section class="wrap mx-auto px-4 sm:px-6 pb-12">
-  <div class="rounded-2xl border border-d-line bg-d-card p-5 flex flex-wrap gap-3">
-    <a class="inline-flex items-center rounded-full border border-d-line px-4 py-2 hover:bg-white/5"
-       href="{{ '/biography/' | relative_url }}">Read Biography</a>
-    <a class="inline-flex items-center rounded-full border border-d-line px-4 py-2 hover:bg-white/5"
-       href="{{ '/contact/' | relative_url }}">Get In Touch</a>
-    <a class="inline-flex items-center rounded-full border border-d-line px-4 py-2 hover:bg-white/5"
-       href="mailto:saul@kleinfeld.io?subject=Hello%20Saul&body=Hi%20Saul%2C%0D%0A%0D%0A">Email</a>
-    <a class="inline-flex items-center rounded-full border border-d-line px-4 py-2 hover:bg-white/5"
-       href="https://calendly.com/saul-dallasmsbl/30min" target="_blank" rel="noopener">Book Time</a>
-    <a class="inline-flex items-center rounded-full border border-d-line px-4 py-2 hover:bg-white/5"
-       href="https://www.linkedin.com/in/saul-kleinfeld" target="_blank" rel="noopener">LinkedIn</a>
-    <a class="inline-flex items-center rounded-full border border-d-line px-4 py-2 hover:bg-white/5"
-       href="{{ '/Sports_PdM _Saul_Kleinfeld_Resume.pdf' | relative_url | uri_escape }}" target="_blank" rel="noopener">Download Résumé</a>
+  <div style="text-align:center;margin-top:26px">
+    <a class="btn" href="/contact.html" style="background:#2d2f36">Get in Touch</a>
   </div>
 </section>

@@ -1,7 +1,19 @@
 title: kleinfeld.io
-description: Saul B. Kleinfeld — Systems Builder & Playbook Architect
 url: https://kleinfeld.io
-baseurl: ""  # keep empty for root domain
+
+# Use our own layout/includes; don't pull in a remote theme
+theme: null
+plugins: []
+
 markdown: kramdown
-timezone: America/Chicago
-plugins: []  # keep empty for GitHub Pages default
+kramdown:
+  input: GFM
+
+# Keep the build clean
+exclude:
+  - node_modules
+  - vendor
+  - README.md
+  - .github
+  - package.json
+  - package-lock.json
