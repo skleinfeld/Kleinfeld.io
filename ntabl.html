@@ -11,55 +11,49 @@ permalink: /ntabl/
   </div>
 
   <div class="wrap mx-auto px-4 sm:px-6 py-10">
+    <!-- Header -->
     <div class="flex items-center gap-4">
       <img src="{{ "NTABL - Gann's Bulls Logo.png" | relative_url | uri_escape }}" alt="Gann’s Bulls"
            class="h-12 w-12 rounded bg-white object-contain p-1">
       <div>
         <h1 class="text-2xl sm:text-3xl font-semibold leading-tight">NTABL</h1>
-        <p class="text-d-sub text-[14px]">Personal and Team statistics</p>
+        <p class="text-d-sub text-[14px]">Personal and Team statistics (compact, computed, interactive)</p>
       </div>
 
       <div class="ml-auto flex items-center gap-2">
         <label for="season" class="text-[13px] text-d-sub">Season</label>
         <select id="season" class="bg-transparent border border-d-line rounded-full px-3 py-1.5 text-sm">
+          <option value="career">Career</option>
           <option value="summer2024">Summer 2024</option>
           <option value="summer2025">Summer 2025</option>
           <option value="fall2025">Fall 2025</option>
-          <option value="career">Career</option>
         </select>
       </div>
     </div>
 
-    <!-- Primary tabs -->
-    <div class="mt-6 rounded-2xl border border-d-line bg-d-card overflow-hidden">
-      <div class="flex gap-1 border-b border-d-line px-2 pt-2">
-        <button data-tab="individual" class="tab-primary active">Individual</button>
-        <button data-tab="game" class="tab-primary">Game-by-Game</button>
-        <button data-tab="leaders" class="tab-primary">Leaders</button>
-      </div>
+    <!-- Switchers -->
+    <div class="mt-4 flex flex-wrap gap-2">
+      <button id="btn-personal" class="px-4 py-2 text-sm rounded-full bg-white text-black">Personal Stats</button>
+      <button id="btn-team" class="px-4 py-2 text-sm rounded-full border border-d-line hover:bg-white/5">Team Stats</button>
 
-      <!-- Secondary tabs -->
-      <div class="flex gap-1 border-b border-d-line px-2 pt-2">
-        <button data-sub="batting"  class="tab-sub active">Batting</button>
-        <button data-sub="pitching" class="tab-sub">Pitching</button>
-        <button data-sub="fielding" class="tab-sub">Fielding</button>
+      <div class="ml-auto flex flex-wrap gap-2">
+        <span class="self-center text-[13px] text-d-sub">Columns:</span>
+        <button class="colset px-3 py-1.5 text-xs rounded-full border border-d-line" data-set="core">Core</button>
+        <button class="colset px-3 py-1.5 text-xs rounded-full border border-d-line" data-set="power">Power</button>
+        <button class="colset px-3 py-1.5 text-xs rounded-full border border-d-line" data-set="discipline">Discipline</button>
+        <button class="colset px-3 py-1.5 text-xs rounded-full border border-d-line" data-set="running">Baserunning</button>
+        <button class="colset px-3 py-1.5 text-xs rounded-full border border-d-line bg-white/10" data-set="all">All</button>
       </div>
+    </div>
 
-      <!-- Switch: Personal vs Team -->
-      <div class="flex gap-2 px-3 py-3 border-b border-d-line">
-        <button id="btn-personal" class="px-4 py-2 text-sm rounded-full bg-white text-black">Personal Stats</button>
-        <button id="btn-team" class="px-4 py-2 text-sm rounded-full border border-d-line hover:bg-white/5">Team Stats</button>
-      </div>
-
-      <!-- Table -->
-      <div class="p-0">
-        <div class="overflow-x-auto">
-          <table class="min-w-[1100px] w-full text-sm">
-            <thead id="tbl-head" class="bg-white/5 sticky top-[calc(56px+56px+56px)] z-10"></thead>
-            <tbody id="tbl-body"></tbody>
-            <tfoot id="tbl-foot"></tfoot>
-          </table>
-        </div>
+    <!-- Table -->
+    <div class="rounded-2xl border border-d-line bg-d-card shadow-card overflow-hidden mt-4">
+      <div class="overflow-x-auto">
+        <table class="min-w-[860px] w-full text-[13px]">
+          <thead id="tbl-head" class="bg-white/5 sticky top-28 z-10"></thead>
+          <tbody id="tbl-body"></tbody>
+          <tfoot id="tbl-foot"></tfoot>
+        </table>
       </div>
     </div>
 
@@ -69,156 +63,162 @@ permalink: /ntabl/
   </div>
 </section>
 
-<style>
-  .tab-primary{ @apply px-4 py-2 text-sm rounded-t-md border border-d-line border-b-0 bg-d-card/50 hover:bg-white/5; }
-  .tab-primary.active{ @apply bg-white text-black; }
-  .tab-sub{ @apply px-3 py-1.5 text-sm rounded-t-md border border-d-line border-b-0 bg-d-card/50 hover:bg-white/5; }
-  .tab-sub.active{ @apply bg-white/10; }
-</style>
-
 <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 <script>
-/* --------------------- FILE MAP (rename your CSVs to these safe names) --------------------- */
+/* ----------- Map your files (we’ll encode names safely) ----------- */
 const files = {
   personal: {
-    batting: {
-      individual:  { summer2024: "{{ 'personal-batting-summer-2024.csv' | relative_url }}",
-                     summer2025: "{{ 'personal-batting-summer-2025.csv' | relative_url }}",
-                     fall2025:   "{{ 'personal-batting-fall-2025.csv'   | relative_url }}",
-                     career:     "{{ 'personal-batting-career.csv'       | relative_url }}" },
-      game:        { summer2024: "{{ 'personal-batting-summer-2024.csv' | relative_url }}",
-                     summer2025: "{{ 'personal-batting-summer-2025.csv' | relative_url }}",
-                     fall2025:   "{{ 'personal-batting-fall-2025.csv'   | relative_url }}",
-                     career:     "{{ 'personal-batting-career.csv'       | relative_url }}" },
-      leaders:     { career:     "{{ 'personal-batting-career.csv'       | relative_url }}" }
-    },
-    pitching: { /* wire later */ },
-    fielding: { /* wire later */ }
+    career:     "{{ 'Saul Kleinfed\\'s Career Stats.csv' | relative_url }}",
+    summer2024: "{{ 'Gann\\'s Bulls Summer 2024 Stats.csv' | relative_url }}",
+    summer2025: "{{ 'Gann\\'s Bulls Summer 2025 Stats.csv' | relative_url }}",
+    fall2025:   "{{ 'Gann\\'s Bulls Fall 2025 Stats.csv'   | relative_url }}"
   },
   team: {
-    batting: {
-      individual:  { summer2024: "{{ 'team-batting-summer-2024.csv' | relative_url }}",
-                     summer2025: "{{ 'team-batting-summer-2025.csv' | relative_url }}",
-                     fall2025:   "{{ 'team-batting-fall-2025.csv'   | relative_url }}",
-                     career:     "{{ 'team-batting-career.csv'       | relative_url }}" },
-      game:        { summer2024: "{{ 'team-batting-summer-2024.csv' | relative_url }}",
-                     summer2025: "{{ 'team-batting-summer-2025.csv' | relative_url }}",
-                     fall2025:   "{{ 'team-batting-fall-2025.csv'   | relative_url }}",
-                     career:     "{{ 'team-batting-career.csv'       | relative_url }}" },
-      leaders:     { career:     "{{ 'team-batting-career.csv'       | relative_url }}" }
-    },
-    pitching: { /* wire later */ },
-    fielding: { /* wire later */ }
+    career:     "{{ 'Gann\\'s Bulls Summer 2024 Stats.csv' | relative_url }}",
+    summer2024: "{{ 'Gann\\'s Bulls Summer 2024 Stats.csv' | relative_url }}",
+    summer2025: "{{ 'Gann\\'s Bulls Summer 2025 Stats.csv' | relative_url }}",
+    fall2025:   "{{ 'Gann\\'s Bulls Fall 2025 Stats.csv'   | relative_url }}"
   }
 };
-/* ------------------------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------ */
 
-let state = {
-  top: 'individual',   // 'individual' | 'game' | 'leaders'
-  sub: 'batting',      // 'batting' | 'pitching' | 'fielding'
-  who: 'personal',     // 'personal' | 'team'
-  season: 'summer2024'
+/* Column groups (to cut down scrolling) */
+const COLSETS = {
+  core: ['Season','Division','Team','Last','First','GP','PA','AB','R','H','AVG','OBP','OPS','SLG'],
+  power: ['HR','RBI','TB','2B','3B','SLG','OPS'],
+  discipline: ['BB','HBP','SO','OBP','K-L'],
+  running: ['SB','SB-ATT','CS','R'],
+  all: 'ALL' // show everything we have (after normalization)
 };
 
-const $ = sel => document.querySelector(sel);
-const $$ = sel => Array.from(document.querySelectorAll(sel));
+/* State */
+let state = { who:'personal', season:'career', colset:'all' };
 
-const thead = $('#tbl-head'), tbody = $('#tbl-body'), tfoot = $('#tbl-foot');
+const $  = s => document.querySelector(s);
+const $$ = s => Array.from(document.querySelectorAll(s));
 
-function syncButtons(){
-  // primary
-  $$('.tab-primary').forEach(b => b.classList.toggle('active', b.dataset.tab === state.top));
-  // sub
-  $$('.tab-sub').forEach(b => b.classList.toggle('active', b.dataset.sub === state.sub));
-  // personal/team
-  const bp = $('#btn-personal'), bt = $('#btn-team');
-  bp.className = state.who==='personal' ? 'px-4 py-2 text-sm rounded-full bg-white text-black'
-                                        : 'px-4 py-2 text-sm rounded-full border border-d-line hover:bg-white/5';
-  bt.className = state.who==='team'     ? 'px-4 py-2 text-sm rounded-full bg-white text-black'
-                                        : 'px-4 py-2 text-sm rounded-full border border-d-line hover:bg-white/5';
-  // select
-  $('#season').value = state.season;
+/* UI wiring */
+$('#btn-personal').onclick = () => { state.who='personal'; styleWho(); load(); };
+$('#btn-team').onclick     = () => { state.who='team'; styleWho(); load(); };
+$('#season').onchange      = e  => { state.season = e.target.value; load(); };
+$$('.colset').forEach(b => b.onclick = () => { state.colset = b.dataset.set; styleColset(); renderLast(); });
+
+function styleWho(){
+  $('#btn-personal').className = state.who==='personal'
+    ? 'px-4 py-2 text-sm rounded-full bg-white text-black'
+    : 'px-4 py-2 text-sm rounded-full border border-d-line hover:bg-white/5';
+  $('#btn-team').className = state.who==='team'
+    ? 'px-4 py-2 text-sm rounded-full bg-white text-black'
+    : 'px-4 py-2 text-sm rounded-full border border-d-line hover:bg-white/5';
+}
+function styleColset(){
+  $$('.colset').forEach(b=>b.classList.toggle('bg-white/10', b.dataset.set===state.colset));
 }
 
-function fileForCurrent(){
-  const branch = files[state.who][state.sub][state.top];
-  // fallback to career if season not defined in the branch
-  return (branch && (branch[state.season] || branch['career'])) || null;
-}
-
+/* CSV loader (encodes weird chars safely) */
 function fetchCSV(url){
-  return new Promise((resolve, reject) => {
+  // GH Pages serves these same-origin; Papa can download them.
+  return new Promise((resolve,reject)=>{
     Papa.parse(url, {
-      download: true,
-      header: true,
-      dynamicTyping: true,
-      skipEmptyLines: 'greedy',
+      download:true, header:true, dynamicTyping:true, skipEmptyLines:'greedy',
       complete: r => resolve(r.data),
       error: reject
     });
   });
 }
 
-const fmt3 = n => (isNaN(n) ? '—' : Number(n).toFixed(3).replace(/^0/,''));
-const divz = (n,d) => d>0 ? n/d : 0;
+/* Normalizer: accepts multiple header spellings from spreadsheets */
+function normalizeRows(rows){
+  const mapKey = k => String(k).trim()
+    .replace(/\u2013|\u2014/g,'-') // dashes
+    .replace(/\s+/g,' ')
+    .toLowerCase();
 
-function computeDerived(rows){
-  if(!rows || !rows.length) return rows;
-  const keys = Object.keys(rows[0]);
-  const has = k => keys.includes(k);
+  const aliases = {
+    'season':'Season','division':'Division','team':'Team',
+    'last':'Last','first':'First',
+    'gp':'GP','g':'GP','gs':'GS','pa':'PA','ab':'AB','r':'R','h':'H',
+    '1b':'1B','2b':'2B','3b':'3B','hr':'HR','rbi':'RBI','tb':'TB',
+    'bb':'BB','so':'SO','k-l':'K-L','k l':'K-L','hbp':'HBP','sf':'SF',
+    'sb':'SB','sb-att':'SB-ATT','sb att':'SB-ATT','cs':'CS',
+    'avg':'AVG','obp':'OBP','slg':'SLG','ops':'OPS'
+  };
 
-  return rows.map(r => {
-    const H   = +r['H']   || 0;
-    const AB  = +r['AB']  || 0;
-    const BB  = +r['BB']  || 0;
-    const HBP = +r['HBP'] || 0;
-    const _1B = +r['1B']  || 0;
-    const _2B = +r['2B']  || 0;
-    const _3B = +r['3B']  || 0;
-    const HR  = +r['HR']  || 0;
-    const SF  = +r['SF']  || 0;
-    const TB  = _1B + 2*_2B + 3*_3B + 4*HR;
-
-    const AVG = has('H') && has('AB') ? fmt3(divz(H, AB)) : r['AVG'] || '—';
-    const OBP = (has('AB') && (has('BB')||has('HBP'))) ? fmt3(divz((H+BB+HBP),(AB+BB+HBP+SF))) : r['OBP'] || '—';
-    const SLG = (has('AB') && (has('1B')||has('2B')||has('3B')||has('HR'))) ? fmt3(divz(TB, AB)) : r['SLG'] || '—';
-    const OPS = (!isNaN(parseFloat(OBP)) && !isNaN(parseFloat(SLG))) ? fmt3(parseFloat(OBP)+parseFloat(SLG)) : r['OPS'] || '—';
-
-    return { ...r, AVG, OBP, SLG, OPS };
+  return rows.map(row=>{
+    const out = {};
+    Object.entries(row).forEach(([k,v])=>{
+      const key = aliases[mapKey(k)] || k; // keep unknowns as-is
+      out[key] = v;
+    });
+    return out;
   });
 }
 
-function buildTable(rows){
-  if(!rows || !rows.length){
-    thead.innerHTML = tbody.innerHTML = tfoot.innerHTML =
-      '<tr><td class="px-4 py-3">No data found.</td></tr>';
-    return;
-  }
+/* Derivations (only if inputs exist) */
+const fmt3 = n => (isNaN(n) ? '—' : Number(n).toFixed(3).replace(/^0/,''));
+const divz = (n,d) => d>0 ? n/d : 0;
 
-  const cols = Object.keys(rows[0]);
+function addDerived(rows){
+  if(!rows.length) return rows;
+  const keys = Object.keys(rows[0]);
+  const has  = k => keys.includes(k);
 
-  // head
-  thead.innerHTML = '<tr class="text-left">' + cols.map(c =>
-    `<th class="px-3 py-3 border-b border-d-line">${c}</th>`).join('') + '</tr>';
+  return rows.map(r=>{
+    const H   = +r.H   || 0, AB = +r.AB || 0, BB = +r.BB || 0, HBP= +r.HBP||0, SF = +r.SF || 0;
+    const _1B = +r['1B']||0, _2B = +r['2B']||0, _3B = +r['3B']||0, HR = +r.HR||0;
+    const TB  = _1B + 2*_2B + 3*_3B + 4*HR;
 
-  // body
-  tbody.innerHTML = rows.map((r,i) => {
-    const stripe = i%2 ? 'bg-white/[.03] hover:bg-white/[.06]' : 'hover:bg-white/[.06]';
-    return `<tr class="${stripe}">` + cols.map(c =>
-      `<td class="px-3 py-2.5 border-t border-d-line">${r[c] ?? ''}</td>`).join('') + `</tr>`;
+    if(has('H')&&has('AB'))        r.AVG = fmt3(divz(H,AB));
+    if(has('AB')&&(has('BB')||has('HBP'))) r.OBP = fmt3(divz((H+BB+HBP),(AB+BB+HBP+SF)));
+    if(has('AB')&&(has('1B')||has('2B')||has('3B')||has('HR'))) r.SLG = fmt3(divz(TB,AB));
+    if(r.OBP && r.SLG && !isNaN(parseFloat(r.OBP)) && !isNaN(parseFloat(r.SLG))){
+      r.OPS = fmt3(parseFloat(r.OBP)+parseFloat(r.SLG));
+    }
+    return r;
+  });
+}
+
+/* Column picking based on set */
+function pickColumns(rows){
+  if(!rows.length) return { cols:[], rows };
+  const allCols = Object.keys(rows[0]);
+  if(state.colset==='all') return { cols: allCols, rows };
+
+  const want = new Set(COLSETS[state.colset] || []);
+  const cols = allCols.filter(c => want.has(c) || c==='Season' || c==='Division' || c==='Team' || c==='Last' || c==='First');
+  return { cols, rows };
+}
+
+/* Build table */
+function buildTable(cols, rows){
+  const thead = document.getElementById('tbl-head');
+  const tbody = document.getElementById('tbl-body');
+  const tfoot = document.getElementById('tbl-foot');
+
+  // Header
+  thead.innerHTML =
+    '<tr class="text-left">' +
+    cols.map((c,i)=>`<th class="px-3 py-3 border-b border-d-line ${i===0?'sticky left-0 bg-white/5 backdrop-blur':''}">${c}</th>`).join('') +
+    '</tr>';
+
+  // Body
+  tbody.innerHTML = rows.map((r,rowIdx)=>{
+    const stripe = rowIdx%2 ? 'bg-white/[.03] hover:bg-white/[.06]' : 'hover:bg-white/[.06]';
+    return `<tr class="${stripe}">
+      ${cols.map((c,i)=>`<td class="px-3 py-2.5 border-t border-d-line ${i===0?'sticky left-0 bg-d-card':''}">
+        ${r[c] ?? ''}</td>`).join('')}
+    </tr>`;
   }).join('');
 
-  // totals for numeric columns
+  // Totals (numeric columns only)
   const numeric = new Set();
-  rows.forEach(r => Object.entries(r).forEach(([k,v])=>{
-    if(v!=='' && v!==null && !isNaN(v)) numeric.add(k);
-  }));
+  rows.forEach(r => cols.forEach(c => { const v=r[c]; if(v!==''&&v!==null&&!isNaN(v)) numeric.add(c); }));
   if(numeric.size){
     const totals = {};
-    numeric.forEach(k => totals[k] = rows.reduce((a,r)=>a+(+r[k]||0),0));
+    numeric.forEach(c => totals[c] = rows.reduce((a,r)=>a+(+r[c]||0),0));
     tfoot.innerHTML = '<tr class="bg-white/5">' +
-      cols.map((c,idx)=> idx===0
-        ? `<th class="px-3 py-3 border-t border-d-line text-left">Totals</th>`
+      cols.map((c,i)=> i===0
+        ? `<th class="px-3 py-3 border-t border-d-line text-left sticky left-0 bg-white/5">Totals</th>`
         : `<th class="px-3 py-3 border-t border-d-line text-left">${totals[c] ?? ''}</th>`
       ).join('') + '</tr>';
   } else {
@@ -226,35 +226,39 @@ function buildTable(rows){
   }
 }
 
-async function render(){
-  syncButtons();
-  const url = fileForCurrent();
-  if(!url){
-    thead.innerHTML = tbody.innerHTML = tfoot.innerHTML =
-      '<tr><td class="px-4 py-3">No data source mapped.</td></tr>';
-    return;
-  }
+/* Load + render */
+let lastRows = [];
+
+async function load(){
+  const url = files[state.who][state.season];
+  // Encode weird characters manually (defensive)
+  const safeUrl = url.split('/').map((seg,i)=> i? encodeURIComponent(seg): seg).join('/');
   try{
-    const data = await fetchCSV(url);
-    const rows = computeDerived(data);
-    buildTable(rows);
+    const raw  = await fetchCSV(safeUrl);
+    const norm = normalizeRows(raw);
+    const withDerived = addDerived(norm);
+
+    // Sort by Season, then Team (if present)
+    withDerived.sort((a,b)=> String(a.Season||'').localeCompare(String(b.Season||'')) || String(a.Team||'').localeCompare(String(b.Team||'')));
+
+    lastRows = withDerived;
+    renderLast();
   }catch(e){
     console.error('CSV load error', e);
-    thead.innerHTML = tbody.innerHTML = tfoot.innerHTML =
-      '<tr><td class="px-4 py-3">Unable to load CSV.</td></tr>';
+    document.getElementById('tbl-head').innerHTML =
+      '<tr><th class="px-3 py-3 border-b border-d-line">Error</th></tr>';
+    document.getElementById('tbl-body').innerHTML =
+      '<tr><td class="px-3 py-3">Unable to load CSV.</td></tr>';
+    document.getElementById('tbl-foot').innerHTML = '';
   }
 }
 
-/* events */
-$$('.tab-primary').forEach(b => b.addEventListener('click', ()=>{
-  state.top = b.dataset.tab; render();
-}));
-$$('.tab-sub').forEach(b => b.addEventListener('click', ()=>{
-  state.sub = b.dataset.sub; render();
-}));
-$('#btn-personal').addEventListener('click', ()=>{ state.who='personal'; render(); });
-$('#btn-team').addEventListener('click', ()=>{ state.who='team'; render(); });
-$('#season').addEventListener('change', e => { state.season = e.target.value; render(); });
+function renderLast(){
+  const { cols, rows } = pickColumns(lastRows);
+  buildTable(cols, rows);
+}
 
-render();
+/* Init */
+styleWho(); styleColset();
+load();
 </script>
