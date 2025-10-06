@@ -1,413 +1,498 @@
 ---
 layout: default
-title: North Texas Amateur Baseball League | Interactive Hitting Stats
-permalink: /ntabl/
+title: NTABL
+permalink: /ntabl
 ---
 
-<section id="ntabl-page" class="wrap-wide" style="padding:40px 0;">
-  <h1 style="font-size:22px;font-weight:700;margin:0 0 18px">
-    North Texas Amateur Baseball League | Interactive Hitting Stats
-  </h1>
+<style>
+  :root{
+    --nw-purple:#4B2E83;
+    --accent:#7c3aed;
+    --bg:#0b0c0f;
+    --panel:#14161b;
+    --panel-2:#1a1d23;
+    --text:#e6e7ea;
+    --muted:#9aa1ad;
+    --ring:#2a2f3a;
+    --row:#0f1116;
+    --row-alt:#12151b;
+    --hi:rgba(124,58,237,.14);
+    --col:rgba(124,58,237,.20);
+    --header:#1d2129;
+    --border:#262b35;
 
-  <!-- Controls -->
-  <div class="card ntabl-controls">
-    <div class="ntabl-field">
-      <label for="f-year">Year</label>
-      <select id="f-year" class="ntabl-select"></select>
-    </div>
-    <div class="ntabl-field">
-      <label for="f-season">Season</label>
-      <select id="f-season" class="ntabl-select"></select>
-    </div>
-    <div class="ntabl-field">
-      <label for="f-program">Program</label>
-      <select id="f-program" class="ntabl-select"></select>
-    </div>
-    <div class="ntabl-field">
-      <label for="f-team">Team</label>
-      <select id="f-team" class="ntabl-select"></select>
-    </div>
-    <div class="ntabl-field">
-      <label for="f-player">Player</label>
-      <select id="f-player" class="ntabl-select"></select>
-    </div>
+    /* compact table sizing so all columns fit */
+    --fs-xs: 12px;
+    --fs-sm: 13px;
+    --pad-y: 6px;
+    --pad-x: 8px;
 
-    <div class="ntabl-actions">
-      <button id="btn-clear-player" class="ntabl-control-btn alt" type="button">Clear Player</button>
-      <button id="btn-reset" class="ntabl-control-btn" type="button">Reset Filters</button>
+    /* max width shared by title, filters, and table */
+    --maxw: 1280px;
+  }
+
+  /* page shell */
+  .ntabl-shell{
+    max-width:var(--maxw);
+    margin: 28px auto 64px;
+    padding: 0 16px;
+  }
+
+  /* title */
+  .ntabl-title{
+    margin: 0 auto 18px;
+    font-size: clamp(18px, 2.6vw, 24px);
+    font-weight: 700;
+    color: var(--text);
+    text-align:center;
+    letter-spacing:.2px;
+  }
+
+  /* filter bar */
+  .filters{
+    display:grid;
+    grid-template-columns: repeat(5, minmax(0,1fr)) auto;
+    gap: 10px;
+    align-items:center;
+    background: linear-gradient(180deg, var(--panel) 0%, var(--panel-2) 100%);
+    border:1px solid var(--ring);
+    border-radius:14px;
+    padding: 12px;
+    margin: 0 auto 16px;
+  }
+  .filters .group{
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+  }
+  .filters label{
+    font-size:11px;
+    color:var(--muted);
+    letter-spacing:.3px;
+  }
+  .filters select, .filters button{
+    appearance:none;
+    border-radius:10px;
+    border:1px solid var(--ring);
+    background:#0f1217;
+    color:var(--text);
+    font-size: var(--fs-sm);
+    padding: 10px 12px;
+    outline-offset: 2px;
+    width:100%;
+  }
+  .filters button{
+    background: #10131a;
+    cursor:pointer;
+    transition: 120ms ease;
+  }
+  .filters button:hover{
+    border-color: var(--accent);
+    background: #121623;
+  }
+
+  /* table card */
+  .card{
+    background: linear-gradient(180deg, var(--panel) 0%, var(--panel-2) 100%);
+    border:1px solid var(--ring);
+    border-radius:14px;
+    overflow:hidden;
+  }
+
+  table{
+    width:100%;
+    border-collapse:separate;
+    border-spacing:0;
+    table-layout: fixed;        /* fixed column widths */
+    font-size: var(--fs-xs);    /* compact text, more columns fit */
+  }
+
+  thead th{
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background: var(--header);
+    color: var(--text);
+    font-weight: 600;
+    text-align: center;
+    padding: var(--pad-y) var(--pad-x);
+    border-bottom: 1px solid var(--border);
+    letter-spacing:.2px;
+    white-space: nowrap;
+  }
+  tbody td{
+    color: var(--text);
+    text-align: center;
+    padding: var(--pad-y) var(--pad-x);
+    border-bottom:1px solid var(--border);
+    background: var(--row);
+  }
+  tbody tr:nth-child(even) td{
+    background: var(--row-alt);
+  }
+
+  /* left identity columns a bit left aligned for readability */
+  td.c-left, th.c-left{
+    text-align:left;
+  }
+
+  /* row hover */
+  tbody tr:hover td{
+    background: var(--hi);
+  }
+
+  /* column hover (applied by JS with .col-hover) */
+  td.col-hover, th.col-hover{
+    background: var(--col) !important;
+  }
+
+  /* player link styling */
+  .pname{
+    color: var(--text);
+    text-decoration: none;
+    border-bottom: 1px dotted transparent;
+    transition: 120ms ease;
+  }
+  .pname:hover{
+    color: #cdd2ff;
+    border-bottom-color: currentColor;
+  }
+
+  /* totals row */
+  tfoot td{
+    background:#0f131a;
+    color: var(--muted);
+    font-weight:600;
+    border-top:1px solid var(--border);
+  }
+
+  /* vertical group dividers (like MLB) */
+  /* column indices: 1 PLAYER,2 YEAR,3 SEASON,4 PROGRAM,5 TEAM,
+     6 GP,7 PA,8 AB,9 R,10 H,11 1B,12 2B,13 3B,14 HR,15 RBI,16 BB,17 HBP,
+     18 SO,19 SB,20 K-L,21 AVG,22 OBP,23 SLG,24 OPS
+  */
+  thead th:nth-child(14),
+  tbody td:nth-child(14){
+    border-left:1px solid var(--border);
+  }
+  thead th:nth-child(21),
+  tbody td:nth-child(21){
+    border-left:1px solid var(--border);
+  }
+
+  /* keep columns from squeezing */
+  th, td{
+    overflow:hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* make the panel & table the same width as filters/title */
+  .ntabl-shell > *{
+    max-width: var(--maxw);
+    margin-left:auto;
+    margin-right:auto;
+  }
+
+  /* tighter header row height so more data fits */
+  thead th{ padding-top:8px; padding-bottom:8px; }
+
+  /* small screens still allow scroll (fallback) */
+  @media (max-width: 1180px){
+    .ntabl-shell{ padding: 0 10px; }
+  }
+</style>
+
+<div class="ntabl-shell">
+  <h1 class="ntabl-title">North Texas Amateur Baseball League | Interactive Hitting Stats</h1>
+
+  <!-- Filters -->
+  <div class="filters" id="filters">
+    <div class="group">
+      <label for="fYear">Year</label>
+      <select id="fYear"><option value="">All Years</option></select>
+    </div>
+    <div class="group">
+      <label for="fSeason">Season</label>
+      <select id="fSeason"><option value="">All Seasons</option></select>
+    </div>
+    <div class="group">
+      <label for="fProgram">Program</label>
+      <select id="fProgram"><option value="">All Programs</option></select>
+    </div>
+    <div class="group">
+      <label for="fTeam">Team</label>
+      <select id="fTeam"><option value="">All Teams</option></select>
+    </div>
+    <div class="group">
+      <label for="fPlayer">Player</label>
+      <select id="fPlayer"><option value="">All Players</option></select>
+    </div>
+    <div class="group">
+      <label>&nbsp;</label>
+      <button id="btnReset">Reset Filters</button>
     </div>
   </div>
 
   <!-- Table -->
-  <div class="surface ntabl-surface">
-    <div class="ntabl-wrap">
-      <table id="ntabl-table" class="ntabl-table" aria-describedby="ntabl-note">
-        <thead></thead>
-        <tbody></tbody>
-        <tfoot></tfoot>
-      </table>
-    </div>
-    <div id="ntabl-note" class="ntabl-note">
-      Hover to highlight row &amp; column. Click a player name to filter to that player. Click headers to sort.
-    </div>
+  <div class="card">
+    <table id="stats">
+      <thead>
+        <tr>
+          <th class="c-left">Player</th>
+          <th>Year</th>
+          <th>Season</th>
+          <th>Program</th>
+          <th class="c-left">Team</th>
+
+          <th>GP</th>
+          <th>PA</th>
+          <th>AB</th>
+          <th>R</th>
+          <th>H</th>
+          <th>1B</th>
+          <th>2B</th>
+          <th>3B</th>
+
+          <th>HR</th>
+          <th>RBI</th>
+          <th>BB</th>
+          <th>HBP</th>
+          <th>SO</th>
+          <th>SB</th>
+          <th>K-L</th>
+
+          <th>AVG</th>
+          <th>OBP</th>
+          <th>SLG</th>
+          <th>OPS</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+      <tfoot>
+        <tr id="totalsRow">
+          <td class="c-left">Totals</td>
+          <td colspan="4"></td>
+          <!-- numeric cells get filled by JS -->
+          <td>0</td><td>0</td><td>0</td><td>0</td><td>0</td>
+          <td>0</td><td>0</td><td>0</td>
+          <td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td>
+          <td>0</td><td>0</td><td>0</td><td>0</td>
+        </tr>
+      </tfoot>
+    </table>
   </div>
-</section>
-
-<!-- PapaParse -->
-<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
-
-<style>
-/* PAGE OVERRIDES: let this page go wide no matter what global .wrap-wide does */
-#ntabl-page{ max-width:none !important; width:100%; }
-
-/* ========= Width & theme variables ========= */
-:root{
-  /* WIDER so every column (through ROE) fits without horizontal scroll */
-  --ntabl-width: 2040px;
-
-  /* width for each numeric/stat column */
-  --ntabl-number-col: 54px;
-
-  --ntabl-text: #e7eaee;
-  --ntabl-muted: #a5adb6;
-  --ntabl-head-bg: #0d0f12;
-  --ntabl-head-hover: #1f2430;
-  --ntabl-cell: #ffffff;
-  --ntabl-row-hover: #eef2f7;
-  --ntabl-col-hover: #e6eaf1;
-  --ntabl-border: #e9eef5;
-  --ntabl-sticky-border: #2b2f35;
-
-  /* control sizing (selects & buttons will match) */
-  --control-minw: 170px;
-  --control-pad-v: 10px;
-  --control-pad-h: 12px;
-  --control-radius: 12px;
-  --control-font: 14px;
-  --control-weight: 600;
-}
-
-/* ========= Controls layout ========= */
-.ntabl-controls{
-  margin:0 auto 16px;
-  padding:16px;
-  display:flex;
-  flex-wrap:wrap;
-  gap:12px 16px;
-  align-items:end;
-  max-width:var(--ntabl-width); /* match table width */
-}
-.ntabl-field{ display:flex; flex-direction:column; gap:6px; }
-.ntabl-field label{ font-size:12px; color:var(--ntabl-muted); }
-
-.ntabl-select{
-  appearance:none; -webkit-appearance:none; -moz-appearance:none;
-  background:#0f1113; color:#e9eaec;
-  border:1px solid #222428; border-radius:var(--control-radius);
-  padding:var(--control-pad-v) var(--control-pad-h);
-  min-width:var(--control-minw); font-weight:var(--control-weight); font-size:var(--control-font);
-}
-.ntabl-select:focus{ outline:none; border-color:#2b2f35; box-shadow:0 0 0 3px rgba(124,58,237,.28) }
-
-.ntabl-actions{ margin-left:auto; display:flex; gap:12px; }
-.ntabl-control-btn{
-  background:#0f1113; color:#e9eaec;
-  border:1px solid #222428; border-radius:var(--control-radius);
-  padding:var(--control-pad-v) var(--control-pad-h);
-  min-width:var(--control-minw); font-weight:var(--control-weight); font-size:var(--control-font);
-  cursor:pointer;
-}
-.ntabl-control-btn:hover{ border-color:#2b2f35; box-shadow:0 0 0 3px rgba(124,58,237,.18) }
-.ntabl-control-btn.alt{
-  background:linear-gradient(180deg,#2f3541,#20242c);
-}
-
-/* ========= Table sizing & look ========= */
-.ntabl-surface{ margin:0 auto; max-width:var(--ntabl-width); } /* same width as controls */
-.ntabl-wrap{ overflow-x:hidden; } /* no horizontal scroll */
-.ntabl-table{
-  width:100%;
-  border-collapse:separate; border-spacing:0;
-  font-size:14px; line-height:1.25;
-  table-layout:fixed; /* static/fixed column widths */
-}
-.ntabl-table thead th{
-  background:var(--ntabl-head-bg); color:var(--ntabl-text);
-  border-bottom:1px solid var(--ntabl-sticky-border);
-  padding:10px 10px;
-  position:sticky; top:0; z-index:1;
-  text-align:center;
-}
-.ntabl-table thead th.t-text{ text-align:left; padding-left:12px; }
-.ntabl-table tbody td, .ntabl-table tfoot td, .ntabl-table tfoot th{
-  background:var(--ntabl-cell); color:#0f1113;
-  padding:9px 10px; border-bottom:1px solid var(--ntabl-border);
-  text-align:center; /* center stats */
-}
-.ntabl-table tbody td.t-text, .ntabl-table tfoot th.t-text{ text-align:left; padding-left:12px; }
-.ntabl-table tbody tr:hover td{ background:var(--ntabl-row-hover) !important; }
-
-/* fixed widths for the first text columns (sum ~ 658px) */
-th[data-col="PLAYER"], td[data-col="PLAYER"]{ width:190px; }
-th[data-col="YEAR"],   td[data-col="YEAR"]  { width:72px; }
-th[data-col="SEASON"], td[data-col="SEASON"]{ width:96px; }
-th[data-col="PROGRAM"],td[data-col="PROGRAM"]{ width:140px; }
-th[data-col="TEAM"],   td[data-col="TEAM"]  { width:160px; }
-
-/* all numeric/stat columns share the same width */
-.ntabl-table .t-num{ width:var(--ntabl-number-col); }
-
-/* column hover highlight (x & y), keeping header readable */
-.ntabl-table thead th.col-hover{ background:var(--ntabl-head-hover) !important; color:#fff; }
-.ntabl-table tbody td.col-hover,
-.ntabl-table tfoot td.col-hover{ background:var(--ntabl-col-hover) !important; }
-
-/* Player link visuals */
-.link-like{
-  background:none;border:none;color:#1e40af;cursor:pointer;padding:0;
-  font:inherit; font-weight:700;
-}
-.link-like:hover{
-  color:#0e7490;
-  text-decoration:underline dotted;
-  text-underline-offset:2px;
-}
-
-/* footnote */
-.ntabl-note{ font-size:12px;color:#667085;padding:10px 12px 14px }
-</style>
+</div>
 
 <script>
-(function(){
-  const CSV_PATH = "/ntabl-hitting-stats.csv";
+/* ========= Utilities ========= */
+const csvPath = 'ntabl-hitting-stats.csv';   // your unified CSV
+const $ = sel => document.querySelector(sel);
+const $$ = sel => [...document.querySelectorAll(sel)];
 
-  // front columns (exact order you want)
-  const FRONT = ['PLAYER','YEAR','SEASON','PROGRAM','TEAM'];
-
-  // stat columns in preferred order
-  const STATS_ORDER = [
-    'GP','PA','AB','R','H','1B','2B','3B','HR','RBI','BB','HBP','SO','K-L','SB','TB',
-    'AVG','OBP','SLG','OPS','SF','SAC','ROE'
-  ];
-
-  const METRICS = new Set(['AVG','OBP','SLG','OPS']);
-  const TEXT_COLS = new Set(['PLAYER','YEAR','SEASON','PROGRAM','TEAM']);
-
-  const ORDER_YEAR   = ['2025','2024'];
-  const ORDER_SEASON = ['Summer','Fall','Spring'];
-
-  const table   = document.getElementById('ntabl-table');
-  const theadEl = table.querySelector('thead');
-  const tbodyEl = table.querySelector('tbody');
-  const tfootEl = table.querySelector('tfoot');
-
-  const fYear    = document.getElementById('f-year');
-  const fSeason  = document.getElementById('f-season');
-  const fProgram = document.getElementById('f-program');
-  const fTeam    = document.getElementById('f-team');
-  const fPlayer  = document.getElementById('f-player');
-
-  const btnReset       = document.getElementById('btn-reset');
-  const btnClearPlayer = document.getElementById('btn-clear-player');
-
-  let rows = [];
-  let viewRows = [];
-  let COLS = [];
-  let sortKey = null;
-  let sortDir = 1;
-
-  const numLike= v => v!=='' && v!==null && !isNaN(v);
-  const to3    = v => Number(v).toFixed(3).replace(/^0/,'');
-
-  function setOptions(sel, list, labelAll){
-    sel.innerHTML='';
-    const all=document.createElement('option'); all.value=''; all.textContent=labelAll; sel.appendChild(all);
-    list.forEach(v=>{ const o=document.createElement('option'); o.value=v; o.textContent=v; sel.appendChild(o); });
-  }
-
-  function totalsFor(rows, cols){
-    const t={}; cols.forEach(c=>t[c]=TEXT_COLS.has(c)?'':0);
-    rows.forEach(r=>{
-      cols.forEach(c=>{
-        if(TEXT_COLS.has(c) || METRICS.has(c)) return;
-        if(numLike(r[c])) t[c]+= (+r[c]||0);
-      });
-    });
-    return t;
-  }
-
-  function compare(a,b,k){
-    const av=a[k], bv=b[k];
-    const an=numLike(av), bn=numLike(bv);
-    if(an&&bn) return (av-bv)*sortDir;
-    return String(av??'').localeCompare(String(bv??''))*sortDir;
-  }
-
-  function escapeHtml(s){
-    return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
-  }
-
-  function buildHead(){
-    theadEl.innerHTML = '<tr>'+COLS.map(c=>{
-      const cls = TEXT_COLS.has(c)?'t-text':'t-num';
-      const arrow = (sortKey===c)?(sortDir>0?' ▲':' ▼'):'';
-      return `<th data-col="${c}" class="${cls}" style="cursor:pointer" title="Sort by ${c}">${c}${arrow}</th>`;
-    }).join('')+'</tr>';
-
-    theadEl.querySelectorAll('th').forEach((th, idx)=>{
-      th.addEventListener('click',()=>{
-        const k = th.getAttribute('data-col');
-        if(sortKey===k) sortDir*=-1; else { sortKey=k; sortDir=1; }
-        renderBody();
-        buildHead(); // refresh arrows
-      });
-      th.setAttribute('data-col-idx', idx);
-    });
-  }
-
-  function buildBodyRows(data){
-    return data.map(r=>{
-      return '<tr>'+COLS.map((c,idx)=>{
-        let v = r[c] ?? '';
-        if(METRICS.has(c) && numLike(v)) v = to3(v);
-        if(c==='PLAYER' && v){
-          v = `<button class="link-like player-link" data-player="${escapeHtml(String(v))}" title="Filter to ${escapeHtml(String(v))}">${escapeHtml(String(v))}</button>`;
-        }
-        const cls = TEXT_COLS.has(c)?'t-text':'t-num';
-        return `<td class="${cls}" data-col="${c}" data-col-idx="${idx}">${v}</td>`;
-      }).join('')+'</tr>';
-    }).join('');
-  }
-
-  function renderBody(){
-    let data = viewRows.slice();
-    if(sortKey){ data.sort((a,b)=>compare(a,b,sortKey)); }
-    tbodyEl.innerHTML = buildBodyRows(data);
-
-    const t = totalsFor(data, COLS);
-    tfootEl.innerHTML = '<tr>'+COLS.map((c,i)=>{
-      if(i===0) return '<th scope="row" class="t-text">Totals</th>';
-      const cls = TEXT_COLS.has(c)?'t-text':'t-num';
-      return `<td class="${cls}" data-col="${c}">${numLike(t[c])?t[c]:''}</td>`;
-    }).join('')+'</tr>';
-
-    // player-click filtering
-    tbodyEl.querySelectorAll('.player-link').forEach(btn=>{
-      btn.addEventListener('click', ()=>{
-        const p = btn.getAttribute('data-player');
-        fPlayer.value = p;      // keep dropdown in sync
-        applyFilters();
-      });
-    });
-  }
-
-  // column hover highlight (x & y), keeping header readable
-  function markColumn(idx, on){
-    const selector = `td[data-col-idx="${idx}"]`;
-    tbodyEl.querySelectorAll(selector).forEach(td=>td.classList.toggle('col-hover', on));
-    const head = theadEl.querySelector(`th[data-col-idx="${idx}"]`);
-    if(head) head.classList.toggle('col-hover', on);
-    const tf = tfootEl.querySelectorAll('td')[idx-1];
-    if(tf) tf.classList.toggle('col-hover', on);
-  }
-  tbodyEl.addEventListener('mouseover', (e)=>{
-    const cell = e.target.closest('td'); if(!cell) return;
-    const idx = +cell.getAttribute('data-col-idx'); if(isNaN(idx)) return;
-    markColumn(idx, true);
+/* Parse CSV (simple) */
+function parseCSV(text){
+  const lines = text.split(/\r?\n/).filter(Boolean);
+  const headers = lines[0].split(',').map(h => h.trim());
+  const rows = lines.slice(1).map(line=>{
+    // naive split that also trims; assumes commas not inside quotes
+    return line.split(',').map(x=>x.trim());
   });
-  tbodyEl.addEventListener('mouseout', (e)=>{
-    const cell = e.target.closest('td'); if(!cell) return;
-    const idx = +cell.getAttribute('data-col-idx'); if(isNaN(idx)) return;
-    markColumn(idx, false);
+  return { headers, rows };
+}
+
+/* Unique values for select options */
+function unique(arr){ return [...new Set(arr.filter(Boolean))].sort((a,b)=> (a>b?1:-1)); }
+
+/* Build option list */
+function fillOptions(select, values){
+  const cur = select.value;
+  select.innerHTML = '';
+  const all = document.createElement('option');
+  all.value = '';
+  all.textContent = select.id==='fYear' ? 'All Years' :
+                    select.id==='fSeason' ? 'All Seasons' :
+                    select.id==='fProgram' ? 'All Programs' :
+                    select.id==='fTeam' ? 'All Teams' : 'All Players';
+  select.appendChild(all);
+  unique(values).forEach(v=>{
+    const opt = document.createElement('option');
+    opt.value = v; opt.textContent = v;
+    select.appendChild(opt);
   });
+  // restore if exists
+  if ([...select.options].some(o=>o.value===cur)) select.value = cur;
+}
 
-  function applyFilters(){
-    const y = fYear.value;
-    const s = fSeason.value;
-    const p = fProgram.value;
-    const t = fTeam.value;
-    const pl = fPlayer.value;
+/* Column map (match table order) */
+const COLS = [
+  'PLAYER','YEAR','SEASON','PROGRAM','TEAM',
+  'GP','PA','AB','R','H','1B','2B','3B',
+  'HR','RBI','BB','HBP','SO','SB','K-L',
+  'AVG','OBP','SLG','OPS'
+];
 
-    viewRows = rows.filter(r=>{
-      if(pl && String(r['PLAYER'])!==pl) return false;
-      if(y && String(r['YEAR'])!==y) return false;
-      if(s && String(r['SEASON'])!==s) return false;
-      if(p && String(r['PROGRAM'])!==p) return false;
-      if(t && String(r['TEAM'])!==t) return false;
-      return true;
+/* ========= State ========= */
+let RAW = [];    // array of objects keyed by header
+let FILTERS = { year:'', season:'', program:'', team:'', player:'' };
+
+function applyFilters(){
+  return RAW.filter(r =>
+    ( !FILTERS.year    || r.YEAR    == FILTERS.year ) &&
+    ( !FILTERS.season  || r.SEASON  == FILTERS.season ) &&
+    ( !FILTERS.program || r.PROGRAM == FILTERS.program ) &&
+    ( !FILTERS.team    || r.TEAM    == FILTERS.team ) &&
+    ( !FILTERS.player  || r.PLAYER  == FILTERS.player )
+  );
+}
+
+/* Totals calculator for numeric columns */
+const NUM_KEYS = ['GP','PA','AB','R','H','1B','2B','3B','HR','RBI','BB','HBP','SO','SB'];
+function calcTotals(rows){
+  const sums = Object.fromEntries(NUM_KEYS.map(k=>[k,0]));
+  rows.forEach(r=>{
+    NUM_KEYS.forEach(k=>{
+      const n = Number(r[k] ?? 0);
+      if (!Number.isNaN(n)) sums[k]+=n;
     });
-    btnClearPlayer.style.visibility = pl ? 'visible' : 'hidden';
-    renderBody();
-  }
+  });
+  // derived rate stats if present, otherwise leave 0
+  const AB = sums['AB']||0, H = sums['H']||0;
+  const OBP = 0; const SLG = 0; // keep zero if not present in CSV
+  const AVG = AB ? (H/AB).toFixed(3).slice(1) : '0';
+  return { ...sums, AVG, OBP, SLG, OPS:0 };
+}
 
-  function resetFilters(){
-    fYear.value=''; fSeason.value=''; fProgram.value=''; fTeam.value=''; fPlayer.value='';
-    btnClearPlayer.style.visibility = 'hidden';
-    applyFilters();
-  }
-  document.getElementById('btn-reset').addEventListener('click', resetFilters);
-  btnClearPlayer.addEventListener('click', ()=>{ fPlayer.value=''; applyFilters(); });
+/* Render table */
+function render(rows){
+  const tbody = $('#stats tbody');
+  tbody.innerHTML = '';
 
-  Papa.parse(CSV_PATH, {
-    download:true, header:true, dynamicTyping:true, skipEmptyLines:'greedy',
-    complete: res => {
-      const raw = res.data || [];
+  rows.forEach(r=>{
+    const tr = document.createElement('tr');
 
-      rows = raw.map(r=>{
-        const o={};
-        Object.keys(r).forEach(k=>{ o[String(k).toUpperCase()] = r[k]; });
-        o['PLAYER']  = (o['PLAYER']  ?? '').toString().trim();
-        o['YEAR']    = (o['YEAR']    ?? '').toString().trim();
-        o['SEASON']  = (o['SEASON']  ?? '').toString().trim();
-        o['PROGRAM'] = (o['PROGRAM'] ?? '').toString().trim();
-        o['TEAM']    = (o['TEAM']    ?? '').toString().trim();
-        if(o['K_L'] !== undefined && o['K-L'] === undefined) o['K-L'] = o['K_L'];
-        return o;
-      });
+    COLS.forEach((k, idx)=>{
+      const td = document.createElement('td');
+      let val = r[k] ?? '';
+      if (['PLAYER','TEAM'].includes(k)) td.classList.add('c-left');
 
-      // Build column list: front + present stats + any extras
-      const present = new Set(); rows.forEach(r=>Object.keys(r).forEach(k=>present.add(k)));
-      const stats = STATS_ORDER.filter(c=>present.has(c));
-      const rest  = Array.from(present).filter(c=>!FRONT.includes(c) && !stats.includes(c));
-      COLS = [...FRONT, ...stats, ...rest];
-
-      buildHead();
-
-      const years    = Array.from(new Set(rows.map(r=>r['YEAR']).filter(Boolean)))
-        .sort((a,b)=>ORDER_YEAR.indexOf(a)-ORDER_YEAR.indexOf(b) || b.localeCompare(a));
-      const seasons  = Array.from(new Set(rows.map(r=>r['SEASON']).filter(Boolean)))
-        .sort((a,b)=>ORDER_SEASON.indexOf(a)-ORDER_SEASON.indexOf(b) || a.localeCompare(b));
-      const programs = Array.from(new Set(rows.map(r=>r['PROGRAM']).filter(Boolean))).sort();
-      const teams    = Array.from(new Set(rows.map(r=>r['TEAM']).filter(Boolean))).sort();
-      const players  = Array.from(new Set(rows.map(r=>r['PLAYER']).filter(Boolean))).sort();
-
-      function setOptions(sel, list, label){
-        sel.innerHTML='';
-        const all=document.createElement('option'); all.value=''; all.textContent=label; sel.appendChild(all);
-        list.forEach(v=>{ const o=document.createElement('option'); o.value=v; o.textContent=v; sel.appendChild(o); });
+      // clickable player
+      if (k==='PLAYER'){
+        const a = document.createElement('a');
+        a.href = '#';
+        a.className = 'pname';
+        a.textContent = val;
+        a.addEventListener('click', (e)=>{
+          e.preventDefault();
+          $('#fPlayer').value = val;
+          FILTERS.player = val;
+          syncUI();
+        });
+        td.appendChild(a);
+      } else {
+        td.textContent = val;
       }
 
-      setOptions(fYear, years, 'All Years');
-      setOptions(fSeason, seasons, 'All Seasons');
-      setOptions(fProgram, programs, 'All Programs');
-      setOptions(fTeam, teams, 'All Teams');
-      setOptions(fPlayer, players, 'All Players');
-      btnClearPlayer.style.visibility = 'hidden';
+      tr.appendChild(td);
+    });
 
-      viewRows = rows.slice();
-      renderBody();
-
-      fYear.addEventListener('change', applyFilters);
-      fSeason.addEventListener('change', applyFilters);
-      fProgram.addEventListener('change', applyFilters);
-      fTeam.addEventListener('change', applyFilters);
-      fPlayer.addEventListener('change', applyFilters);
-    },
-    error: err => {
-      theadEl.innerHTML = '<tr><th>Error</th></tr>';
-      tbodyEl.innerHTML = `<tr><td style="padding:12px 14px;color:#c00">Unable to load CSV (${err?.message||'unknown error'}). Check <code>${CSV_PATH}</code>.</td></tr>`;
-      tfootEl.innerHTML = '';
-    }
+    tbody.appendChild(tr);
   });
-})();
+
+  // Totals
+  const t = calcTotals(rows);
+  const tds = $('#totalsRow').children;
+  // cells: [Totals, colspan 4], then follow numeric
+  let i = 5; // start where GP begins
+  ['GP','PA','AB','R','H','1B','2B','3B','HR','RBI','BB','HBP','SO','SB','K-L','AVG','OBP','SLG','OPS'].forEach(key=>{
+    if (!tds[i]) return;
+    let v = t[key] ?? 0;
+    if (['AVG','OBP','SLG','OPS'].includes(key)){
+      // if CSV provides these per row, totals are usually blank/0 (keep 0)
+      // display as .000 format when numeric
+      v = typeof v==='number' ? v.toFixed(3).slice(1) : v;
+    }
+    tds[i].textContent = v;
+    i++;
+  });
+
+  attachColumnHover();
+}
+
+/* Column hover logic (non-destructive, works with sticky header) */
+function attachColumnHover(){
+  const table = $('#stats');
+  const rows = $$('#stats tr');
+
+  rows.forEach(row=>{
+    [...row.children].forEach((cell, colIdx)=>{
+      cell.addEventListener('mouseenter', ()=>{
+        // add highlight to this column on all rows
+        rows.forEach(r=>{
+          const c = r.children[colIdx];
+          if (c) c.classList.add('col-hover');
+        });
+      });
+      cell.addEventListener('mouseleave', ()=>{
+        rows.forEach(r=>{
+          const c = r.children[colIdx];
+          if (c) c.classList.remove('col-hover');
+        });
+      });
+    });
+  });
+}
+
+/* Sync filters + table */
+function syncUI(){
+  const yr = $('#fYear').value;
+  const ss = $('#fSeason').value;
+  const pg = $('#fProgram').value;
+  const tm = $('#fTeam').value;
+  const pl = $('#fPlayer').value;
+
+  FILTERS = { year:yr, season:ss, program:pg, team:tm, player:pl };
+
+  const rows = applyFilters();
+  render(rows);
+}
+
+/* ========= Init ========= */
+fetch(csvPath)
+  .then(r=>r.text())
+  .then(text=>{
+    const {headers, rows} = parseCSV(text);
+
+    // build RAW as objects keyed to expected COLS
+    RAW = rows.map(arr=>{
+      const obj = {};
+      headers.forEach((h, i)=>{
+        obj[h.trim().toUpperCase()] = (arr[i] ?? '').trim();
+      });
+      return obj;
+    });
+
+    // Fill select options from RAW
+    fillOptions($('#fYear'), RAW.map(r=>r.YEAR));
+    fillOptions($('#fSeason'), RAW.map(r=>r.SEASON));
+    fillOptions($('#fProgram'), RAW.map(r=>r.PROGRAM));
+    fillOptions($('#fTeam'), RAW.map(r=>r.TEAM));
+    fillOptions($('#fPlayer'), RAW.map(r=>r.PLAYER));
+
+    // hook events
+    ['fYear','fSeason','fProgram','fTeam','fPlayer'].forEach(id=>{
+      $('#'+id).addEventListener('change', syncUI);
+    });
+    $('#btnReset').addEventListener('click', ()=>{
+      ['fYear','fSeason','fProgram','fTeam','fPlayer'].forEach(id=>$('#'+id).value='');
+      syncUI();
+    });
+
+    // initial render
+    syncUI();
+  })
+  .catch(err=>{
+    console.error('CSV load error', err);
+    $('#stats tbody').innerHTML =
+      `<tr><td class="c-left" colspan="${COLS.length}">Error: Unable to load stats.</td></tr>`;
+  });
 </script>
