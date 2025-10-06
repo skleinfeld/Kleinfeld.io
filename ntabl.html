@@ -4,92 +4,45 @@ title: NTABL — Career Batting
 permalink: /ntabl/
 ---
 
-<section class="mx-auto px-4 sm:px-6 py-6" style="max-width:1600px;">
-  <h1 class="text-xl font-semibold mb-4">NTABL</h1>
+<section class="wrap-wide" style="padding:40px 0;">
+  <h1 style="font-size:22px;font-weight:700;margin:0 0 16px">NTABL</h1>
 
-  <div class="ntabl-card">
-    <div class="ntabl-table-wrap">
+  <div class="surface" style="margin:0 auto;">
+    <div class="ntabl-wrap">
       <table id="ntabl-table" class="ntabl-table" aria-describedby="ntabl-note">
         <thead></thead>
         <tbody></tbody>
         <tfoot></tfoot>
       </table>
     </div>
-    <div id="ntabl-note" class="ntabl-note">
+    <div id="ntabl-note" style="font-size:12px;color:#667085;padding:10px 12px 14px">
       Derived metrics shown if provided by the CSV (AVG, OBP, SLG, OPS).
     </div>
   </div>
 </section>
 
-<style>
-  /* Shell */
-  .ntabl-card{
-    border:1px solid #e6e6e6; border-radius:14px; background:#fff;
-    box-shadow:0 8px 24px rgba(0,0,0,.08); overflow:hidden;
-  }
-  .ntabl-table-wrap{ overflow-x:auto; }
-
-  /* Table */
-  .ntabl-table{
-    width:100%;
-    min-width:1300px;           /* wide enough for desktop, still fluid */
-    border-collapse:separate;
-    border-spacing:0;
-    font-size:13px;
-  }
-  .ntabl-table thead th{
-    position:sticky; top:0; z-index:2;
-    background:#111; color:#fff; font-weight:600;
-    padding:10px 12px; border-bottom:1px solid #222;
-    white-space:nowrap; text-align:left;
-  }
-  .ntabl-table tbody td{
-    background:#fff; color:#111; padding:10px 12px;
-    border-top:1px solid #eee; white-space:nowrap;
-  }
-  .ntabl-table tbody tr:nth-child(even) td{ background:#fafafa; }
-  .ntabl-table tbody tr:hover td{ background:#f2f2f2; }
-  .ntabl-table tfoot th, .ntabl-table tfoot td{
-    background:#f7f7f7; color:#111; font-weight:700;
-    padding:10px 12px; border-top:2px solid #e5e5e5;
-  }
-  /* Alignments: text vs numbers */
-  .t-text{ text-align:left; }
-  .t-num { text-align:center; }
-  .ntabl-note{ font-size:12px; color:#666; padding:10px 12px 14px; }
-</style>
-
-<!-- PapaParse -->
 <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 <script>
 (function(){
-  /* CSV path (absolute from site root) */
   const CSV_PATH = "/personal-batting-career.csv";
-
   const table   = document.getElementById('ntabl-table');
   const theadEl = table.querySelector('thead');
   const tbodyEl = table.querySelector('tbody');
   const tfootEl = table.querySelector('tfoot');
 
-  /* Exact columns to use and their order (extras are ignored) */
   const COLUMNS = [
     'Season','Division','Team','Last','First',
     'GP','PA','AB','R','H','1B','2B','3B','HR','RBI',
     'BB','HBP','SO','K-L','SB','TB','AVG','OBP','SLG','OPS','SF','SAC'
   ];
-
-  /* Which are text columns (everything else considered numeric) */
   const TEXT_COLS = new Set(['Season','Division','Team','Last','First']);
 
-  /* Normalize header names (handles small variants) */
   const normalizeKey = k => String(k).trim().replace(/\u2013|\u2014/g,'-').replace(/\s+/g,' ').toLowerCase();
   const aliases = {
-    'season':'Season','division':'Division','team':'Team',
-    'last':'Last','first':'First',
-    'gp':'GP','g':'GP','gs':'GS','pa':'PA','ab':'AB','r':'R','h':'H',
-    '1b':'1B','2b':'2B','3b':'3B','hr':'HR','rbi':'RBI','tb':'TB',
-    'bb':'BB','so':'SO','k-l':'K-L','k l':'K-L','hbp':'HBP','sf':'SF','sac':'SAC',
-    'sb':'SB','avg':'AVG','obp':'OBP','slg':'SLG','ops':'OPS'
+    'season':'Season','division':'Division','team':'Team','last':'Last','first':'First',
+    'gp':'GP','g':'GP','pa':'PA','ab':'AB','r':'R','h':'H','1b':'1B','2b':'2B','3b':'3B','hr':'HR','rbi':'RBI',
+    'bb':'BB','so':'SO','k-l':'K-L','k l':'K-L','hbp':'HBP','sb':'SB','tb':'TB',
+    'avg':'AVG','obp':'OBP','slg':'SLG','ops':'OPS','sf':'SF','sac':'SAC'
   };
 
   function normalizeRows(rows){
@@ -104,16 +57,17 @@ permalink: /ntabl/
   }
 
   function selectAndOrder(rows){
-    if(!rows || !rows.length) return { cols: [], rows: [] };
+    if(!rows || !rows.length) return { cols:[], rows:[] };
     const present = new Set(Object.keys(rows[0]));
     const cols = COLUMNS.filter(c => present.has(c));
     const filtered = rows.map(r=>{
-      const o = {};
-      cols.forEach(c => o[c] = r[c] ?? '');
-      return o;
+      const o = {}; cols.forEach(c => o[c] = r[c] ?? ''); return o;
     });
     return { cols, rows: filtered };
   }
+
+  const numLike = v => (v!=='' && v!==null && !isNaN(v));
+  const isMetric = c => ['AVG','OBP','SLG','OPS'].includes(c);
 
   function buildHead(cols){
     theadEl.innerHTML = '<tr>'+cols.map(c=>{
@@ -121,9 +75,6 @@ permalink: /ntabl/
       return `<th scope="col" class="${cls}" title="${c}">${c}</th>`;
     }).join('')+'</tr>';
   }
-
-  const numLike = v => (v!=='' && v!==null && !isNaN(v));
-  const isMetric = c => ['AVG','OBP','SLG','OPS'].includes(c);
 
   function buildBody(cols, rows){
     tbodyEl.innerHTML = rows.map(r=>{
@@ -137,19 +88,15 @@ permalink: /ntabl/
   }
 
   function buildTotals(cols, rows){
-    const totals = {};
-    cols.forEach(c => totals[c] = TEXT_COLS.has(c) ? '' : 0);
-
+    const totals = {}; cols.forEach(c => totals[c] = TEXT_COLS.has(c) ? '' : 0);
     cols.forEach(c=>{
-      if(TEXT_COLS.has(c) || isMetric(c)) return; // don't sum text or AVG/OBP/SLG/OPS
-      let sum = 0, hasAny = false;
+      if(TEXT_COLS.has(c) || isMetric(c)) return;
+      let sum = 0, any = false;
       rows.forEach(r=>{
-        const v = r[c];
-        if(numLike(v)){ sum += (+v || 0); hasAny = true; }
+        const v = r[c]; if(numLike(v)){ sum += (+v||0); any = true; }
       });
-      totals[c] = hasAny ? sum : '';
+      totals[c] = any ? sum : '';
     });
-
     tfootEl.innerHTML = '<tr>'+
       cols.map((c,i)=>{
         if(i===0) return '<th scope="row" class="t-text">Totals</th>';
@@ -168,16 +115,11 @@ permalink: /ntabl/
       tfootEl.innerHTML = '';
       return;
     }
-    buildHead(cols);
-    buildBody(cols, rows);
-    buildTotals(cols, rows);
+    buildHead(cols); buildBody(cols, rows); buildTotals(cols, rows);
   }
 
   Papa.parse(CSV_PATH, {
-    download: true,
-    header: true,
-    dynamicTyping: true,
-    skipEmptyLines: 'greedy',
+    download:true, header:true, dynamicTyping:true, skipEmptyLines:'greedy',
     complete: res => render(res.data),
     error: err => {
       console.error('CSV load error:', err);

@@ -15,7 +15,7 @@ permalink: /
     <span class="chip c3">MSA — Northwestern</span>
   </div>
 
-  <div style="max-width:760px;margin:0 auto;color:#a8aeb4">
+  <div style="max-width:760px;margin:0 auto;color:var(--sub)">
     <h2 style="font-size:24px;margin:10px 0">Welcome</h2>
     <p>
       Welcome to my digital home. Here you can explore my journey as a product leader, baseball executive,
@@ -33,7 +33,7 @@ permalink: /
         <img class="logo" src="/NTABL%20-%20Gann's%20Bulls%20Logo.png" alt="NTABL logo">
         <h3 style="margin:0;font-size:20px">North Texas Amateur Baseball League</h3>
       </div>
-      <p>Overseeing league operations, team development, and live streaming while managing and playing for Gann’s Bulls.</p>
+      <p style="color:var(--sub)">Overseeing league operations, team development, and live streaming while managing and playing for Gann’s Bulls.</p>
       <a class="btn" href="/ntabl/">View Stats &amp; League Information</a>
     </article>
 
@@ -42,13 +42,13 @@ permalink: /
         <img class="logo" src="/northwestern-seal.png" alt="Northwestern University seal">
         <h3 style="margin:0;font-size:20px">Northwestern U</h3>
       </div>
-      <p style="margin:.25rem 0 .5rem"><em>Master of Sports Administration &amp; Analytics</em></p>
-      <p>Coursework in sports analytics, operations, and player development. Includes dashboards, reports, and research projects.</p>
-      <a class="btn btn2" href="/coursework.html">View Coursework</a>
+      <p style="margin:.25rem 0 .5rem;color:var(--sub)"><em>Master of Sports Administration &amp; Analytics</em></p>
+      <p style="color:var(--sub)">Coursework in sports analytics, operations, and player development. Includes dashboards, reports, and research projects.</p>
+      <a class="btn alt" href="/coursework.html">View Coursework</a>
     </article>
   </div>
 
   <div style="text-align:center;margin-top:26px">
-    <a class="btn" href="/contact.html" style="background:#2d2f36">Get in Touch</a>
+    <a class="btn" href="/contact.html" style="background:linear-gradient(180deg,#2f3541,#20242c)">Get in Touch</a>
   </div>
 </section>
