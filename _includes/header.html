@@ -1,13 +1,15 @@
-<header>
-  <div class="wrap nav">
-    <a href="/" class="font-semibold text-lg tracking-tight">kleinfeld.io</a>
-    <nav class="flex gap-6 text-[15px]">
-      <a href="/index.html">Home</a>
-      <a href="/biography.html">Biography</a>
-      <a href="/resume.html">Resume</a>
-      <a href="/photos.html">Photos</a>
-      <a href="/ntabl.html">NTABL</a>
-      <a href="/contact.html">Contact</a>
+<header class="sticky top-0 z-50 bg-d-card/90 backdrop-blur border-b border-d-line">
+  <div class="wrap mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
+    <a href="{{ '/' | relative_url }}" class="font-medium tracking-tight text-d-fg">kleinfeld.io</a>
+
+    <nav class="hidden sm:flex items-center gap-6 text-[15px]">
+      <a href="{{ '/' | relative_url }}" class="text-d-sub hover:text-d-fg">Home</a>
+      <a href="{{ '/biography/' | relative_url }}" class="text-d-sub hover:text-d-fg">Biography</a>
+      <a href="{{ '/resume/' | relative_url }}" class="text-d-sub hover:text-d-fg">Resume</a>
+      <a href="{{ '/photos/' | relative_url }}" class="text-d-sub hover:text-d-fg">Photos</a>
+      <!-- NOTE: NTABL points to the file (ntabl.html) -->
+      <a href="{{ '/ntabl.html' | relative_url }}" class="text-d-sub hover:text-d-fg">NTABL</a>
+      <a href="{{ '/contact/' | relative_url }}" class="text-d-sub hover:text-d-fg">Contact</a>
     </nav>
   </div>
 </header>
