@@ -1,30 +1,18 @@
 ---
 layout: default
 title: Photos
-permalink: /photos/
+permalink: /photos.html
 ---
 
-<section class="relative overflow-hidden">
-  <div class="pointer-events-none absolute inset-0 -z-10">
-    <div class="absolute -top-40 left-1/2 -translate-x-1/2 h-[480px] w-[1200px] rounded-full blur-3xl"
-         style="background:radial-gradient(ellipse at center, rgba(10,132,255,.18), rgba(191,90,242,.12) 45%, transparent 65%)"></div>
-  </div>
+<section class="wrap" style="padding:48px 0">
+  <h1 style="font-size:28px;font-weight:600;margin:0 0 14px">Photos</h1>
 
-  <div class="wrap mx-auto px-4 sm:px-6 py-14">
-    <div class="text-center mb-10">
-      <h1 class="text-4xl font-semibold">Photos</h1>
-      <div class="mt-2 w-16 h-[3px] mx-auto rounded-full bg-[#4E2A84]"></div>
-    </div>
-
-    <!-- Photo grid -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-8 max-w-4xl mx-auto">
-      <img src="{{ '/Saul D. Kleinfeld & Mickey Mantle.JPG' | relative_url }}" 
-           alt="Saul D. Kleinfeld & Mickey Mantle" 
-           class="rounded-2xl shadow-card border border-d-line object-cover">
-
-      <img src="{{ '/saul-kleinfeld-newspaper.jpeg' | relative_url }}" 
-           alt="Newspaper article about Saul Kleinfeld" 
-           class="rounded-2xl shadow-card border border-d-line object-cover">
-    </div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px">
+    <figure class="card" style="padding:0;overflow:hidden">
+      <img src="/Saul D. Kleinfeld & Mickey Mantle.JPG" alt="Saul D. Kleinfeld & Mickey Mantle" style="width:100%;display:block">
+    </figure>
+    <figure class="card" style="padding:0;overflow:hidden">
+      <img src="/saul-kleinfeld-newspaper.jpeg" alt="Newspaper article" style="width:100%;display:block">
+    </figure>
   </div>
 </section>
