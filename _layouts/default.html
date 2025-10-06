@@ -42,12 +42,19 @@
     .nav{height:64px; display:flex; align-items:center; justify-content:space-between}
     .brand{font-weight:700; letter-spacing:.2px}
     .links{display:flex; gap:22px; color:#cfd4db; font-weight:500}
-    .links a{position:relative; transition:color .15s ease}
-    .links a:hover{color:#fff}
-    .links a.active::after{
+    .links a{
+      position:relative; transition:color .15s ease;
+    }
+    .links a:hover{color:#fff;}
+    .links a::after{
       content:""; position:absolute; left:0; right:0; bottom:-15px; height:2px;
       background:linear-gradient(90deg, var(--accent), var(--accent-3));
       border-radius:2px;
+      transform:scaleX(0); transform-origin:center;
+      transition:transform .2s ease;
+    }
+    .links a:hover::after{
+      transform:scaleX(1);
     }
 
     /* Common Blocks */
