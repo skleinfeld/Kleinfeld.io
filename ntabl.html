@@ -6,135 +6,105 @@ permalink: /ntabl/
 
 <section class="relative overflow-hidden">
   <div class="pointer-events-none absolute inset-0 -z-10">
-    <div class="absolute -top-40 left-1/2 -translate-x-1/2 h-[520px] w-[1200px] rounded-full blur-3xl"
+    <div class="absolute -top-40 left-1/2 -translate-x-1/2 h-[520px] w-[1400px] rounded-full blur-3xl"
          style="background:radial-gradient(ellipse at center, rgba(10,132,255,.18), rgba(191,90,242,.12) 45%, transparent 65%)"></div>
   </div>
 
-  <div class="wrap mx-auto px-4 sm:px-6 py-10">
-    <!-- Header -->
+  <div class="mx-auto max-w-[1400px] px-4 sm:px-6 py-10">
+    <!-- Page header -->
     <div class="flex items-center gap-4">
       <img src="{{ "NTABL - Gann's Bulls Logo.png" | relative_url | uri_escape }}" alt="Gann’s Bulls"
            class="h-12 w-12 rounded bg-white object-contain p-1">
       <div>
         <h1 class="text-2xl sm:text-3xl font-semibold leading-tight">NTABL</h1>
-        <p class="text-d-sub text-[14px]">Personal and Team statistics (compact, computed, interactive)</p>
-      </div>
-
-      <div class="ml-auto flex items-center gap-2">
-        <label for="season" class="text-[13px] text-d-sub">Season</label>
-        <select id="season" class="bg-transparent border border-d-line rounded-full px-3 py-1.5 text-sm">
-          <option value="career">Career</option>
-          <option value="summer2024">Summer 2024</option>
-          <option value="summer2025">Summer 2025</option>
-          <option value="fall2025">Fall 2025</option>
-        </select>
+        <p class="text-d-sub text-[14px]">Personal and Team statistics</p>
       </div>
     </div>
 
-    <!-- Switchers -->
-    <div class="mt-4 flex flex-wrap gap-2">
-      <button id="btn-personal" class="px-4 py-2 text-sm rounded-full bg-white text-black">Personal Stats</button>
-      <button id="btn-team" class="px-4 py-2 text-sm rounded-full border border-d-line hover:bg-white/5">Team Stats</button>
+    <!-- PERSONAL (Career) -->
+    <div class="mt-8">
+      <h2 class="text-xl font-semibold mb-3">Personal Career Stats</h2>
 
-      <div class="ml-auto flex flex-wrap gap-2">
-        <span class="self-center text-[13px] text-d-sub">Columns:</span>
-        <button class="colset px-3 py-1.5 text-xs rounded-full border border-d-line" data-set="core">Core</button>
-        <button class="colset px-3 py-1.5 text-xs rounded-full border border-d-line" data-set="power">Power</button>
-        <button class="colset px-3 py-1.5 text-xs rounded-full border border-d-line" data-set="discipline">Discipline</button>
-        <button class="colset px-3 py-1.5 text-xs rounded-full border border-d-line" data-set="running">Baserunning</button>
-        <button class="colset px-3 py-1.5 text-xs rounded-full border border-d-line bg-white/10" data-set="all">All</button>
+      <div class="rounded-2xl border border-d-line bg-d-card shadow-card overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="min-w-[1200px] w-full text-[13px]">
+            <thead id="p-head" class="bg-white/5 sticky top-24 z-10"></thead>
+            <tbody id="p-body"></tbody>
+            <tfoot id="p-foot"></tfoot>
+          </table>
+        </div>
       </div>
     </div>
 
-    <!-- Table -->
-    <div class="rounded-2xl border border-d-line bg-d-card shadow-card overflow-hidden mt-4">
-      <div class="overflow-x-auto">
-        <table class="min-w-[860px] w-full text-[13px]">
-          <thead id="tbl-head" class="bg-white/5 sticky top-28 z-10"></thead>
-          <tbody id="tbl-body"></tbody>
-          <tfoot id="tbl-foot"></tfoot>
-        </table>
+    <!-- TEAM (Season filter) -->
+    <div class="mt-12">
+      <div class="flex items-end justify-between gap-4 mb-3">
+        <h2 class="text-xl font-semibold">Team Stats</h2>
+        <div class="flex items-center gap-2">
+          <label for="season" class="text-[13px] text-d-sub">Season</label>
+          <select id="season" class="bg-transparent border border-d-line rounded-full px-3 py-1.5 text-sm">
+            <option value="summer2024">Summer 2024</option>
+            <option value="summer2025">Summer 2025</option>
+            <option value="fall2025">Fall 2025</option>
+          </select>
+        </div>
       </div>
-    </div>
 
-    <p class="mt-3 text-d-sub text-[12px]">
-      Derived metrics when columns exist: AVG = H/AB • OBP = (H+BB+HBP)/(AB+BB+HBP+SF) • SLG = TB/AB • OPS = OBP+SLG.
-    </p>
+      <div class="rounded-2xl border border-d-line bg-d-card shadow-card overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="min-w-[1200px] w-full text-[13px]">
+            <thead id="t-head" class="bg-white/5 sticky top-24 z-10"></thead>
+            <tbody id="t-body"></tbody>
+            <tfoot id="t-foot"></tfoot>
+          </table>
+        </div>
+      </div>
+
+      <p class="mt-3 text-d-sub text-[12px]">
+        Derived metrics when columns exist: AVG = H/AB • OBP = (H+BB+HBP)/(AB+BB+HBP+SF) • SLG = TB/AB • OPS = OBP+SLG.
+      </p>
+    </div>
   </div>
 </section>
 
+<!-- Papa Parse -->
 <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 <script>
-/* ----------- Map your files (we’ll encode names safely) ----------- */
-const files = {
-  personal: {
-    career:     "{{ 'Saul Kleinfed\\'s Career Stats.csv' | relative_url }}",
-    summer2024: "{{ 'Gann\\'s Bulls Summer 2024 Stats.csv' | relative_url }}",
-    summer2025: "{{ 'Gann\\'s Bulls Summer 2025 Stats.csv' | relative_url }}",
-    fall2025:   "{{ 'Gann\\'s Bulls Fall 2025 Stats.csv'   | relative_url }}"
-  },
-  team: {
-    career:     "{{ 'Gann\\'s Bulls Summer 2024 Stats.csv' | relative_url }}",
-    summer2024: "{{ 'Gann\\'s Bulls Summer 2024 Stats.csv' | relative_url }}",
-    summer2025: "{{ 'Gann\\'s Bulls Summer 2025 Stats.csv' | relative_url }}",
-    fall2025:   "{{ 'Gann\\'s Bulls Fall 2025 Stats.csv'   | relative_url }}"
-  }
-};
-/* ------------------------------------------------------------------ */
+/* =========================== SOURCE FILES =========================== */
+/* Using your new filenames */
+const personalCareerCSV = "{{ 'personal-batting-career.csv' | relative_url }}";
 
-/* Column groups (to cut down scrolling) */
-const COLSETS = {
-  core: ['Season','Division','Team','Last','First','GP','PA','AB','R','H','AVG','OBP','OPS','SLG'],
-  power: ['HR','RBI','TB','2B','3B','SLG','OPS'],
-  discipline: ['BB','HBP','SO','OBP','K-L'],
-  running: ['SB','SB-ATT','CS','R'],
-  all: 'ALL' // show everything we have (after normalization)
+const teamFiles = {
+  summer2024: "{{ 'team-batting-summer-2024.csv' | relative_url }}",
+  summer2025: "{{ 'team-batting-summer-2025.csv' | relative_url }}",
+  fall2025:   "{{ 'team-batting-fall-2025.csv'   | relative_url }}"
 };
 
-/* State */
-let state = { who:'personal', season:'career', colset:'all' };
+/* ========================== CSV HELPERS ============================ */
+const $ = s => document.querySelector(s);
 
-const $  = s => document.querySelector(s);
-const $$ = s => Array.from(document.querySelectorAll(s));
-
-/* UI wiring */
-$('#btn-personal').onclick = () => { state.who='personal'; styleWho(); load(); };
-$('#btn-team').onclick     = () => { state.who='team'; styleWho(); load(); };
-$('#season').onchange      = e  => { state.season = e.target.value; load(); };
-$$('.colset').forEach(b => b.onclick = () => { state.colset = b.dataset.set; styleColset(); renderLast(); });
-
-function styleWho(){
-  $('#btn-personal').className = state.who==='personal'
-    ? 'px-4 py-2 text-sm rounded-full bg-white text-black'
-    : 'px-4 py-2 text-sm rounded-full border border-d-line hover:bg-white/5';
-  $('#btn-team').className = state.who==='team'
-    ? 'px-4 py-2 text-sm rounded-full bg-white text-black'
-    : 'px-4 py-2 text-sm rounded-full border border-d-line hover:bg-white/5';
-}
-function styleColset(){
-  $$('.colset').forEach(b=>b.classList.toggle('bg-white/10', b.dataset.set===state.colset));
-}
-
-/* CSV loader (encodes weird chars safely) */
 function fetchCSV(url){
-  // GH Pages serves these same-origin; Papa can download them.
-  return new Promise((resolve,reject)=>{
-    Papa.parse(url, {
-      download:true, header:true, dynamicTyping:true, skipEmptyLines:'greedy',
+  // Safe for spaces etc. (your files are already clean)
+  const safe = encodeURI(url);
+  return new Promise((resolve, reject) => {
+    Papa.parse(safe, {
+      download: true,
+      header: true,
+      dynamicTyping: true,
+      skipEmptyLines: 'greedy',
       complete: r => resolve(r.data),
-      error: reject
+      error: err => reject(err)
     });
   });
 }
 
-/* Normalizer: accepts multiple header spellings from spreadsheets */
-function normalizeRows(rows){
-  const mapKey = k => String(k).trim()
-    .replace(/\u2013|\u2014/g,'-') // dashes
-    .replace(/\s+/g,' ')
-    .toLowerCase();
+const fmt3 = n => (isNaN(n) ? '—' : Number(n).toFixed(3).replace(/^0/,''));
+const divz = (n,d) => d>0 ? n/d : 0;
 
-  const aliases = {
+/* Normalize common header variants into consistent keys */
+function normalizeRows(rows){
+  const normKey = k => String(k).trim().replace(/\u2013|\u2014/g,'-').replace(/\s+/g,' ').toLowerCase();
+  const map = {
     'season':'Season','division':'Division','team':'Team',
     'last':'Last','first':'First',
     'gp':'GP','g':'GP','gs':'GS','pa':'PA','ab':'AB','r':'R','h':'H',
@@ -143,32 +113,27 @@ function normalizeRows(rows){
     'sb':'SB','sb-att':'SB-ATT','sb att':'SB-ATT','cs':'CS',
     'avg':'AVG','obp':'OBP','slg':'SLG','ops':'OPS'
   };
-
   return rows.map(row=>{
     const out = {};
     Object.entries(row).forEach(([k,v])=>{
-      const key = aliases[mapKey(k)] || k; // keep unknowns as-is
+      const key = map[normKey(k)] || k;
       out[key] = v;
     });
     return out;
   });
 }
 
-/* Derivations (only if inputs exist) */
-const fmt3 = n => (isNaN(n) ? '—' : Number(n).toFixed(3).replace(/^0/,''));
-const divz = (n,d) => d>0 ? n/d : 0;
-
+/* Add derived stats if inputs exist */
 function addDerived(rows){
-  if(!rows.length) return rows;
+  if(!rows || !rows.length) return rows;
   const keys = Object.keys(rows[0]);
-  const has  = k => keys.includes(k);
-
+  const has = k => keys.includes(k);
   return rows.map(r=>{
     const H   = +r.H   || 0, AB = +r.AB || 0, BB = +r.BB || 0, HBP= +r.HBP||0, SF = +r.SF || 0;
     const _1B = +r['1B']||0, _2B = +r['2B']||0, _3B = +r['3B']||0, HR = +r.HR||0;
     const TB  = _1B + 2*_2B + 3*_3B + 4*HR;
 
-    if(has('H')&&has('AB'))        r.AVG = fmt3(divz(H,AB));
+    if(has('H')&&has('AB')) r.AVG = fmt3(divz(H,AB));
     if(has('AB')&&(has('BB')||has('HBP'))) r.OBP = fmt3(divz((H+BB+HBP),(AB+BB+HBP+SF)));
     if(has('AB')&&(has('1B')||has('2B')||has('3B')||has('HR'))) r.SLG = fmt3(divz(TB,AB));
     if(r.OBP && r.SLG && !isNaN(parseFloat(r.OBP)) && !isNaN(parseFloat(r.SLG))){
@@ -178,47 +143,64 @@ function addDerived(rows){
   });
 }
 
-/* Column picking based on set */
-function pickColumns(rows){
-  if(!rows.length) return { cols:[], rows };
-  const allCols = Object.keys(rows[0]);
-  if(state.colset==='all') return { cols: allCols, rows };
+/* Preferred column order (extras appended to end) */
+const PREFERRED = [
+  'Season','Division','Team','Last','First',
+  'GP','PA','AB','R','H','1B','2B','3B','HR','RBI',
+  'BB','HBP','SO','K-L',
+  'SB','SB-ATT','CS',
+  'TB','AVG','OBP','SLG','OPS'
+];
 
-  const want = new Set(COLSETS[state.colset] || []);
-  const cols = allCols.filter(c => want.has(c) || c==='Season' || c==='Division' || c==='Team' || c==='Last' || c==='First');
-  return { cols, rows };
+function orderColumns(rows){
+  if(!rows || !rows.length) return [];
+  const seen = new Set();
+  const cols = [];
+  PREFERRED.forEach(c => { if(c in rows[0]) { cols.push(c); seen.add(c); }});
+  Object.keys(rows[0]).forEach(c => { if(!seen.has(c)) cols.push(c); });
+  return cols;
 }
 
 /* Build table */
-function buildTable(cols, rows){
-  const thead = document.getElementById('tbl-head');
-  const tbody = document.getElementById('tbl-body');
-  const tfoot = document.getElementById('tbl-foot');
+function buildTable(rootIds, rows){
+  const [headId, bodyId, footId] = rootIds;
+  const thead = document.getElementById(headId);
+  const tbody = document.getElementById(bodyId);
+  const tfoot = document.getElementById(footId);
 
-  // Header
+  if(!rows || !rows.length){
+    thead.innerHTML = '<tr><th class="px-3 py-3 border-b border-d-line">No data</th></tr>';
+    tbody.innerHTML = '';
+    tfoot.innerHTML = '';
+    return;
+  }
+
+  const cols = orderColumns(rows);
+
   thead.innerHTML =
-    '<tr class="text-left">' +
-    cols.map((c,i)=>`<th class="px-3 py-3 border-b border-d-line ${i===0?'sticky left-0 bg-white/5 backdrop-blur':''}">${c}</th>`).join('') +
+    '<tr class="text-left">'+
+    cols.map((c,i)=>`<th class="px-3 py-3 border-b border-d-line ${i===0?'sticky left-0 bg-white/5 backdrop-blur':''}">${c}</th>`).join('')+
     '</tr>';
 
-  // Body
-  tbody.innerHTML = rows.map((r,rowIdx)=>{
-    const stripe = rowIdx%2 ? 'bg-white/[.03] hover:bg-white/[.06]' : 'hover:bg-white/[.06]';
+  tbody.innerHTML = rows.map((r,i)=>{
+    const stripe = i%2 ? 'bg-white/[.03] hover:bg-white/[.06]' : 'hover:bg-white/[.06]';
     return `<tr class="${stripe}">
-      ${cols.map((c,i)=>`<td class="px-3 py-2.5 border-t border-d-line ${i===0?'sticky left-0 bg-d-card':''}">
-        ${r[c] ?? ''}</td>`).join('')}
+      ${
+        cols.map((c,ci)=>`<td class="px-3 py-2.5 border-t border-d-line ${ci===0?'sticky left-0 bg-d-card':''}">
+          ${r[c] ?? ''}</td>`).join('')
+      }
     </tr>`;
   }).join('');
 
-  // Totals (numeric columns only)
+  // Totals for numeric columns
   const numeric = new Set();
   rows.forEach(r => cols.forEach(c => { const v=r[c]; if(v!==''&&v!==null&&!isNaN(v)) numeric.add(c); }));
   if(numeric.size){
     const totals = {};
     numeric.forEach(c => totals[c] = rows.reduce((a,r)=>a+(+r[c]||0),0));
-    tfoot.innerHTML = '<tr class="bg-white/5">' +
+    tfoot.innerHTML = '<tr class="bg-white/5">'+
       cols.map((c,i)=> i===0
-        ? `<th class="px-3 py-3 border-t border-d-line text-left sticky left-0 bg-white/5">Totals</th>`
+        ? `<th class="px-3 py-3 border-t border-d-line sticky left-0 bg-white/5 text-left">Totals</th>`
         : `<th class="px-3 py-3 border-t border-d-line text-left">${totals[c] ?? ''}</th>`
       ).join('') + '</tr>';
   } else {
@@ -226,39 +208,39 @@ function buildTable(cols, rows){
   }
 }
 
-/* Load + render */
-let lastRows = [];
-
-async function load(){
-  const url = files[state.who][state.season];
-  // Encode weird characters manually (defensive)
-  const safeUrl = url.split('/').map((seg,i)=> i? encodeURIComponent(seg): seg).join('/');
+/* ============================ LOADERS ============================== */
+async function loadPersonal(){
   try{
-    const raw  = await fetchCSV(safeUrl);
+    const raw  = await fetchCSV(personalCareerCSV);
     const norm = normalizeRows(raw);
     const withDerived = addDerived(norm);
-
-    // Sort by Season, then Team (if present)
-    withDerived.sort((a,b)=> String(a.Season||'').localeCompare(String(b.Season||'')) || String(a.Team||'').localeCompare(String(b.Team||'')));
-
-    lastRows = withDerived;
-    renderLast();
+    buildTable(['p-head','p-body','p-foot'], withDerived);
   }catch(e){
-    console.error('CSV load error', e);
-    document.getElementById('tbl-head').innerHTML =
-      '<tr><th class="px-3 py-3 border-b border-d-line">Error</th></tr>';
-    document.getElementById('tbl-body').innerHTML =
-      '<tr><td class="px-3 py-3">Unable to load CSV.</td></tr>';
-    document.getElementById('tbl-foot').innerHTML = '';
+    console.error('Personal CSV load error', e);
+    $('#p-head').innerHTML = '<tr><th class="px-3 py-3 border-b border-d-line">Error</th></tr>';
+    $('#p-body').innerHTML = '<tr><td class="px-3 py-3">Unable to load CSV.</td></tr>';
+    $('#p-foot').innerHTML = '';
   }
 }
 
-function renderLast(){
-  const { cols, rows } = pickColumns(lastRows);
-  buildTable(cols, rows);
+async function loadTeam(){
+  const season = $('#season').value;
+  const url = teamFiles[season];
+  try{
+    const raw  = await fetchCSV(url);
+    const norm = normalizeRows(raw);
+    const withDerived = addDerived(norm);
+    buildTable(['t-head','t-body','t-foot'], withDerived);
+  }catch(e){
+    console.error('Team CSV load error', e);
+    $('#t-head').innerHTML = '<tr><th class="px-3 py-3 border-b border-d-line">Error</th></tr>';
+    $('#t-body').innerHTML = '<tr><td class="px-3 py-3">Unable to load CSV.</td></tr>';
+    $('#t-foot').innerHTML = '';
+  }
 }
 
-/* Init */
-styleWho(); styleColset();
-load();
+/* ============================ INIT ================================ */
+document.getElementById('season').addEventListener('change', loadTeam);
+loadPersonal();
+loadTeam();
 </script>
