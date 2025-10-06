@@ -4,26 +4,22 @@ title: NTABL
 permalink: /ntabl/
 ---
 
-<!-- North Texas Amateur Baseball League | Interactive Hitting Stats -->
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 
 <style>
-  /* Page frame */
   .ntabl-wrap {
-    max-width: 1600px;   /* wider so we can show every stat without scrolling */
+    max-width: 1600px;
     margin: 24px auto 80px;
     padding: 0 12px;
   }
   .ntabl-title {
     font-weight: 600;
     font-size: 18px;
-    letter-spacing: .2px;
     text-align: center;
     margin: 6px 0 14px;
   }
 
-  /* Filters: 5 selects + Clear + Reset (all same width) */
   .ntabl-filters {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
@@ -32,7 +28,6 @@ permalink: /ntabl/
     border: 1px solid rgba(255,255,255,.08);
     padding: 12px;
     border-radius: 10px;
-    backdrop-filter: blur(4px);
   }
   .ntabl-select, .ntabl-btn {
     appearance: none;
@@ -45,10 +40,6 @@ permalink: /ntabl/
     font-size: 13px;
     outline: none;
   }
-  .ntabl-select:focus, .ntabl-btn:focus {
-    border-color: rgba(130, 87, 229, .6);
-    box-shadow: 0 0 0 3px rgba(130,87,229,.25);
-  }
   .ntabl-btn {
     text-align: center;
     cursor: pointer;
@@ -59,7 +50,6 @@ permalink: /ntabl/
     cursor: not-allowed;
   }
 
-  /* Table shell */
   .table-card {
     margin-top: 14px;
     border-radius: 12px;
@@ -71,20 +61,18 @@ permalink: /ntabl/
     width: 100%;
     border-collapse: separate;
     border-spacing: 0;
-    table-layout: fixed;        /* fixed layout so all columns stay visible */
-    font-size: 11.5px;          /* slightly tighter font to fit all columns */
+    table-layout: fixed;
+    font-size: 11.5px;
   }
   thead th {
     position: sticky;
     top: 0;
-    z-index: 3;
     background: rgba(24,24,28,.95);
     color: #e8e8e8;
     font-weight: 600;
     text-align: center;
-    padding: 8px 6px;           /* tighter */
+    padding: 8px 6px;
     border-bottom: 1px solid rgba(255,255,255,.08);
-    user-select: none;
   }
   tbody td {
     padding: 7px 6px;
@@ -92,12 +80,9 @@ permalink: /ntabl/
     text-align: center;
     border-bottom: 1px solid rgba(255,255,255,.06);
     white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
   }
   tbody td.left, thead th.left { text-align: left; }
 
-  /* Column widths tuned to avoid horizontal scroll */
   .col-player  { width: 170px; }
   .col-year    { width: 52px; }
   .col-season  { width: 74px; }
@@ -107,18 +92,15 @@ permalink: /ntabl/
   .col-gp, .col-pa, .col-ab, .col-r, .col-h,
   .col-1b, .col-2b, .col-3b, .col-hr, .col-rbi,
   .col-bb, .col-hbp, .col-so, .col-sb, .col-kl, .col-sf,
-  .col-avg, .col-obp, .col-slg, .col-ops { width: 42px; } /* compact numeric */
+  .col-avg, .col-obp, .col-slg, .col-ops { width: 42px; }
 
-  /* Hover highlight (row+column) */
   tbody tr:hover td { background: rgba(128,128,160,.10); }
   tbody td.hover-col { background: rgba(128,128,160,.14) !important; }
   thead th.hover-head { background: rgba(24,24,28,1); color: #fff; }
 
-  /* Sortable headers */
   thead th.sortable { cursor: pointer; }
   thead th.sortable:hover { color: #a98bff; }
 
-  /* Player link styling */
   a.player-link {
     color: #cbd5ff;
     text-decoration: none;
@@ -129,12 +111,12 @@ permalink: /ntabl/
     color: #e4e8ff;
   }
 
-  /* Totals row */
   tfoot td {
     font-weight: 600;
     background: rgba(255,255,255,.05);
     border-top: 1px solid rgba(255,255,255,.10);
     padding: 8px 6px;
+    text-align: center; /* CENTERED TOTALS */
   }
 
   .helper {
@@ -148,7 +130,6 @@ permalink: /ntabl/
 <div class="ntabl-wrap">
   <h1 class="ntabl-title">North Texas Amateur Baseball League | Interactive Hitting Stats</h1>
 
-  <!-- Filters: Year, Season, Program, Team, Player, Clear Player, Reset -->
   <div class="ntabl-filters" id="filters">
     <select id="filter-year" class="ntabl-select"></select>
     <select id="filter-season" class="ntabl-select"></select>
@@ -171,17 +152,13 @@ permalink: /ntabl/
 </div>
 
 <script>
-  // CSV path (baseurl-safe)
   const CSV_URL = "{{ '/ntabl-hitting-stats.csv' | relative_url }}";
-
-  // Column definitions (order must match your desired display)
   const COLS = [
     { key: 'PLAYER',  label: 'Player', class: 'col-player left'  },
     { key: 'YEAR',    label: 'Year',   class: 'col-year'   },
     { key: 'SEASON',  label: 'Season', class: 'col-season' },
     { key: 'PROGRAM', label: 'Program',class: 'col-program'},
     { key: 'TEAM',    label: 'Team',   class: 'col-team left' },
-
     { key: 'GP',  label: 'GP',  class: 'col-gp'  },
     { key: 'PA',  label: 'PA',  class: 'col-pa'  },
     { key: 'AB',  label: 'AB',  class: 'col-ab'  },
@@ -198,23 +175,20 @@ permalink: /ntabl/
     { key: 'SB',  label: 'SB',  class: 'col-sb'  },
     { key: 'K-L', label: 'K-L', class: 'col-kl'  },
     { key: 'SF',  label: 'SF',  class: 'col-sf'  },
-
     { key: 'AVG', label: 'AVG', class: 'col-avg' },
     { key: 'OBP', label: 'OBP', class: 'col-obp' },
     { key: 'SLG', label: 'SLG', class: 'col-slg' },
     { key: 'OPS', label: 'OPS', class: 'col-ops' },
   ];
 
-  let RAW = [];
-  let VIEW = [];
-  let sortKey = null, sortAsc = true;
-
+  let RAW = [], VIEW = [], sortKey = null, sortAsc = true;
   const sel = id => document.getElementById(id);
   const val = id => sel(id).value;
   const uniq = arr => [...new Set(arr.filter(Boolean))];
   const toNum = v => (v === null || v === undefined || v === '') ? 0 : Number(v);
-  const numish = v => isNaN(Number(v)) ? (''+v).toLowerCase() : Number(v);
   const rate = v => (v===undefined||v==='') ? '' : String(v).replace(/^0\./,'.');
+  const fmt3 = v => isNaN(v) ? '' : (v/1000).toFixed(3).replace(/^0/,''); // ensures .200 style
+
   const td = (v, cls='') => `<td class="${cls}">${v ?? ''}</td>`;
   function escapeHtml(s=''){return s.replace(/[&<>"']/g, m=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m]));}
   const tdPlayer = (name) => `<td class="left col-player"><a class="player-link" href="javascript:void(0)" onclick="filterByPlayer('${escapeHtml(name)}')">${escapeHtml(name)}</a></td>`;
@@ -226,16 +200,12 @@ permalink: /ntabl/
       const th = document.createElement('th');
       th.textContent = c.label;
       th.className = `${c.class} sortable`;
-      th.dataset.key = c.key;
-      th.dataset.colidx = idx;
       th.addEventListener('click', () => {
-        if (sortKey === c.key) { sortAsc = !sortAsc; } else { sortKey = c.key; sortAsc = true; }
-        renderBody();
+        sortKey = c.key; sortAsc = !sortAsc; renderBody();
       });
       tr.appendChild(th);
     });
-    thead.innerHTML = '';
-    thead.appendChild(tr);
+    thead.innerHTML = ''; thead.appendChild(tr);
   }
 
   function wireHover() {
@@ -256,26 +226,12 @@ permalink: /ntabl/
     });
   }
 
-  function fillSelect(selectEl, values, allLabel) {
-    selectEl.innerHTML = '';
-    const optAll = document.createElement('option');
-    optAll.value = '';
-    optAll.textContent = allLabel;
-    selectEl.appendChild(optAll);
-    values.sort((a,b)=> (''+a).localeCompare(''+b)).forEach(v => {
-      const o = document.createElement('option');
-      o.value = v;
-      o.textContent = v;
-      selectEl.appendChild(o);
-    });
-  }
-
   function buildFilters() {
-    fillSelect(sel('filter-year'),    uniq(RAW.map(r => r.YEAR)),    'All Years');
-    fillSelect(sel('filter-season'),  uniq(RAW.map(r => r.SEASON)),  'All Seasons');
-    fillSelect(sel('filter-program'), uniq(RAW.map(r => r.PROGRAM)), 'All Programs');
-    fillSelect(sel('filter-team'),    uniq(RAW.map(r => r.TEAM)),    'All Teams');
-    fillSelect(sel('filter-player'),  uniq(RAW.map(r => r.PLAYER)),  'All Players');
+    fill('filter-year', uniq(RAW.map(r => r.YEAR)), 'All Years');
+    fill('filter-season', uniq(RAW.map(r => r.SEASON)), 'All Seasons');
+    fill('filter-program', uniq(RAW.map(r => r.PROGRAM)), 'All Programs');
+    fill('filter-team', uniq(RAW.map(r => r.TEAM)), 'All Teams');
+    fill('filter-player', uniq(RAW.map(r => r.PLAYER)), 'All Players');
 
     ['filter-year','filter-season','filter-program','filter-team','filter-player']
       .forEach(id => sel(id).addEventListener('change', onFilterChange));
@@ -285,164 +241,79 @@ permalink: /ntabl/
         .forEach(id => sel(id).selectedIndex = 0);
       onFilterChange();
     });
-
     sel('btn-clear-player').addEventListener('click', () => {
-      sel('filter-player').selectedIndex = 0;
-      onFilterChange();
+      sel('filter-player').selectedIndex = 0; onFilterChange();
     });
-
-    updateClearPlayerState();
+  }
+  function fill(id, values, all) {
+    const s = sel(id);
+    s.innerHTML = `<option value="">${all}</option>` +
+      values.sort().map(v=>`<option value="${v}">${v}</option>`).join('');
   }
 
-  function onFilterChange() {
-    applyFilters();
-    updateClearPlayerState();
-  }
+  function onFilterChange(){ applyFilters(); sel('btn-clear-player').disabled = !val('filter-player'); }
 
-  function updateClearPlayerState() {
-    const hasPlayer = !!val('filter-player');
-    sel('btn-clear-player').disabled = !hasPlayer;
-  }
-
-  function applyFilters() {
-    const y  = val('filter-year');
-    const s  = val('filter-season');
-    const pr = val('filter-program');
-    const t  = val('filter-team');
-    const pl = val('filter-player');
-
+  function applyFilters(){
+    const y=val('filter-year'), s=val('filter-season'), p=val('filter-program'),
+          t=val('filter-team'), pl=val('filter-player');
     VIEW = RAW.filter(r =>
-      (!y || r.YEAR == y) &&
-      (!s || r.SEASON == s) &&
-      (!pr || r.PROGRAM == pr) &&
-      (!t || r.TEAM == t) &&
-      (!pl || r.PLAYER == pl)
+      (!y || r.YEAR==y) && (!s||r.SEASON==s) && (!p||r.PROGRAM==p) &&
+      (!t||r.TEAM==t) && (!pl||r.PLAYER==pl)
     );
     renderBody();
   }
 
-  // Clickable player name => sets dropdown
-  function filterByPlayer(name) {
-    const playerSel = sel('filter-player');
-    [...playerSel.options].forEach((o,i)=>{ if (o.value === name) playerSel.selectedIndex = i; });
+  function filterByPlayer(name){
+    const ps=sel('filter-player');
+    [...ps.options].forEach((o,i)=>{if(o.value===name)ps.selectedIndex=i});
     onFilterChange();
   }
-  window.filterByPlayer = filterByPlayer; // expose to inline onclick
+  window.filterByPlayer=filterByPlayer;
 
-  function renderBody() {
-    const tbody = sel('tbody');
-    const tfoot = sel('tfoot');
+  function renderBody(){
+    const tbody=sel('tbody'),tfoot=sel('tfoot');
+    let rows=VIEW.slice();
+    if(sortKey)rows.sort((a,b)=>{
+      const va=a[sortKey]??'',vb=b[sortKey]??'';
+      return sortAsc?(va>vb?1:-1):(va<vb?1:-1);
+    });
+    tbody.innerHTML=rows.map(r=>`
+      <tr>
+        ${tdPlayer(r.PLAYER)}${td(r.YEAR)}${td(r.SEASON)}${td(r.PROGRAM)}${td(r.TEAM)}
+        ${td(r.GP)}${td(r.PA)}${td(r.AB)}${td(r.R)}${td(r.H)}
+        ${td(r['1B'])}${td(r['2B'])}${td(r['3B'])}${td(r.HR)}${td(r.RBI)}
+        ${td(r.BB)}${td(r.HBP)}${td(r.SO)}${td(r.SB)}${td(r['K-L'])}${td(r.SF)}
+        ${td(rate(r.AVG))}${td(rate(r.OBP))}${td(rate(r.SLG))}${td(rate(r.OPS))}
+      </tr>`).join('');
 
-    let rows = VIEW.slice();
-    if (sortKey) {
-      rows.sort((a,b) => {
-        const k = sortKey;
-        const va = numish(a[k]); const vb = numish(b[k]);
-        if (va < vb) return sortAsc ? -1 : 1;
-        if (va > vb) return sortAsc ? 1 : -1;
-        return 0;
-      });
-    }
+    const sum=k=>rows.reduce((a,r)=>a+toNum(r[k]||0),0);
+    const t={GP:sum('GP'),PA:sum('PA'),AB:sum('AB'),R:sum('R'),H:sum('H'),'1B':sum('1B'),
+             '2B':sum('2B'),'3B':sum('3B'),HR:sum('HR'),RBI:sum('RBI'),BB:sum('BB'),
+             HBP:sum('HBP'),SO:sum('SO'),SB:sum('SB'),'K-L':sum('K-L'),SF:sum('SF')};
 
-    tbody.innerHTML = rows.map(r => {
-      return `<tr>
-        ${tdPlayer(r.PLAYER)}
-        ${td(r.YEAR,'col-year')}
-        ${td(r.SEASON,'col-season')}
-        ${td(r.PROGRAM,'col-program')}
-        ${td(r.TEAM,'col-team left')}
+    const avg = (t.H/t.AB)||0, obp=(t.H+t.BB+t.HBP)/(t.AB+t.BB+t.HBP+t.SF)||0,
+          slg=((t['1B']+2*t['2B']+3*t['3B']+4*t.HR)/t.AB)||0, ops=obp+slg;
 
-        ${td(r.GP,'col-gp')}
-        ${td(r.PA,'col-pa')}
-        ${td(r.AB,'col-ab')}
-        ${td(r.R,'col-r')}
-        ${td(r.H,'col-h')}
-        ${td(r['1B'],'col-1b')}
-        ${td(r['2B'],'col-2b')}
-        ${td(r['3B'],'col-3b')}
-        ${td(r.HR,'col-hr')}
-        ${td(r.RBI,'col-rbi')}
-        ${td(r.BB,'col-bb')}
-        ${td(r.HBP,'col-hbp')}
-        ${td(r.SO,'col-so')}
-        ${td(r.SB,'col-sb')}
-        ${td(r['K-L'],'col-kl')}
-        ${td(r.SF,'col-sf')}
-
-        ${td(rate(r.AVG),'col-avg')}
-        ${td(rate(r.OBP),'col-obp')}
-        ${td(rate(r.SLG),'col-slg')}
-        ${td(rate(r.OPS),'col-ops')}
-      </tr>`;
-    }).join('');
-
-    // Totals (counting stats only)
-    const sum = (k) => rows.reduce((acc, r) => acc + (toNum(r[k])||0), 0);
-    const tot = {
-      GP: sum('GP'), PA: sum('PA'), AB: sum('AB'), R: sum('R'), H: sum('H'),
-      '1B': sum('1B'), '2B': sum('2B'), '3B': sum('3B'), HR: sum('HR'),
-      RBI: sum('RBI'), BB: sum('BB'), HBP: sum('HBP'), SO: sum('SO'),
-      SB: sum('SB'), 'K-L': sum('K-L'), SF: sum('SF')
-    };
-
-    tfoot.innerHTML = `<tr>
-      <td class="left col-player"><strong>Totals</strong></td>
-      <td class="col-year"></td>
-      <td class="col-season"></td>
-      <td class="col-program"></td>
-      <td class="col-team left"></td>
-
-      ${td(tot.GP,'col-gp')}
-      ${td(tot.PA,'col-pa')}
-      ${td(tot.AB,'col-ab')}
-      ${td(tot.R,'col-r')}
-      ${td(tot.H,'col-h')}
-      ${td(tot['1B'],'col-1b')}
-      ${td(tot['2B'],'col-2b')}
-      ${td(tot['3B'],'col-3b')}
-      ${td(tot.HR,'col-hr')}
-      ${td(tot.RBI,'col-rbi')}
-      ${td(tot.BB,'col-bb')}
-      ${td(tot.HBP,'col-hbp')}
-      ${td(tot.SO,'col-so')}
-      ${td(tot.SB,'col-sb')}
-      ${td(tot['K-L'],'col-kl')}
-      ${td(tot.SF,'col-sf')}
-
-      <td class="col-avg"></td>
-      <td class="col-obp"></td>
-      <td class="col-slg"></td>
-      <td class="col-ops"></td>
+    tfoot.innerHTML=`<tr>
+      <td class="left col-player"><strong>Totals</strong></td><td></td><td></td><td></td><td></td>
+      ${td(t.GP)}${td(t.PA)}${td(t.AB)}${td(t.R)}${td(t.H)}
+      ${td(t['1B'])}${td(t['2B'])}${td(t['3B'])}${td(t.HR)}${td(t.RBI)}
+      ${td(t.BB)}${td(t.HBP)}${td(t.SO)}${td(t.SB)}${td(t['K-L'])}${td(t.SF)}
+      ${td(fmt3(avg*1000))}${td(fmt3(obp*1000))}${td(fmt3(slg*1000))}${td(fmt3(ops*1000))}
     </tr>`;
-
     wireHover();
   }
 
-  // Load data
-  fetch(CSV_URL, { cache: 'no-store' })
-    .then(r => {
-      if (!r.ok) throw new Error('CSV not found at ' + CSV_URL);
-      return r.text();
-    })
-    .then(txt => new Promise(res => Papa.parse(txt, { header:true, skipEmptyLines:true, complete: res })))
-    .then(results => {
-      const rows = results.data.map(row => {
-        const o = {};
-        Object.keys(row).forEach(k => { o[k.trim()] = row[k]; });
+  fetch(CSV_URL)
+    .then(r=>r.text())
+    .then(txt=>new Promise(res=>Papa.parse(txt,{header:true,skipEmptyLines:true,complete:res})))
+    .then(results=>{
+      RAW=results.data.map(row=>{
+        const o={};Object.keys(row).forEach(k=>o[k.trim()]=row[k]);
         ['GP','PA','AB','R','H','1B','2B','3B','HR','RBI','BB','HBP','SO','SB','K-L','SF']
-          .forEach(k => { o[k] = o[k] === '' || o[k] === undefined ? '' : Number(o[k]); });
+          .forEach(k=>o[k]=o[k]===''?'':Number(o[k]));
         return o;
       });
-
-      RAW = rows;
-      buildHeader();
-      buildFilters();
-      VIEW = RAW.slice();
-      renderBody();
-    })
-    .catch(err => {
-      console.error(err);
-      sel('tbody').innerHTML =
-        `<tr><td class="left" colspan="${COLS.length}">Unable to load CSV (“${CSV_URL}”). Check the filename and commit. ${err.message}</td></tr>`;
+      buildHeader();buildFilters();VIEW=RAW.slice();renderBody();
     });
 </script>
