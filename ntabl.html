@@ -1,11 +1,13 @@
 ---
 layout: default
-title: NTABL — Interactive Hitting Stats
+title: North Texas Amateur Baseball League | Interactive Hitting Stats
 permalink: /ntabl/
 ---
 
 <section class="wrap-wide" style="padding:40px 0;">
-  <h1 style="font-size:22px;font-weight:700;margin:0 0 18px">NTABL</h1>
+  <h1 style="font-size:22px;font-weight:700;margin:0 0 18px">
+    North Texas Amateur Baseball League | Interactive Hitting Stats
+  </h1>
 
   <!-- Controls -->
   <div class="card ntabl-controls">
@@ -37,7 +39,7 @@ permalink: /ntabl/
   </div>
 
   <!-- Table -->
-  <div class="surface" style="margin:0 auto;max-width:1400px;">
+  <div class="surface ntabl-surface">
     <div class="ntabl-wrap">
       <table id="ntabl-table" class="ntabl-table" aria-describedby="ntabl-note">
         <thead></thead>
@@ -55,21 +57,35 @@ permalink: /ntabl/
 <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 
 <style>
-/* ---------- Controls layout ---------- */
+/* ========= Width & theme variables ========= */
+:root{
+  /* Increase/decrease if you need more/less room; both filter card and table use this */
+  --ntabl-width: 1680px;
+  --ntabl-number-col: 50px;   /* width for stat columns */
+  --ntabl-text: #e7eaee;
+  --ntabl-muted: #a5adb6;
+  --ntabl-head-bg: #0d0f12;
+  --ntabl-head-hover: #1f2430; /* header when its column is hovered */
+  --ntabl-cell: #ffffff;
+  --ntabl-row-hover: #eef2f7;
+  --ntabl-col-hover: #e6eaf1;
+  --ntabl-border: #e9eef5;
+  --ntabl-sticky-border: #2b2f35;
+}
+
+/* ========= Controls layout ========= */
 .ntabl-controls{
   margin:0 auto 16px;
   padding:16px;
   display:flex;
   flex-wrap:wrap;
   gap:12px 16px;
-  align-items:end; /* aligns buttons with selects */
-  max-width:1400px;
+  align-items:end;
+  max-width:var(--ntabl-width);
 }
 .ntabl-field{ display:flex; flex-direction:column; gap:6px; }
-.ntabl-field label{ font-size:12px; color:#a5adb6; }
+.ntabl-field label{ font-size:12px; color:var(--ntabl-muted); }
 .ntabl-actions{ margin-left:auto; display:flex; gap:8px; }
-
-/* ---------- Select styling ---------- */
 .ntabl-select{
   appearance:none; -webkit-appearance:none; -moz-appearance:none;
   background:#0f1113; color:#e9eaec;
@@ -78,46 +94,55 @@ permalink: /ntabl/
 }
 .ntabl-select:focus{ outline:none; border-color:#2b2f35; box-shadow:0 0 0 3px rgba(124,58,237,.28) }
 
-/* ---------- Table sizing & look ---------- */
-.ntabl-wrap{ overflow-x:visible; }
+/* ========= Table sizing & look ========= */
+.ntabl-surface{ margin:0 auto; max-width:var(--ntabl-width); }
+.ntabl-wrap{ overflow-x:hidden; } /* no horizontal scroll */
 .ntabl-table{
   width:100%;
   border-collapse:separate; border-spacing:0;
-  font-size:14px; line-height:1.3;
+  font-size:14px; line-height:1.25;
   table-layout:fixed; /* static column widths */
 }
 .ntabl-table thead th{
-  background:#0d0f12; color:#e7eaee;
-  border-bottom:1px solid #2b2f35;
+  background:var(--ntabl-head-bg); color:var(--ntabl-text);
+  border-bottom:1px solid var(--ntabl-sticky-border);
   padding:10px 10px;
   position:sticky; top:0; z-index:1;
+  text-align:center; /* center stat headers */
 }
+.ntabl-table thead th.t-text{ text-align:left; padding-left:12px; }
 .ntabl-table tbody td, .ntabl-table tfoot td, .ntabl-table tfoot th{
-  background:#ffffff; color:#0f1113;
-  padding:9px 10px; border-bottom:1px solid #e9eef5;
+  background:var(--ntabl-cell); color:#0f1113;
+  padding:9px 10px; border-bottom:1px solid var(--ntabl-border);
+  text-align:center; /* center stats */
 }
-.ntabl-table tbody tr:hover td{ background:#eef2f7 !important; }
+.ntabl-table tbody td.t-text, .ntabl-table tfoot th.t-text{ text-align:left; padding-left:12px; }
+.ntabl-table tbody tr:hover td{ background:var(--ntabl-row-hover) !important; }
 
-/* fixed widths per column key */
-th[data-col="PLAYER"], td[data-col="PLAYER"]{ width:180px; }
+/* fixed widths per leading columns */
+th[data-col="PLAYER"], td[data-col="PLAYER"]{ width:190px; }
 th[data-col="YEAR"], td[data-col="YEAR"]{ width:72px; }
 th[data-col="SEASON"], td[data-col="SEASON"]{ width:96px; }
 th[data-col="PROGRAM"], td[data-col="PROGRAM"]{ width:140px; }
 th[data-col="TEAM"], td[data-col="TEAM"]{ width:160px; }
 /* all numeric/stat columns */
-.ntabl-table .t-num{ width:56px; }
+.ntabl-table .t-num{ width:var(--ntabl-number-col); }
 
 /* column hover highlight (x & y) */
-.ntabl-table thead th.col-hover,
+.ntabl-table thead th.col-hover{ background:var(--ntabl-head-hover) !important; color:#fff; }
 .ntabl-table tbody td.col-hover,
-.ntabl-table tfoot td.col-hover{ background:#e6eaf1 !important; }
+.ntabl-table tfoot td.col-hover{ background:var(--ntabl-col-hover) !important; }
 
-/* Player link: same font size as table, underline dotted on hover */
+/* Player link */
 .link-like{
   background:none;border:none;color:#1e40af;cursor:pointer;padding:0;
   font:inherit; font-weight:700;
 }
-.link-like:hover{ color:#0e7490; text-decoration:underline dotted; text-underline-offset:2px; }
+.link-like:hover{
+  color:#0e7490;
+  text-decoration:underline dotted;
+  text-underline-offset:2px;
+}
 
 /* footnote */
 .ntabl-note{ font-size:12px;color:#667085;padding:10px 12px 14px }
@@ -130,7 +155,7 @@ th[data-col="TEAM"], td[data-col="TEAM"]{ width:160px; }
   // front columns (exact order you want)
   const FRONT = ['PLAYER','YEAR','SEASON','PROGRAM','TEAM'];
 
-  // stat columns in our preferred order (any not present are ignored)
+  // stat columns in preferred order; any missing ones are ignored automatically
   const STATS_ORDER = [
     'GP','PA','AB','R','H','1B','2B','3B','HR','RBI','BB','HBP','SO','K-L','SB','TB',
     'AVG','OBP','SLG','OPS','SF','SAC','ROE'
@@ -163,11 +188,9 @@ th[data-col="TEAM"], td[data-col="TEAM"]{ width:160px; }
   let sortDir = 1;
 
   const norm   = s => String(s??'').trim();
-  const lower  = s => norm(s).toLowerCase();
   const numLike= v => v!=='' && v!==null && !isNaN(v);
   const to3    = v => Number(v).toFixed(3).replace(/^0/,'');
 
-  // helpers
   function setOptions(sel, list, labelAll){
     sel.innerHTML='';
     const all=document.createElement('option'); all.value=''; all.textContent=labelAll; sel.appendChild(all);
@@ -203,13 +226,14 @@ th[data-col="TEAM"], td[data-col="TEAM"]{ width:160px; }
       return `<th data-col="${c}" class="${cls}" style="cursor:pointer" title="Sort by ${c}">${c}${arrow}</th>`;
     }).join('')+'</tr>';
 
-    theadEl.querySelectorAll('th').forEach(th=>{
+    theadEl.querySelectorAll('th').forEach((th, idx)=>{
       th.addEventListener('click',()=>{
         const k = th.getAttribute('data-col');
         if(sortKey===k) sortDir*=-1; else { sortKey=k; sortDir=1; }
         renderBody();
         buildHead(); // refresh arrows
       });
+      th.setAttribute('data-col-idx', idx);
     });
   }
 
@@ -251,7 +275,15 @@ th[data-col="TEAM"], td[data-col="TEAM"]{ width:160px; }
     });
   }
 
-  // column hover highlight (x & y)
+  // column hover highlight (x & y), keeping header readable
+  function markColumn(idx, on){
+    const selector = `td[data-col-idx="${idx}"]`;
+    tbodyEl.querySelectorAll(selector).forEach(td=>td.classList.toggle('col-hover', on));
+    const head = theadEl.querySelector(`th[data-col-idx="${idx}"]`);
+    if(head) head.classList.toggle('col-hover', on);
+    const tf = tfootEl.querySelectorAll('td')[idx-1];
+    if(tf) tf.classList.toggle('col-hover', on);
+  }
   tbodyEl.addEventListener('mouseover', (e)=>{
     const cell = e.target.closest('td'); if(!cell) return;
     const idx = +cell.getAttribute('data-col-idx'); if(isNaN(idx)) return;
@@ -262,12 +294,6 @@ th[data-col="TEAM"], td[data-col="TEAM"]{ width:160px; }
     const idx = +cell.getAttribute('data-col-idx'); if(isNaN(idx)) return;
     markColumn(idx, false);
   });
-  function markColumn(idx, on){
-    const selector = `td[data-col-idx="${idx}"]`;
-    tbodyEl.querySelectorAll(selector).forEach(td=>td.classList.toggle('col-hover', on));
-    const th = theadEl.querySelectorAll('th')[idx]; if(th) th.classList.toggle('col-hover', on);
-    const tf = tfootEl.querySelectorAll('td')[idx-1]; if(tf) tf.classList.toggle('col-hover', on);
-  }
 
   function applyFilters(){
     const y = fYear.value;
@@ -284,7 +310,6 @@ th[data-col="TEAM"], td[data-col="TEAM"]{ width:160px; }
       if(t && String(r['TEAM'])!==t) return false;
       return true;
     });
-    // show/hide clear player
     btnClearPlayer.style.visibility = pl ? 'visible' : 'hidden';
     renderBody();
   }
@@ -302,31 +327,30 @@ th[data-col="TEAM"], td[data-col="TEAM"]{ width:160px; }
     complete: res => {
       const raw = res.data || [];
 
-      // Normalize to UPPERCASE keys so we can reference reliably
       rows = raw.map(r=>{
         const o={};
+        // normalize keys to UPPERCASE
         Object.keys(r).forEach(k=>{ o[String(k).toUpperCase()] = r[k]; });
-        // Basic cleanup
-        o['PLAYER']  = norm(o['PLAYER']  ?? '');
-        o['YEAR']    = String(o['YEAR'] ?? '');
-        o['SEASON']  = norm(o['SEASON'] ?? '');
-        o['PROGRAM'] = norm(o['PROGRAM'] ?? '');
-        o['TEAM']    = norm(o['TEAM'] ?? '');
-        // common alias
+        // cleanup core fields
+        o['PLAYER']  = (o['PLAYER']  ?? '').toString().trim();
+        o['YEAR']    = (o['YEAR']    ?? '').toString().trim();
+        o['SEASON']  = (o['SEASON']  ?? '').toString().trim();
+        o['PROGRAM'] = (o['PROGRAM'] ?? '').toString().trim();
+        o['TEAM']    = (o['TEAM']    ?? '').toString().trim();
+        // alias K_L -> K-L if needed
         if(o['K_L'] !== undefined && o['K-L'] === undefined) o['K-L'] = o['K_L'];
         return o;
       });
 
-      // Set up column order: FRONT then present stats, then any extras
+      // Build column list: front + present stats + any extras
       const present = new Set(); rows.forEach(r=>Object.keys(r).forEach(k=>present.add(k)));
       const stats = STATS_ORDER.filter(c=>present.has(c));
       const rest  = Array.from(present).filter(c=>!FRONT.includes(c) && !stats.includes(c));
       COLS = [...FRONT, ...stats, ...rest];
 
-      // Build head first (so width classes bind to data-col)
       buildHead();
 
-      // Filters
+      // Populate filters
       const years    = Array.from(new Set(rows.map(r=>r['YEAR']).filter(Boolean)))
         .sort((a,b)=>ORDER_YEAR.indexOf(a)-ORDER_YEAR.indexOf(b) || b.localeCompare(a));
       const seasons  = Array.from(new Set(rows.map(r=>r['SEASON']).filter(Boolean)))
