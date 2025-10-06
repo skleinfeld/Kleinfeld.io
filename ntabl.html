@@ -11,12 +11,10 @@ permalink: /ntabl/
 <style>
   /* Page frame */
   .ntabl-wrap {
-    max-width: 1380px;   /* wider so we can show every stat without scrolling */
+    max-width: 1600px;   /* wider so we can show every stat without scrolling */
     margin: 24px auto 80px;
     padding: 0 12px;
   }
-
-  /* Title */
   .ntabl-title {
     font-weight: 600;
     font-size: 18px;
@@ -25,10 +23,10 @@ permalink: /ntabl/
     margin: 6px 0 14px;
   }
 
-  /* Filters */
+  /* Filters: 5 selects + Clear + Reset (all same width) */
   .ntabl-filters {
     display: grid;
-    grid-template-columns: repeat(5, 1fr) 140px; /* five selects + reset button column */
+    grid-template-columns: repeat(7, 1fr);
     gap: 10px;
     background: rgba(255,255,255,.04);
     border: 1px solid rgba(255,255,255,.08);
@@ -36,7 +34,6 @@ permalink: /ntabl/
     border-radius: 10px;
     backdrop-filter: blur(4px);
   }
-
   .ntabl-select, .ntabl-btn {
     appearance: none;
     width: 100%;
@@ -57,6 +54,10 @@ permalink: /ntabl/
     cursor: pointer;
     background: linear-gradient(180deg, rgba(130,87,229,.22), rgba(130,87,229,.12));
   }
+  .ntabl-btn:disabled {
+    opacity: .45;
+    cursor: not-allowed;
+  }
 
   /* Table shell */
   .table-card {
@@ -66,15 +67,13 @@ permalink: /ntabl/
     background: rgba(255,255,255,.03);
     overflow: hidden;
   }
-
   table.stats {
     width: 100%;
     border-collapse: separate;
     border-spacing: 0;
-    table-layout: fixed;        /* IMPORTANT: fixed layout so all columns stay visible */
-    font-size: 12px;            /* tighter font to fit all columns */
+    table-layout: fixed;        /* fixed layout so all columns stay visible */
+    font-size: 11.5px;          /* slightly tighter font to fit all columns */
   }
-
   thead th {
     position: sticky;
     top: 0;
@@ -83,18 +82,12 @@ permalink: /ntabl/
     color: #e8e8e8;
     font-weight: 600;
     text-align: center;
-    padding: 9px 6px;
+    padding: 8px 6px;           /* tighter */
     border-bottom: 1px solid rgba(255,255,255,.08);
     user-select: none;
   }
-
-  /* Vertical divider groups like MLB.com */
-  thead th.group-div {
-    border-left: 2px solid rgba(255,255,255,.08);
-  }
-
   tbody td {
-    padding: 8px 6px;
+    padding: 7px 6px;
     color: #e0e0e0;
     text-align: center;
     border-bottom: 1px solid rgba(255,255,255,.06);
@@ -102,29 +95,23 @@ permalink: /ntabl/
     overflow: hidden;
     text-overflow: ellipsis;
   }
-
-  /* Left columns slightly left aligned for readability */
   tbody td.left, thead th.left { text-align: left; }
 
   /* Column widths tuned to avoid horizontal scroll */
   .col-player  { width: 170px; }
-  .col-year    { width: 56px; }
-  .col-season  { width: 78px; }
-  .col-program { width: 92px; }
-  .col-team    { width: 120px; }
+  .col-year    { width: 52px; }
+  .col-season  { width: 74px; }
+  .col-program { width: 88px; }
+  .col-team    { width: 118px; }
 
   .col-gp, .col-pa, .col-ab, .col-r, .col-h,
   .col-1b, .col-2b, .col-3b, .col-hr, .col-rbi,
   .col-bb, .col-hbp, .col-so, .col-sb, .col-kl, .col-sf,
-  .col-avg, .col-obp, .col-slg, .col-ops {
-    width: 48px;
-  }
+  .col-avg, .col-obp, .col-slg, .col-ops { width: 42px; } /* compact numeric */
 
   /* Hover highlight (row+column) */
   tbody tr:hover td { background: rgba(128,128,160,.10); }
   tbody td.hover-col { background: rgba(128,128,160,.14) !important; }
-
-  /* Headers when column highlighted should remain readable */
   thead th.hover-head { background: rgba(24,24,28,1); color: #fff; }
 
   /* Sortable headers */
@@ -147,10 +134,9 @@ permalink: /ntabl/
     font-weight: 600;
     background: rgba(255,255,255,.05);
     border-top: 1px solid rgba(255,255,255,.10);
-    padding: 9px 6px;
+    padding: 8px 6px;
   }
 
-  /* Helper text */
   .helper {
     font-size: 12px;
     color: #b7b7b7;
@@ -162,17 +148,17 @@ permalink: /ntabl/
 <div class="ntabl-wrap">
   <h1 class="ntabl-title">North Texas Amateur Baseball League | Interactive Hitting Stats</h1>
 
-  <!-- Filters (Year, Season, Program, Team, Player + Reset) -->
+  <!-- Filters: Year, Season, Program, Team, Player, Clear Player, Reset -->
   <div class="ntabl-filters" id="filters">
     <select id="filter-year" class="ntabl-select"></select>
     <select id="filter-season" class="ntabl-select"></select>
     <select id="filter-program" class="ntabl-select"></select>
     <select id="filter-team" class="ntabl-select"></select>
     <select id="filter-player" class="ntabl-select"></select>
+    <button id="btn-clear-player" class="ntabl-btn" type="button" disabled>Clear Player</button>
     <button id="btn-reset" class="ntabl-btn" type="button">Reset Filters</button>
   </div>
 
-  <!-- Table -->
   <div class="table-card">
     <table class="stats" id="stats">
       <thead id="thead"></thead>
@@ -185,19 +171,17 @@ permalink: /ntabl/
 </div>
 
 <script>
-  // CSV path that works with pretty permalinks & custom domains
+  // CSV path (baseurl-safe)
   const CSV_URL = "{{ '/ntabl-hitting-stats.csv' | relative_url }}";
 
-  // Expected column order (must match your CSV headers exactly)
-  // If your CSV has ROE too, add it to the array and give it a width class.
+  // Column definitions (order must match your desired display)
   const COLS = [
     { key: 'PLAYER',  label: 'Player', class: 'col-player left'  },
     { key: 'YEAR',    label: 'Year',   class: 'col-year'   },
     { key: 'SEASON',  label: 'Season', class: 'col-season' },
     { key: 'PROGRAM', label: 'Program',class: 'col-program'},
-    { key: 'TEAM',    label: 'Team',   class: 'col-team left group-div' },
+    { key: 'TEAM',    label: 'Team',   class: 'col-team left' },
 
-    // Counting stats
     { key: 'GP',  label: 'GP',  class: 'col-gp'  },
     { key: 'PA',  label: 'PA',  class: 'col-pa'  },
     { key: 'AB',  label: 'AB',  class: 'col-ab'  },
@@ -205,31 +189,38 @@ permalink: /ntabl/
     { key: 'H',   label: 'H',   class: 'col-h'   },
     { key: '1B',  label: '1B',  class: 'col-1b'  },
     { key: '2B',  label: '2B',  class: 'col-2b'  },
-    { key: '3B',  label: '3B',  class: 'col-3b group-div'  },
+    { key: '3B',  label: '3B',  class: 'col-3b'  },
     { key: 'HR',  label: 'HR',  class: 'col-hr'  },
     { key: 'RBI', label: 'RBI', class: 'col-rbi' },
     { key: 'BB',  label: 'BB',  class: 'col-bb'  },
     { key: 'HBP', label: 'HBP', class: 'col-hbp' },
     { key: 'SO',  label: 'SO',  class: 'col-so'  },
-    { key: 'SB',  label: 'SB',  class: 'col-sb group-div'  },
+    { key: 'SB',  label: 'SB',  class: 'col-sb'  },
     { key: 'K-L', label: 'K-L', class: 'col-kl'  },
-    { key: 'SF',  label: 'SF',  class: 'col-sf group-div'  },
+    { key: 'SF',  label: 'SF',  class: 'col-sf'  },
 
-    // Rate stats
     { key: 'AVG', label: 'AVG', class: 'col-avg' },
     { key: 'OBP', label: 'OBP', class: 'col-obp' },
     { key: 'SLG', label: 'SLG', class: 'col-slg' },
     { key: 'OPS', label: 'OPS', class: 'col-ops' },
   ];
 
-  // Data caches
   let RAW = [];
   let VIEW = [];
   let sortKey = null, sortAsc = true;
 
-  // Build header with sort handlers
+  const sel = id => document.getElementById(id);
+  const val = id => sel(id).value;
+  const uniq = arr => [...new Set(arr.filter(Boolean))];
+  const toNum = v => (v === null || v === undefined || v === '') ? 0 : Number(v);
+  const numish = v => isNaN(Number(v)) ? (''+v).toLowerCase() : Number(v);
+  const rate = v => (v===undefined||v==='') ? '' : String(v).replace(/^0\./,'.');
+  const td = (v, cls='') => `<td class="${cls}">${v ?? ''}</td>`;
+  function escapeHtml(s=''){return s.replace(/[&<>"']/g, m=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m]));}
+  const tdPlayer = (name) => `<td class="left col-player"><a class="player-link" href="javascript:void(0)" onclick="filterByPlayer('${escapeHtml(name)}')">${escapeHtml(name)}</a></td>`;
+
   function buildHeader() {
-    const thead = document.getElementById('thead');
+    const thead = sel('thead');
     const tr = document.createElement('tr');
     COLS.forEach((c, idx) => {
       const th = document.createElement('th');
@@ -247,50 +238,21 @@ permalink: /ntabl/
     thead.appendChild(tr);
   }
 
-  // Hover: highlight row + column
   function wireHover() {
-    const tbody = document.getElementById('tbody');
-    const thead = document.getElementById('thead');
+    const tbody = sel('tbody');
+    const thead = sel('thead');
     tbody.addEventListener('mousemove', (e) => {
       const cell = e.target.closest('td');
       if (!cell) return;
       const idx = [...cell.parentNode.children].indexOf(cell);
-
-      // clear
       tbody.querySelectorAll('.hover-col').forEach(td => td.classList.remove('hover-col'));
       thead.querySelectorAll('.hover-head').forEach(th => th.classList.remove('hover-head'));
-
-      // set column on all rows + header
       tbody.querySelectorAll(`td:nth-child(${idx+1})`).forEach(td => td.classList.add('hover-col'));
       thead.querySelector(`th:nth-child(${idx+1})`)?.classList.add('hover-head');
     });
     tbody.addEventListener('mouseleave', () => {
       tbody.querySelectorAll('.hover-col').forEach(td => td.classList.remove('hover-col'));
       thead.querySelectorAll('.hover-head').forEach(th => th.classList.remove('hover-head'));
-    });
-  }
-
-  // Build filters from data
-  function buildFilters() {
-    const yearSel = sel('filter-year');
-    const seasonSel = sel('filter-season');
-    const programSel = sel('filter-program');
-    const teamSel = sel('filter-team');
-    const playerSel = sel('filter-player');
-
-    fillSelect(yearSel, uniq(RAW.map(r => r.YEAR)), 'All Years');
-    fillSelect(seasonSel, uniq(RAW.map(r => r.SEASON)), 'All Seasons');
-    fillSelect(programSel, uniq(RAW.map(r => r.PROGRAM)), 'All Programs');
-    fillSelect(teamSel, uniq(RAW.map(r => r.TEAM)), 'All Teams');
-    fillSelect(playerSel, uniq(RAW.map(r => r.PLAYER)), 'All Players');
-
-    [yearSel, seasonSel, programSel, teamSel, playerSel].forEach(s => {
-      s.addEventListener('change', applyFilters);
-    });
-
-    sel('btn-reset').addEventListener('click', () => {
-      [yearSel, seasonSel, programSel, teamSel, playerSel].forEach(s => s.selectedIndex = 0);
-      applyFilters();
     });
   }
 
@@ -308,39 +270,73 @@ permalink: /ntabl/
     });
   }
 
+  function buildFilters() {
+    fillSelect(sel('filter-year'),    uniq(RAW.map(r => r.YEAR)),    'All Years');
+    fillSelect(sel('filter-season'),  uniq(RAW.map(r => r.SEASON)),  'All Seasons');
+    fillSelect(sel('filter-program'), uniq(RAW.map(r => r.PROGRAM)), 'All Programs');
+    fillSelect(sel('filter-team'),    uniq(RAW.map(r => r.TEAM)),    'All Teams');
+    fillSelect(sel('filter-player'),  uniq(RAW.map(r => r.PLAYER)),  'All Players');
+
+    ['filter-year','filter-season','filter-program','filter-team','filter-player']
+      .forEach(id => sel(id).addEventListener('change', onFilterChange));
+
+    sel('btn-reset').addEventListener('click', () => {
+      ['filter-year','filter-season','filter-program','filter-team','filter-player']
+        .forEach(id => sel(id).selectedIndex = 0);
+      onFilterChange();
+    });
+
+    sel('btn-clear-player').addEventListener('click', () => {
+      sel('filter-player').selectedIndex = 0;
+      onFilterChange();
+    });
+
+    updateClearPlayerState();
+  }
+
+  function onFilterChange() {
+    applyFilters();
+    updateClearPlayerState();
+  }
+
+  function updateClearPlayerState() {
+    const hasPlayer = !!val('filter-player');
+    sel('btn-clear-player').disabled = !hasPlayer;
+  }
+
   function applyFilters() {
-    const y = val('filter-year');
-    const s = val('filter-season');
-    const p = val('filter-program');
-    const t = val('filter-team');
+    const y  = val('filter-year');
+    const s  = val('filter-season');
+    const pr = val('filter-program');
+    const t  = val('filter-team');
     const pl = val('filter-player');
 
     VIEW = RAW.filter(r =>
       (!y || r.YEAR == y) &&
       (!s || r.SEASON == s) &&
-      (!p || r.PROGRAM == p) &&
+      (!pr || r.PROGRAM == pr) &&
       (!t || r.TEAM == t) &&
       (!pl || r.PLAYER == pl)
     );
     renderBody();
   }
 
-  // Click name to filter that player
+  // Clickable player name => sets dropdown
   function filterByPlayer(name) {
     const playerSel = sel('filter-player');
     [...playerSel.options].forEach((o,i)=>{ if (o.value === name) playerSel.selectedIndex = i; });
-    applyFilters();
+    onFilterChange();
   }
+  window.filterByPlayer = filterByPlayer; // expose to inline onclick
 
-  // Render body + totals with sorting
   function renderBody() {
-    const tbody = document.getElementById('tbody');
-    const tfoot = document.getElementById('tfoot');
+    const tbody = sel('tbody');
+    const tfoot = sel('tfoot');
 
     let rows = VIEW.slice();
     if (sortKey) {
-      const k = sortKey;
       rows.sort((a,b) => {
+        const k = sortKey;
         const va = numish(a[k]); const vb = numish(b[k]);
         if (va < vb) return sortAsc ? -1 : 1;
         if (va > vb) return sortAsc ? 1 : -1;
@@ -348,7 +344,6 @@ permalink: /ntabl/
       });
     }
 
-    // rows
     tbody.innerHTML = rows.map(r => {
       return `<tr>
         ${tdPlayer(r.PLAYER)}
@@ -373,6 +368,7 @@ permalink: /ntabl/
         ${td(r.SB,'col-sb')}
         ${td(r['K-L'],'col-kl')}
         ${td(r.SF,'col-sf')}
+
         ${td(rate(r.AVG),'col-avg')}
         ${td(rate(r.OBP),'col-obp')}
         ${td(rate(r.SLG),'col-slg')}
@@ -380,14 +376,15 @@ permalink: /ntabl/
       </tr>`;
     }).join('');
 
-    // totals (simple sums for counting stats)
+    // Totals (counting stats only)
     const sum = (k) => rows.reduce((acc, r) => acc + (toNum(r[k])||0), 0);
-    const totRow = {
+    const tot = {
       GP: sum('GP'), PA: sum('PA'), AB: sum('AB'), R: sum('R'), H: sum('H'),
       '1B': sum('1B'), '2B': sum('2B'), '3B': sum('3B'), HR: sum('HR'),
       RBI: sum('RBI'), BB: sum('BB'), HBP: sum('HBP'), SO: sum('SO'),
       SB: sum('SB'), 'K-L': sum('K-L'), SF: sum('SF')
     };
+
     tfoot.innerHTML = `<tr>
       <td class="left col-player"><strong>Totals</strong></td>
       <td class="col-year"></td>
@@ -395,22 +392,22 @@ permalink: /ntabl/
       <td class="col-program"></td>
       <td class="col-team left"></td>
 
-      ${td(totRow.GP,'col-gp')}
-      ${td(totRow.PA,'col-pa')}
-      ${td(totRow.AB,'col-ab')}
-      ${td(totRow.R,'col-r')}
-      ${td(totRow.H,'col-h')}
-      ${td(totRow['1B'],'col-1b')}
-      ${td(totRow['2B'],'col-2b')}
-      ${td(totRow['3B'],'col-3b')}
-      ${td(totRow.HR,'col-hr')}
-      ${td(totRow.RBI,'col-rbi')}
-      ${td(totRow.BB,'col-bb')}
-      ${td(totRow.HBP,'col-hbp')}
-      ${td(totRow.SO,'col-so')}
-      ${td(totRow.SB,'col-sb')}
-      ${td(totRow['K-L'],'col-kl')}
-      ${td(totRow.SF,'col-sf')}
+      ${td(tot.GP,'col-gp')}
+      ${td(tot.PA,'col-pa')}
+      ${td(tot.AB,'col-ab')}
+      ${td(tot.R,'col-r')}
+      ${td(tot.H,'col-h')}
+      ${td(tot['1B'],'col-1b')}
+      ${td(tot['2B'],'col-2b')}
+      ${td(tot['3B'],'col-3b')}
+      ${td(tot.HR,'col-hr')}
+      ${td(tot.RBI,'col-rbi')}
+      ${td(tot.BB,'col-bb')}
+      ${td(tot.HBP,'col-hbp')}
+      ${td(tot.SO,'col-so')}
+      ${td(tot.SB,'col-sb')}
+      ${td(tot['K-L'],'col-kl')}
+      ${td(tot.SF,'col-sf')}
 
       <td class="col-avg"></td>
       <td class="col-obp"></td>
@@ -421,19 +418,7 @@ permalink: /ntabl/
     wireHover();
   }
 
-  // Utilities
-  const sel = id => document.getElementById(id);
-  const val = id => sel(id).value;
-  const uniq = arr => [...new Set(arr.filter(Boolean))];
-  const toNum = v => (v === null || v === undefined || v === '') ? 0 : Number(v);
-  const numish = v => isNaN(Number(v)) ? (''+v).toLowerCase() : Number(v);
-  const rate = v => (v===undefined||v==='') ? '' : String(v).replace(/^0\./,'.'); // show .333, not 0.333
-
-  const td = (v, cls='') => `<td class="${cls}">${v ?? ''}</td>`;
-  const tdPlayer = (name) => `<td class="left col-player"><a class="player-link" href="javascript:void(0)" onclick="filterByPlayer('${escapeHtml(name)}')">${escapeHtml(name)}</a></td>`;
-  function escapeHtml(s=''){return s.replace(/[&<>"']/g, m=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m]));}
-
-  // Load CSV with a path that respects baseurl/permalink
+  // Load data
   fetch(CSV_URL, { cache: 'no-store' })
     .then(r => {
       if (!r.ok) throw new Error('CSV not found at ' + CSV_URL);
@@ -442,14 +427,10 @@ permalink: /ntabl/
     .then(txt => new Promise(res => Papa.parse(txt, { header:true, skipEmptyLines:true, complete: res })))
     .then(results => {
       const rows = results.data.map(row => {
-        // Normalize keys (trim)
         const o = {};
         Object.keys(row).forEach(k => { o[k.trim()] = row[k]; });
-
-        // Coerce numbers on counting stats
-        ['GP','PA','AB','R','H','1B','2B','3B','HR','RBI','BB','HBP','SO','SB','K-L','SF'].forEach(k=>{
-          o[k] = o[k] === '' || o[k] === undefined ? '' : Number(o[k]);
-        });
+        ['GP','PA','AB','R','H','1B','2B','3B','HR','RBI','BB','HBP','SO','SB','K-L','SF']
+          .forEach(k => { o[k] = o[k] === '' || o[k] === undefined ? '' : Number(o[k]); });
         return o;
       });
 
@@ -461,7 +442,7 @@ permalink: /ntabl/
     })
     .catch(err => {
       console.error(err);
-      document.getElementById('tbody').innerHTML =
-        `<tr><td class="left" colspan="${COLS.length}">Unable to load CSV (“${CSV_URL}”). Check the filename and commit. ${escapeHtml(err.message)}</td></tr>`;
+      sel('tbody').innerHTML =
+        `<tr><td class="left" colspan="${COLS.length}">Unable to load CSV (“${CSV_URL}”). Check the filename and commit. ${err.message}</td></tr>`;
     });
 </script>
