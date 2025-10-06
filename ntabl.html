@@ -4,12 +4,11 @@ title: NTABL — Career Batting
 permalink: /ntabl/
 ---
 
-<section class="wrap mx-auto max-w-[1400px] px-4 sm:px-6 py-6">
-  <div class="border border-d-line bg-d-card rounded-2xl shadow-card p-4 mb-4">
-    <h1 class="text-xl font-semibold mb-1">NTABL</h1>
-    <p class="text-d-sub text-[13px]">Career batting table loaded from Excel (dark header, white body).</p>
-  </div>
+<section class="mx-auto px-4 sm:px-6 py-6" style="max-width:1600px;">
+  <!-- Page title only (no descriptive line) -->
+  <h1 class="text-xl font-semibold mb-4">NTABL</h1>
 
+  <!-- CSV-driven table -->
   <div class="ntabl-card">
     <div class="ntabl-table-wrap">
       <table id="ntabl-table" class="ntabl-table" aria-describedby="ntabl-note">
@@ -19,7 +18,7 @@ permalink: /ntabl/
       </table>
     </div>
     <div id="ntabl-note" class="ntabl-note">
-      Derived metrics shown if provided by the sheet (AVG, OBP, SLG, OPS).
+      Derived metrics shown if provided by the CSV (AVG, OBP, SLG, OPS).
     </div>
   </div>
 </section>
@@ -30,44 +29,60 @@ permalink: /ntabl/
     border:1px solid #e6e6e6; border-radius:14px; background:#fff;
     box-shadow:0 8px 24px rgba(0,0,0,.08); overflow:hidden;
   }
+  /* Wider shell to avoid horizontal scroll on common screens */
   .ntabl-table-wrap{ overflow-x:auto; }
-  .ntabl-table{ width:100%; min-width:1100px; border-collapse:separate; border-spacing:0; font-size:14px; }
+  .ntabl-table{
+    width:100%;
+    /* make it comfortably wide while still fluid */
+    table-layout:fixed;  /* helps fit all numeric cols */
+    border-collapse:separate; border-spacing:0;
+    font-size:13px;
+  }
   .ntabl-table thead th{
     position:sticky; top:0; z-index:2;
     background:#111; color:#fff; font-weight:600; text-align:left;
-    padding:12px 14px; border-bottom:1px solid #222; white-space:nowrap;
+    padding:10px 10px; border-bottom:1px solid #222; white-space:nowrap;
   }
   .ntabl-table tbody td{
-    background:#fff; color:#111; padding:12px 14px; border-top:1px solid #eee; white-space:nowrap;
+    background:#fff; color:#111; padding:10px 10px; border-top:1px solid #eee; white-space:nowrap;
   }
   .ntabl-table tbody tr:nth-child(even) td{ background:#fafafa; }
   .ntabl-table tbody tr:hover td{ background:#f2f2f2; }
   .ntabl-table tfoot th, .ntabl-table tfoot td{
-    background:#f7f7f7; color:#111; font-weight:700; padding:12px 14px; border-top:2px solid #e5e5e5;
+    background:#f7f7f7; color:#111; font-weight:700; padding:10px 10px; border-top:2px solid #e5e5e5;
   }
   .ntabl-note{ font-size:12px; color:#666; padding:10px 12px 14px; }
+
+  /* Make some wide text columns flex slightly more space */
+  #ntabl-table th:nth-child(1),  /* Season */
+  #ntabl-table th:nth-child(2),  /* Division */
+  #ntabl-table th:nth-child(3),  /* Team */
+  #ntabl-table th:nth-child(4),  /* Last */
+  #ntabl-table th:nth-child(5)   /* First */ { width: 8.5rem; } /* ~136px */
+  /* Numeric columns can be narrow */
+  #ntabl-table th:nth-child(n+6){ width: 3.5rem; } /* ~56px */
 </style>
 
-<!-- SheetJS to read .xlsx in the browser -->
-<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<!-- PapaParse -->
+<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 <script>
 (function(){
-  // IMPORTANT: keep this as an absolute path from your site root
-  const XLSX_PATH = "/personal-batting-career.xlsx";
+  /* CSV path (absolute from site root) */
+  const CSV_PATH = "/personal-batting-career.csv";
 
   const table   = document.getElementById('ntabl-table');
   const theadEl = table.querySelector('thead');
   const tbodyEl = table.querySelector('tbody');
   const tfootEl = table.querySelector('tfoot');
 
-  // Preferred baseball column order; extras appended to the end
+  /* Preferred baseball column order; extras appended */
   const PREFERRED = [
     'Season','Division','Team','Last','First',
     'GP','PA','AB','R','H','1B','2B','3B','HR','RBI',
     'BB','HBP','SO','K-L','SB','SB-ATT','CS','TB','AVG','OBP','SLG','OPS'
   ];
 
-  // Normalize header names
+  /* Normalize header names (handles minor variants) */
   const normalizeKey = k => String(k).trim().replace(/\u2013|\u2014/g,'-').replace(/\s+/g,' ').toLowerCase();
   const aliases = {
     'season':'Season','division':'Division','team':'Team',
@@ -99,7 +114,7 @@ permalink: /ntabl/
   }
 
   function buildHead(cols){
-    theadEl.innerHTML = '<tr>'+cols.map(c=>`<th scope="col">${c}</th>`).join('')+'</tr>';
+    theadEl.innerHTML = '<tr>'+cols.map(c=>`<th scope="col" title="${c}">${c}</th>`).join('')+'</tr>';
   }
 
   const numLike = v => (v!=='' && v!==null && !isNaN(v));
@@ -129,33 +144,31 @@ permalink: /ntabl/
     '</tr>';
   }
 
-  async function loadXLSX(){
-    try{
-      const res = await fetch(XLSX_PATH, {cache:'no-store'});
-      if(!res.ok) throw new Error(`HTTP ${res.status}`);
-      const buf = await res.arrayBuffer();
-      const wb = XLSX.read(buf, {type:'array'});
-      const ws = wb.Sheets[wb.SheetNames[0]]; // first sheet
-      const rows = XLSX.utils.sheet_to_json(ws, {defval:''});
-      const norm = normalizeRows(rows);
-      if(!norm.length){
-        theadEl.innerHTML = '<tr><th>Error</th></tr>';
-        tbodyEl.innerHTML = '<tr><td style="padding:12px 14px;color:#c00">No rows found in Excel sheet.</td></tr>';
-        tfootEl.innerHTML = '';
-        return;
-      }
-      const cols = orderColumns(norm);
-      buildHead(cols);
-      buildBody(cols, norm);
-      buildTotals(cols, norm);
-    }catch(err){
-      console.error('XLSX load error:', err);
+  function render(rows){
+    if(!rows || !rows.length){
       theadEl.innerHTML = '<tr><th>Error</th></tr>';
-      tbodyEl.innerHTML = `<tr><td style="padding:12px 14px;color:#c00">Unable to load Excel file (${err?.message||'unknown error'}).<br>Check that it exists at <code>${XLSX_PATH}</code>.</td></tr>`;
+      tbodyEl.innerHTML = '<tr><td style="padding:12px 14px;color:#c00">No rows in CSV.</td></tr>';
       tfootEl.innerHTML = '';
+      return;
     }
+    const cols = orderColumns(rows);
+    buildHead(cols);
+    buildBody(cols, rows);
+    buildTotals(cols, rows);
   }
 
-  loadXLSX();
+  Papa.parse(CSV_PATH, {
+    download: true,
+    header: true,
+    dynamicTyping: true,
+    skipEmptyLines: 'greedy',
+    complete: res => render(normalizeRows(res.data)),
+    error: err => {
+      console.error('CSV load error:', err);
+      theadEl.innerHTML = '<tr><th>Error</th></tr>';
+      tbodyEl.innerHTML = `<tr><td style="padding:12px 14px;color:#c00">Unable to load CSV (${err?.message||'unknown error'}). Check <code>${CSV_PATH}</code>.</td></tr>`;
+      tfootEl.innerHTML = '';
+    }
+  });
 })();
 </script>
