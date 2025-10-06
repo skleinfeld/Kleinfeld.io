@@ -8,36 +8,36 @@ permalink: /ntabl/
   <h1 style="font-size:22px;font-weight:700;margin:0 0 18px">NTABL</h1>
 
   <!-- Controls -->
-  <div class="card" style="margin:0 auto 16px;padding:16px;display:flex;gap:12px;flex-wrap:wrap;align-items:center">
-    <div>
-      <label for="f-year" style="display:block;font-size:12px;color:#a5adb6;margin-bottom:6px">Year</label>
+  <div class="card ntabl-controls">
+    <div class="ntabl-field">
+      <label for="f-year">Year</label>
       <select id="f-year" class="ntabl-select"></select>
     </div>
-    <div>
-      <label for="f-season" style="display:block;font-size:12px;color:#a5adb6;margin-bottom:6px">Season</label>
+    <div class="ntabl-field">
+      <label for="f-season">Season</label>
       <select id="f-season" class="ntabl-select"></select>
     </div>
-    <div>
-      <label for="f-program" style="display:block;font-size:12px;color:#a5adb6;margin-bottom:6px">Program</label>
+    <div class="ntabl-field">
+      <label for="f-program">Program</label>
       <select id="f-program" class="ntabl-select"></select>
     </div>
-    <div>
-      <label for="f-team" style="display:block;font-size:12px;color:#a5adb6;margin-bottom:6px">Team</label>
+    <div class="ntabl-field">
+      <label for="f-team">Team</label>
       <select id="f-team" class="ntabl-select"></select>
     </div>
+    <div class="ntabl-field">
+      <label for="f-player">Player</label>
+      <select id="f-player" class="ntabl-select"></select>
+    </div>
 
-    <div style="margin-left:auto;display:flex;gap:8px;align-items:flex-end">
-      <div id="player-chip" style="display:none;align-items:center;gap:8px;background:#181b20;border:1px solid #2b2f35;border-radius:12px;padding:8px 10px">
-        <span style="font-size:12px;color:#a5adb6">Player:</span>
-        <strong id="player-name" style="font-size:13px">—</strong>
-        <button id="btn-clear-player" class="btn alt" type="button" style="padding:6px 10px;border-radius:10px">Clear Player</button>
-      </div>
+    <div class="ntabl-actions">
+      <button id="btn-clear-player" class="btn alt" type="button">Clear Player</button>
       <button id="btn-reset" class="btn" type="button" style="background:linear-gradient(180deg,#2f3541,#20242c)">Reset Filters</button>
     </div>
   </div>
 
   <!-- Table -->
-  <div class="surface" style="margin:0 auto;">
+  <div class="surface" style="margin:0 auto;max-width:1400px;">
     <div class="ntabl-wrap">
       <table id="ntabl-table" class="ntabl-table" aria-describedby="ntabl-note">
         <thead></thead>
@@ -45,7 +45,7 @@ permalink: /ntabl/
         <tfoot></tfoot>
       </table>
     </div>
-    <div id="ntabl-note" style="font-size:12px;color:#667085;padding:10px 12px 14px">
+    <div id="ntabl-note" class="ntabl-note">
       Hover to highlight row &amp; column. Click a player name to filter to that player. Click headers to sort.
     </div>
   </div>
@@ -55,57 +55,105 @@ permalink: /ntabl/
 <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 
 <style>
+/* ---------- Controls layout ---------- */
+.ntabl-controls{
+  margin:0 auto 16px;
+  padding:16px;
+  display:flex;
+  flex-wrap:wrap;
+  gap:12px 16px;
+  align-items:end; /* aligns buttons with selects */
+  max-width:1400px;
+}
+.ntabl-field{ display:flex; flex-direction:column; gap:6px; }
+.ntabl-field label{ font-size:12px; color:#a5adb6; }
+.ntabl-actions{ margin-left:auto; display:flex; gap:8px; }
+
+/* ---------- Select styling ---------- */
 .ntabl-select{
   appearance:none; -webkit-appearance:none; -moz-appearance:none;
   background:#0f1113; color:#e9eaec;
   border:1px solid #222428; border-radius:12px;
-  padding:10px 12px; min-width:160px; font-weight:600;
+  padding:10px 12px; min-width:170px; font-weight:600; font-size:14px;
 }
-.ntabl-select:focus{outline:none;border-color:#2b2f35;box-shadow:0 0 0 3px rgba(124,58,237,.28)}
+.ntabl-select:focus{ outline:none; border-color:#2b2f35; box-shadow:0 0 0 3px rgba(124,58,237,.28) }
 
+/* ---------- Table sizing & look ---------- */
+.ntabl-wrap{ overflow-x:visible; }
+.ntabl-table{
+  width:100%;
+  border-collapse:separate; border-spacing:0;
+  font-size:14px; line-height:1.3;
+  table-layout:fixed; /* static column widths */
+}
+.ntabl-table thead th{
+  background:#0d0f12; color:#e7eaee;
+  border-bottom:1px solid #2b2f35;
+  padding:10px 10px;
+  position:sticky; top:0; z-index:1;
+}
+.ntabl-table tbody td, .ntabl-table tfoot td, .ntabl-table tfoot th{
+  background:#ffffff; color:#0f1113;
+  padding:9px 10px; border-bottom:1px solid #e9eef5;
+}
 .ntabl-table tbody tr:hover td{ background:#eef2f7 !important; }
+
+/* fixed widths per column key */
+th[data-col="PLAYER"], td[data-col="PLAYER"]{ width:180px; }
+th[data-col="YEAR"], td[data-col="YEAR"]{ width:72px; }
+th[data-col="SEASON"], td[data-col="SEASON"]{ width:96px; }
+th[data-col="PROGRAM"], td[data-col="PROGRAM"]{ width:140px; }
+th[data-col="TEAM"], td[data-col="TEAM"]{ width:160px; }
+/* all numeric/stat columns */
+.ntabl-table .t-num{ width:56px; }
+
+/* column hover highlight (x & y) */
 .ntabl-table thead th.col-hover,
 .ntabl-table tbody td.col-hover,
 .ntabl-table tfoot td.col-hover{ background:#e6eaf1 !important; }
 
-.link-like{ background:none;border:none;color:#2563eb;cursor:pointer;padding:0;font-weight:700; }
-.link-like:hover{ text-decoration:underline; }
+/* Player link: same font size as table, underline dotted on hover */
+.link-like{
+  background:none;border:none;color:#1e40af;cursor:pointer;padding:0;
+  font:inherit; font-weight:700;
+}
+.link-like:hover{ color:#0e7490; text-decoration:underline dotted; text-underline-offset:2px; }
+
+/* footnote */
+.ntabl-note{ font-size:12px;color:#667085;padding:10px 12px 14px }
 </style>
 
 <script>
 (function(){
   const CSV_PATH = "/ntabl-hitting-stats.csv";
 
-  // Your preferred front columns in this exact order:
+  // front columns (exact order you want)
   const FRONT = ['PLAYER','YEAR','SEASON','PROGRAM','TEAM'];
 
-  // Then numeric/stat columns (we’ll append any present in this order)
+  // stat columns in our preferred order (any not present are ignored)
   const STATS_ORDER = [
     'GP','PA','AB','R','H','1B','2B','3B','HR','RBI','BB','HBP','SO','K-L','SB','TB',
-    'AVG','OBP','SLG','OPS','SF','SAC'
+    'AVG','OBP','SLG','OPS','SF','SAC','ROE'
   ];
 
-  // Metrics shown to .xxx
   const METRICS = new Set(['AVG','OBP','SLG','OPS']);
-  // Treat these as text
   const TEXT_COLS = new Set(['PLAYER','YEAR','SEASON','PROGRAM','TEAM']);
 
-  const ORDER_YEAR = ['2025','2024'];
+  const ORDER_YEAR   = ['2025','2024'];
   const ORDER_SEASON = ['Summer','Fall','Spring'];
 
-  const table = document.getElementById('ntabl-table');
+  const table   = document.getElementById('ntabl-table');
   const theadEl = table.querySelector('thead');
   const tbodyEl = table.querySelector('tbody');
   const tfootEl = table.querySelector('tfoot');
 
-  const fYear = document.getElementById('f-year');
-  const fSeason = document.getElementById('f-season');
+  const fYear    = document.getElementById('f-year');
+  const fSeason  = document.getElementById('f-season');
   const fProgram = document.getElementById('f-program');
-  const fTeam = document.getElementById('f-team');
+  const fTeam    = document.getElementById('f-team');
+  const fPlayer  = document.getElementById('f-player');
 
-  const btnReset = document.getElementById('btn-reset');
-  const playerChip = document.getElementById('player-chip');
-  const playerNameEl = document.getElementById('player-name');
+  const btnReset       = document.getElementById('btn-reset');
   const btnClearPlayer = document.getElementById('btn-clear-player');
 
   let rows = [];
@@ -113,19 +161,13 @@ permalink: /ntabl/
   let COLS = [];
   let sortKey = null;
   let sortDir = 1;
-  let currentPlayer = "";
 
-  const norm = s => String(s??'').trim();
-  const lower = s => norm(s).toLowerCase();
-  const numLike = v => v!=='' && v!==null && !isNaN(v);
-  const to3 = v => Number(v).toFixed(3).replace(/^0/,'');
+  const norm   = s => String(s??'').trim();
+  const lower  = s => norm(s).toLowerCase();
+  const numLike= v => v!=='' && v!==null && !isNaN(v);
+  const to3    = v => Number(v).toFixed(3).replace(/^0/,'');
 
-  // case-insensitive get
-  function getCI(obj, name){
-    for(const k in obj){ if(k.toLowerCase()===String(name).toLowerCase()) return obj[k]; }
-    return undefined;
-  }
-
+  // helpers
   function setOptions(sel, list, labelAll){
     sel.innerHTML='';
     const all=document.createElement('option'); all.value=''; all.textContent=labelAll; sel.appendChild(all);
@@ -166,7 +208,7 @@ permalink: /ntabl/
         const k = th.getAttribute('data-col');
         if(sortKey===k) sortDir*=-1; else { sortKey=k; sortDir=1; }
         renderBody();
-        buildHead();
+        buildHead(); // refresh arrows
       });
     });
   }
@@ -176,11 +218,12 @@ permalink: /ntabl/
       return '<tr>'+COLS.map((c,idx)=>{
         let v = r[c] ?? '';
         if(METRICS.has(c) && numLike(v)) v = to3(v);
+
         if(c==='PLAYER' && v){
           v = `<button class="link-like player-link" data-player="${escapeHtml(String(v))}" title="Filter to ${escapeHtml(String(v))}">${escapeHtml(String(v))}</button>`;
         }
         const cls = TEXT_COLS.has(c)?'t-text':'t-num';
-        return `<td class="${cls}" data-col-idx="${idx}">${v}</td>`;
+        return `<td class="${cls}" data-col="${c}" data-col-idx="${idx}">${v}</td>`;
       }).join('')+'</tr>';
     }).join('');
   }
@@ -195,21 +238,20 @@ permalink: /ntabl/
     tfootEl.innerHTML = '<tr>'+COLS.map((c,i)=>{
       if(i===0) return '<th scope="row" class="t-text">Totals</th>';
       const cls = TEXT_COLS.has(c)?'t-text':'t-num';
-      return `<td class="${cls}">${numLike(t[c])?t[c]:''}</td>`;
+      return `<td class="${cls}" data-col="${c}">${numLike(t[c])?t[c]:''}</td>`;
     }).join('')+'</tr>';
 
-    // player filter
+    // player-click filtering
     tbodyEl.querySelectorAll('.player-link').forEach(btn=>{
       btn.addEventListener('click', ()=>{
-        currentPlayer = btn.getAttribute('data-player');
-        playerNameEl.textContent = currentPlayer;
-        playerChip.style.display = 'flex';
+        const p = btn.getAttribute('data-player');
+        fPlayer.value = p;      // keep dropdown in sync
         applyFilters();
       });
     });
   }
 
-  // column hover
+  // column hover highlight (x & y)
   tbodyEl.addEventListener('mouseover', (e)=>{
     const cell = e.target.closest('td'); if(!cell) return;
     const idx = +cell.getAttribute('data-col-idx'); if(isNaN(idx)) return;
@@ -232,72 +274,74 @@ permalink: /ntabl/
     const s = fSeason.value;
     const p = fProgram.value;
     const t = fTeam.value;
+    const pl = fPlayer.value;
 
     viewRows = rows.filter(r=>{
-      if(currentPlayer && r['PLAYER'] !== currentPlayer) return false;
+      if(pl && String(r['PLAYER'])!==pl) return false;
       if(y && String(r['YEAR'])!==y) return false;
       if(s && String(r['SEASON'])!==s) return false;
       if(p && String(r['PROGRAM'])!==p) return false;
       if(t && String(r['TEAM'])!==t) return false;
       return true;
     });
+    // show/hide clear player
+    btnClearPlayer.style.visibility = pl ? 'visible' : 'hidden';
     renderBody();
   }
 
   function resetFilters(){
-    currentPlayer = "";
-    playerChip.style.display = 'none';
-    fYear.value=''; fSeason.value=''; fProgram.value=''; fTeam.value='';
+    fYear.value=''; fSeason.value=''; fProgram.value=''; fTeam.value=''; fPlayer.value='';
+    btnClearPlayer.style.visibility = 'hidden';
     applyFilters();
   }
   btnReset.addEventListener('click', resetFilters);
-  btnClearPlayer.addEventListener('click', ()=>{ currentPlayer=""; playerChip.style.display='none'; applyFilters(); });
+  btnClearPlayer.addEventListener('click', ()=>{ fPlayer.value=''; applyFilters(); });
 
   Papa.parse(CSV_PATH, {
     download:true, header:true, dynamicTyping:true, skipEmptyLines:'greedy',
     complete: res => {
       const raw = res.data || [];
 
-      // Normalize all to uppercase keys so we can reference reliably
+      // Normalize to UPPERCASE keys so we can reference reliably
       rows = raw.map(r=>{
-        const obj = {};
-        Object.keys(r).forEach(k=>{ obj[String(k).toUpperCase()] = r[k]; });
-
-        // Ensure required identity fields exist (exactly your headers)
-        obj['PLAYER']  = norm( obj['PLAYER']  ?? '' );
-        obj['YEAR']    = String( obj['YEAR'] ?? '' );
-        obj['SEASON']  = norm( obj['SEASON'] ?? '' );
-        obj['PROGRAM'] = norm( obj['PROGRAM'] ?? '' );
-        obj['TEAM']    = norm( obj['TEAM'] ?? '' );
-
-        // Alias common variations (optional safety)
-        if(obj['K_L'] !== undefined && obj['K-L'] === undefined) obj['K-L'] = obj['K_L'];
-
-        return obj;
+        const o={};
+        Object.keys(r).forEach(k=>{ o[String(k).toUpperCase()] = r[k]; });
+        // Basic cleanup
+        o['PLAYER']  = norm(o['PLAYER']  ?? '');
+        o['YEAR']    = String(o['YEAR'] ?? '');
+        o['SEASON']  = norm(o['SEASON'] ?? '');
+        o['PROGRAM'] = norm(o['PROGRAM'] ?? '');
+        o['TEAM']    = norm(o['TEAM'] ?? '');
+        // common alias
+        if(o['K_L'] !== undefined && o['K-L'] === undefined) o['K-L'] = o['K_L'];
+        return o;
       });
 
-      // Column order: your five headers first, then any present stats by STATS_ORDER, then any remaining extras
-      const present = new Set();
-      rows.forEach(r=>Object.keys(r).forEach(k=>present.add(k)));
-
+      // Set up column order: FRONT then present stats, then any extras
+      const present = new Set(); rows.forEach(r=>Object.keys(r).forEach(k=>present.add(k)));
       const stats = STATS_ORDER.filter(c=>present.has(c));
-      const rest = Array.from(present).filter(c=>!FRONT.includes(c) && !stats.includes(c));
+      const rest  = Array.from(present).filter(c=>!FRONT.includes(c) && !stats.includes(c));
       COLS = [...FRONT, ...stats, ...rest];
 
+      // Build head first (so width classes bind to data-col)
+      buildHead();
+
       // Filters
-      const years = Array.from(new Set(rows.map(r=>r['YEAR']).filter(Boolean)))
+      const years    = Array.from(new Set(rows.map(r=>r['YEAR']).filter(Boolean)))
         .sort((a,b)=>ORDER_YEAR.indexOf(a)-ORDER_YEAR.indexOf(b) || b.localeCompare(a));
-      const seasons = Array.from(new Set(rows.map(r=>r['SEASON']).filter(Boolean)))
+      const seasons  = Array.from(new Set(rows.map(r=>r['SEASON']).filter(Boolean)))
         .sort((a,b)=>ORDER_SEASON.indexOf(a)-ORDER_SEASON.indexOf(b) || a.localeCompare(b));
       const programs = Array.from(new Set(rows.map(r=>r['PROGRAM']).filter(Boolean))).sort();
-      const teams = Array.from(new Set(rows.map(r=>r['TEAM']).filter(Boolean))).sort();
+      const teams    = Array.from(new Set(rows.map(r=>r['TEAM']).filter(Boolean))).sort();
+      const players  = Array.from(new Set(rows.map(r=>r['PLAYER']).filter(Boolean))).sort();
 
       setOptions(fYear, years, 'All Years');
       setOptions(fSeason, seasons, 'All Seasons');
       setOptions(fProgram, programs, 'All Programs');
       setOptions(fTeam, teams, 'All Teams');
+      setOptions(fPlayer, players, 'All Players');
+      btnClearPlayer.style.visibility = 'hidden';
 
-      buildHead();
       viewRows = rows.slice();
       renderBody();
 
@@ -305,6 +349,7 @@ permalink: /ntabl/
       fSeason.addEventListener('change', applyFilters);
       fProgram.addEventListener('change', applyFilters);
       fTeam.addEventListener('change', applyFilters);
+      fPlayer.addEventListener('change', applyFilters);
     },
     error: err => {
       theadEl.innerHTML = '<tr><th>Error</th></tr>';
