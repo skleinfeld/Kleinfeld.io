@@ -3,16 +3,11 @@ url: https://kleinfeld.io
 
 # Use our own layout/includes; don't pull in a remote theme
 theme: null
-
-# GitHub Pages allows a small set of plugins; we can run with none
 plugins: []
 
-# Markdown config used by GitHub Pages
 markdown: kramdown
 kramdown:
   input: GFM
-  hard_wrap: false
-  syntax_highlighter: rouge
 
 # Keep the build clean
 exclude:
