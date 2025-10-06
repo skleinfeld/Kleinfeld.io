@@ -1,63 +1,199 @@
-<style>
-.ntabl-card{border-radius:16px;border:1px solid #2b2b2b;background:#0e0f10;box-shadow:0 8px 24px rgba(0,0,0,.35)}
-.ntabl-wrap{overflow-x:auto}
-.ntabl-table{width:100%;min-width:1200px;border-collapse:separate;border-spacing:0;font-size:13px;color:#eaeaea}
-.ntabl-table thead th{position:sticky;top:0;z-index:2;background:#0b6a34;color:#fff;font-weight:600;padding:10px 12px;border-bottom:1px solid #1d1d1d;white-space:nowrap}
-.ntabl-table td{padding:10px 12px;border-top:1px solid #1d1d1d;white-space:nowrap}
-.ntabl-table tr.even{background:rgba(255,255,255,0.02)}
-.ntabl-table tr.odd{background:transparent}
-.ntabl-table tr:hover{background:rgba(255,255,255,0.05)}
-.ntabl-table tfoot tr.totals th, .ntabl-table tr.totals td{background:#113d22;color:#fff;border-top:1px solid #1d1d1d;font-weight:600}
-.sticky-left{position:sticky;left:0;background:inherit}
-.caption{display:flex;align-items:center;gap:12px;padding:14px 16px;color:#cfcfcf}
-.badge{background:#ff8200;color:#111;font-weight:600;border-radius:999px;padding:4px 10px;font-size:12px}
-.note{color:#9aa0a6;font-size:12px;margin-top:8px}
-</style>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>NTABL — Career Batting</title>
+  <meta name="color-scheme" content="dark light">
+  <link rel="icon" href="/favicon.ico">
+  <style>
+    /* ---- Base (matches your dark aesthetic) ---- */
+    :root{
+      --bg:#0b0c0d; --card:#0e0f10; --line:#232425; --fg:#eaeaea; --sub:#a8aeb4;
+      --header:#111; --thead:#111; --thead-fg:#fff; --body:#fff; --body-alt:#fafafa; --body-fg:#111;
+    }
+    html,body{height:100%}
+    body{margin:0;background:var(--bg);color:var(--fg);
+         font:14px/1.55 ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial}
+    .wrap{max-width:1200px;margin:0 auto;padding:20px}
+    .wrap-wide{max-width:1400px}
+    /* ---- Header ---- */
+    header{position:sticky;top:0;z-index:50;
+           background:rgba(18,18,18,.85);backdrop-filter:saturate(140%) blur(10px);
+           border-bottom:1px solid var(--line)}
+    .nav{display:flex;gap:22px;align-items:center;height:56px}
+    .brand{font-weight:600;letter-spacing:.2px}
+    .nav a{color:var(--sub);text-decoration:none}
+    .nav a:hover{color:var(--fg)}
+    /* ---- Card ---- */
+    .card{border:1px solid var(--line);background:var(--card);border-radius:16px;box-shadow:0 8px 24px rgba(0,0,0,.24)}
+    .card-pad{padding:14px 16px}
+    .title{font-size:22px;font-weight:600;margin:0 0 8px}
+    /* ---- Table shell ---- */
+    .ntabl-card{border:1px solid #e6e6e6;border-radius:14px;background:#fff;box-shadow:0 8px 24px rgba(0,0,0,.08);overflow:hidden}
+    .ntabl-table-wrap{overflow-x:auto}
+    .ntabl-table{width:100%;min-width:1100px;border-collapse:separate;border-spacing:0;font-size:14px}
+    .ntabl-table thead th{
+      position:sticky;top:0;z-index:2;background:var(--thead);color:var(--thead-fg);
+      font-weight:600;text-align:left;padding:12px 14px;border-bottom:1px solid #222;white-space:nowrap
+    }
+    .ntabl-table tbody td{
+      background:var(--body);color:var(--body-fg);padding:12px 14px;border-top:1px solid #eee;white-space:nowrap
+    }
+    .ntabl-table tbody tr:nth-child(even) td{background:var(--body-alt)}
+    .ntabl-table tbody tr:hover td{background:#f2f2f2}
+    .ntabl-table tfoot th,.ntabl-table tfoot td{
+      background:#f7f7f7;color:#111;font-weight:700;padding:12px 14px;border-top:2px solid #e5e5e5
+    }
+    .ntabl-note{font-size:12px;color:#666;padding:10px 12px 14px}
+    /* ---- Footer ---- */
+    footer{color:var(--sub);font-size:12px;text-align:center;padding:28px 0;border-top:1px solid var(--line);margin-top:32px}
+  </style>
+</head>
+<body>
 
-<div class="ntabl-card">
-  <div class="caption">
-    <span class="badge">Individual</span>
-    <div><strong>Career Batting Statistics</strong></div>
-  </div>
-  <div class="ntabl-wrap">
-    <table class="ntabl-table">
-      <thead>
-        <tr>
-          <th>Season</th><th>Division</th><th>Team</th><th>Last</th><th>First</th>
-          <th>GP</th><th>PA</th><th>AB</th><th>R</th><th>H</th><th>1B</th><th>2B</th><th>3B</th><th>HR</th><th>RBI</th>
-          <th>BB</th><th>HBP</th><th>SO</th><th>K-L</th><th>SB</th><th>TB</th><th>AVG</th><th>OBP</th><th>SLG</th><th>OPS</th><th>SB%</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr class="even">
-          <td class="sticky-left">Summer 2024</td><td>Rookie (18+)</td><td>Gann's Bulls</td><td>Kleinfeld</td><td>Saul</td>
-          <td>9</td><td>18</td><td>12</td><td>0</td><td>5</td><td>5</td><td>0</td><td>0</td><td>0</td><td>4</td>
-          <td>3</td><td>3</td><td>3</td><td>0</td><td>1</td><td>5</td><td>.417</td><td>.611</td><td>.417</td><td>1.028</td><td>0.5</td>
-        </tr>
-        <tr class="odd">
-          <td class="sticky-left">Spring 2025</td><td>Veterans (30+)</td><td>East Dallas Expos</td><td>Kleinfeld</td><td>Saul</td>
-          <td>7</td><td>14</td><td>13</td><td>3</td><td>3</td><td>3</td><td>0</td><td>0</td><td>0</td><td>0</td>
-          <td>0</td><td>1</td><td>6</td><td>1</td><td>0</td><td>5</td><td>.231</td><td>.286</td><td>.385</td><td>.670</td><td>-</td>
-        </tr>
-        <tr class="even">
-          <td class="sticky-left">Summer 2025</td><td>Rookie (18+)</td><td>Gann's Bulls</td><td>Kleinfeld</td><td>Saul</td>
-          <td>9</td><td>19</td><td>17</td><td>4</td><td>5</td><td>4</td><td>1</td><td>0</td><td>0</td><td>3</td>
-          <td>1</td><td>1</td><td>4</td><td>1</td><td>1</td><td>7</td><td>.294</td><td>.368</td><td>.412</td><td>.780</td><td>1</td>
-        </tr>
-        <tr class="odd">
-          <td class="sticky-left">Fall 2025</td><td>Rookie (18+)</td><td>Gann's Bulls</td><td>Kleinfeld</td><td>Saul</td>
-          <td>2</td><td>5</td><td>3</td><td>0</td><td>2</td><td>2</td><td>0</td><td>0</td><td>0</td><td>3</td>
-          <td>1</td><td>1</td><td>0</td><td>0</td><td>0</td><td>2</td><td>.667</td><td>.800</td><td>.667</td><td>1.467</td><td>-</td>
-        </tr>
-      </tbody>
-      <tfoot>
-        <tr class="totals">
-          <td class="sticky-left">Totals</td><td></td><td></td><td></td><td></td>
-          <td>27</td><td>56</td><td>45</td><td>7</td><td>15</td><td>11</td><td>4</td><td>0</td><td>0</td><td>11</td>
-          <td>5</td><td>6</td><td>13</td><td>2</td><td>2</td><td>19</td><td>.333</td><td>.464</td><td>.422</td><td>.887</td><td>—</td>
-        </tr>
-      </tfoot>
-    </table>
-  </div>
-</div>
-<p class="note">Derived metrics: AVG = H/AB · OBP = (H+BB+HBP)/(AB+BB+HBP+SF) · SLG = TB/AB · OPS = OBP+SLG.</p>
+  <!-- Site header / nav -->
+  <header>
+    <div class="wrap nav">
+      <a class="brand" href="/">kleinfeld.io</a>
+      <nav class="nav">
+        <a href="/">Home</a>
+        <a href="/biography/">Biography</a>
+        <a href="/resume/">Resume</a>
+        <a href="/photos/">Photos</a>
+        <a href="/ntabl.html">NTABL</a> <!-- IMPORTANT: keep .html here -->
+        <a href="/contact/">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main -->
+  <main class="wrap wrap-wide" style="padding-top:22px">
+    <div class="card card-pad" style="margin-bottom:16px">
+      <h1 class="title">NTABL</h1>
+      <div style="color:var(--sub);font-size:13px">Career batting table loaded from CSV (dark header, white body).</div>
+    </div>
+
+    <!-- CSV-driven table -->
+    <div class="ntabl-card">
+      <div class="ntabl-table-wrap">
+        <table id="ntabl-table" class="ntabl-table" aria-describedby="ntabl-note">
+          <thead></thead>
+          <tbody></tbody>
+          <tfoot></tfoot>
+        </table>
+      </div>
+      <div id="ntabl-note" class="ntabl-note">
+        Derived metrics shown if provided by the CSV (AVG, OBP, SLG, OPS).
+      </div>
+    </div>
+  </main>
+
+  <footer>©2025 Saul B. Kleinfeld — Built on GitHub Pages.</footer>
+
+  <!-- PapaParse (CSV parser) -->
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+  <script>
+  (function(){
+    /* If your CSV is not in the repo root, adjust this path */
+    const CSV_PATH = "{{ 'personal-batting-career.csv' | relative_url }}";
+
+    const table   = document.getElementById('ntabl-table');
+    const theadEl = table.querySelector('thead');
+    const tbodyEl = table.querySelector('tbody');
+    const tfootEl = table.querySelector('tfoot');
+
+    // Preferred baseball column order; any extras will be appended
+    const PREFERRED = [
+      'Season','Division','Team','Last','First',
+      'GP','PA','AB','R','H','1B','2B','3B','HR','RBI',
+      'BB','HBP','SO','K-L','SB','SB-ATT','CS',
+      'TB','AVG','OBP','SLG','OPS'
+    ];
+
+    // Normalize header names (handles small variations)
+    const normalizeKey = k => String(k).trim().replace(/\u2013|\u2014/g,'-').replace(/\s+/g,' ').toLowerCase();
+    const aliases = {
+      'season':'Season','division':'Division','team':'Team',
+      'last':'Last','first':'First',
+      'gp':'GP','g':'GP','gs':'GS','pa':'PA','ab':'AB','r':'R','h':'H',
+      '1b':'1B','2b':'2B','3b':'3B','hr':'HR','rbi':'RBI','tb':'TB',
+      'bb':'BB','so':'SO','k-l':'K-L','k l':'K-L','hbp':'HBP','sf':'SF',
+      'sb':'SB','sb-att':'SB-ATT','sb att':'SB-ATT','cs':'CS',
+      'avg':'AVG','obp':'OBP','slg':'SLG','ops':'OPS'
+    };
+
+    function normalizeRows(rows){
+      return rows.map(row=>{
+        const out = {};
+        Object.entries(row).forEach(([k,v])=>{
+          const key = aliases[normalizeKey(k)] || k; out[key] = v;
+        });
+        return out;
+      });
+    }
+
+    function orderColumns(rows){
+      if(!rows || !rows.length) return [];
+      const seen = new Set(), cols = [];
+      PREFERRED.forEach(c => { if(c in rows[0]){ cols.push(c); seen.add(c); }});
+      Object.keys(rows[0]).forEach(c => { if(!seen.has(c)) cols.push(c); });
+      return cols;
+    }
+
+    function buildHead(cols){
+      theadEl.innerHTML = '<tr>'+cols.map(c=>`<th scope="col">${c}</th>`).join('')+'</tr>';
+    }
+
+    const numLike = v => (v!=='' && v!==null && !isNaN(v));
+    const metricCol = c => ['AVG','OBP','SLG','OPS'].includes(c);
+
+    function buildBody(cols, rows){
+      tbodyEl.innerHTML = rows.map(r=>{
+        return '<tr>'+cols.map(c=>{
+          let val = r[c] ?? '';
+          if(metricCol(c) && numLike(val)){ val = Number(val).toFixed(3).replace(/^0/,''); }
+          return `<td>${val}</td>`;
+        }).join('')+'</tr>';
+      }).join('');
+    }
+
+    function buildTotals(cols, rows){
+      const totals = {}; cols.forEach(c => totals[c] = '');
+      cols.forEach(c=>{
+        if(!metricCol(c)){ // sum counting stats only
+          let sum = 0, hasAny = false;
+          rows.forEach(r=>{ const v=r[c]; if(numLike(v)){ sum += (+v||0); hasAny = true; }});
+          if(hasAny) totals[c] = sum;
+        }
+      });
+      tfootEl.innerHTML = '<tr>'+
+        cols.map((c,i)=> i===0 ? '<th scope="row">Totals</th>' : `<td>${totals[c] ?? ''}</td>`).join('') +
+      '</tr>';
+    }
+
+    function render(rows){
+      if(!rows || !rows.length){
+        theadEl.innerHTML = '<tr><th>No data</th></tr>';
+        tbodyEl.innerHTML = ''; tfootEl.innerHTML = ''; return;
+      }
+      const cols = orderColumns(rows);
+      buildHead(cols);
+      buildBody(cols, rows);
+      buildTotals(cols, rows);
+    }
+
+    Papa.parse(encodeURI(CSV_PATH), {
+      download: true, header: true, dynamicTyping: true, skipEmptyLines: 'greedy',
+      complete: res => render(normalizeRows(res.data)),
+      error: err => {
+        console.error('CSV load error:', err);
+        theadEl.innerHTML = '<tr><th>Error</th></tr>';
+        tbodyEl.innerHTML = `<tr><td style="padding:12px 14px;color:#c00">Unable to load CSV (${err?.message||'unknown error'}).</td></tr>`;
+        tfootEl.innerHTML = '';
+      }
+    });
+  })();
+  </script>
+</body>
+</html>
