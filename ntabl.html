@@ -4,7 +4,7 @@ title: North Texas Amateur Baseball League | Interactive Hitting Stats
 permalink: /ntabl/
 ---
 
-<section class="wrap-wide" style="padding:40px 0;">
+<section id="ntabl-page" class="wrap-wide" style="padding:40px 0;">
   <h1 style="font-size:22px;font-weight:700;margin:0 0 18px">
     North Texas Amateur Baseball League | Interactive Hitting Stats
   </h1>
@@ -57,18 +57,21 @@ permalink: /ntabl/
 <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 
 <style>
+/* PAGE OVERRIDES: let this page go wide no matter what global .wrap-wide does */
+#ntabl-page{ max-width:none !important; width:100%; }
+
 /* ========= Width & theme variables ========= */
 :root{
-  /* Widened so every column (including ROE) fits without scrolling */
-  --ntabl-width: 1920px;
+  /* WIDER so every column (through ROE) fits without horizontal scroll */
+  --ntabl-width: 2040px;
 
-  /* width for each numeric/stat column (slightly wider so values breathe) */
-  --ntabl-number-col: 52px;
+  /* width for each numeric/stat column */
+  --ntabl-number-col: 54px;
 
   --ntabl-text: #e7eaee;
   --ntabl-muted: #a5adb6;
   --ntabl-head-bg: #0d0f12;
-  --ntabl-head-hover: #1f2430; /* header when its column is hovered */
+  --ntabl-head-hover: #1f2430;
   --ntabl-cell: #ffffff;
   --ntabl-row-hover: #eef2f7;
   --ntabl-col-hover: #e6eaf1;
@@ -92,7 +95,7 @@ permalink: /ntabl/
   flex-wrap:wrap;
   gap:12px 16px;
   align-items:end;
-  max-width:var(--ntabl-width);
+  max-width:var(--ntabl-width); /* match table width */
 }
 .ntabl-field{ display:flex; flex-direction:column; gap:6px; }
 .ntabl-field label{ font-size:12px; color:var(--ntabl-muted); }
@@ -106,7 +109,6 @@ permalink: /ntabl/
 }
 .ntabl-select:focus{ outline:none; border-color:#2b2f35; box-shadow:0 0 0 3px rgba(124,58,237,.28) }
 
-/* Buttons that look exactly like selects (uniform sizing) */
 .ntabl-actions{ margin-left:auto; display:flex; gap:12px; }
 .ntabl-control-btn{
   background:#0f1113; color:#e9eaec;
@@ -121,7 +123,7 @@ permalink: /ntabl/
 }
 
 /* ========= Table sizing & look ========= */
-.ntabl-surface{ margin:0 auto; max-width:var(--ntabl-width); }
+.ntabl-surface{ margin:0 auto; max-width:var(--ntabl-width); } /* same width as controls */
 .ntabl-wrap{ overflow-x:hidden; } /* no horizontal scroll */
 .ntabl-table{
   width:100%;
@@ -134,7 +136,7 @@ permalink: /ntabl/
   border-bottom:1px solid var(--ntabl-sticky-border);
   padding:10px 10px;
   position:sticky; top:0; z-index:1;
-  text-align:center; /* center stat headers */
+  text-align:center;
 }
 .ntabl-table thead th.t-text{ text-align:left; padding-left:12px; }
 .ntabl-table tbody td, .ntabl-table tfoot td, .ntabl-table tfoot th{
@@ -145,7 +147,7 @@ permalink: /ntabl/
 .ntabl-table tbody td.t-text, .ntabl-table tfoot th.t-text{ text-align:left; padding-left:12px; }
 .ntabl-table tbody tr:hover td{ background:var(--ntabl-row-hover) !important; }
 
-/* fixed widths for the first text columns */
+/* fixed widths for the first text columns (sum ~ 658px) */
 th[data-col="PLAYER"], td[data-col="PLAYER"]{ width:190px; }
 th[data-col="YEAR"],   td[data-col="YEAR"]  { width:72px; }
 th[data-col="SEASON"], td[data-col="SEASON"]{ width:96px; }
@@ -160,7 +162,7 @@ th[data-col="TEAM"],   td[data-col="TEAM"]  { width:160px; }
 .ntabl-table tbody td.col-hover,
 .ntabl-table tfoot td.col-hover{ background:var(--ntabl-col-hover) !important; }
 
-/* Player link */
+/* Player link visuals */
 .link-like{
   background:none;border:none;color:#1e40af;cursor:pointer;padding:0;
   font:inherit; font-weight:700;
@@ -268,7 +270,6 @@ th[data-col="TEAM"],   td[data-col="TEAM"]  { width:160px; }
       return '<tr>'+COLS.map((c,idx)=>{
         let v = r[c] ?? '';
         if(METRICS.has(c) && numLike(v)) v = to3(v);
-
         if(c==='PLAYER' && v){
           v = `<button class="link-like player-link" data-player="${escapeHtml(String(v))}" title="Filter to ${escapeHtml(String(v))}">${escapeHtml(String(v))}</button>`;
         }
@@ -281,7 +282,6 @@ th[data-col="TEAM"],   td[data-col="TEAM"]  { width:160px; }
   function renderBody(){
     let data = viewRows.slice();
     if(sortKey){ data.sort((a,b)=>compare(a,b,sortKey)); }
-
     tbodyEl.innerHTML = buildBodyRows(data);
 
     const t = totalsFor(data, COLS);
@@ -355,15 +355,12 @@ th[data-col="TEAM"],   td[data-col="TEAM"]  { width:160px; }
 
       rows = raw.map(r=>{
         const o={};
-        // normalize keys to UPPERCASE
         Object.keys(r).forEach(k=>{ o[String(k).toUpperCase()] = r[k]; });
-        // cleanup core fields
         o['PLAYER']  = (o['PLAYER']  ?? '').toString().trim();
         o['YEAR']    = (o['YEAR']    ?? '').toString().trim();
         o['SEASON']  = (o['SEASON']  ?? '').toString().trim();
         o['PROGRAM'] = (o['PROGRAM'] ?? '').toString().trim();
         o['TEAM']    = (o['TEAM']    ?? '').toString().trim();
-        // alias K_L -> K-L if needed
         if(o['K_L'] !== undefined && o['K-L'] === undefined) o['K-L'] = o['K_L'];
         return o;
       });
@@ -374,11 +371,7 @@ th[data-col="TEAM"],   td[data-col="TEAM"]  { width:160px; }
       const rest  = Array.from(present).filter(c=>!FRONT.includes(c) && !stats.includes(c));
       COLS = [...FRONT, ...stats, ...rest];
 
-      // Header & options
       buildHead();
-
-      const ORDER_YEAR   = ['2025','2024'];
-      const ORDER_SEASON = ['Summer','Fall','Spring'];
 
       const years    = Array.from(new Set(rows.map(r=>r['YEAR']).filter(Boolean)))
         .sort((a,b)=>ORDER_YEAR.indexOf(a)-ORDER_YEAR.indexOf(b) || b.localeCompare(a));
@@ -387,6 +380,12 @@ th[data-col="TEAM"],   td[data-col="TEAM"]  { width:160px; }
       const programs = Array.from(new Set(rows.map(r=>r['PROGRAM']).filter(Boolean))).sort();
       const teams    = Array.from(new Set(rows.map(r=>r['TEAM']).filter(Boolean))).sort();
       const players  = Array.from(new Set(rows.map(r=>r['PLAYER']).filter(Boolean))).sort();
+
+      function setOptions(sel, list, label){
+        sel.innerHTML='';
+        const all=document.createElement('option'); all.value=''; all.textContent=label; sel.appendChild(all);
+        list.forEach(v=>{ const o=document.createElement('option'); o.value=v; o.textContent=v; sel.appendChild(o); });
+      }
 
       setOptions(fYear, years, 'All Years');
       setOptions(fSeason, seasons, 'All Seasons');
