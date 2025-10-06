@@ -18,8 +18,8 @@ permalink: /ntabl/
       <select id="f-season" class="ntabl-select"></select>
     </div>
     <div>
-      <label for="f-division" style="display:block;font-size:12px;color:#a5adb6;margin-bottom:6px">Division</label>
-      <select id="f-division" class="ntabl-select"></select>
+      <label for="f-program" style="display:block;font-size:12px;color:#a5adb6;margin-bottom:6px">Program</label>
+      <select id="f-program" class="ntabl-select"></select>
     </div>
     <div>
       <label for="f-team" style="display:block;font-size:12px;color:#a5adb6;margin-bottom:6px">Team</label>
@@ -51,56 +51,48 @@ permalink: /ntabl/
   </div>
 </section>
 
-<!-- PapaParse for CSV -->
+<!-- PapaParse -->
 <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 
 <style>
-/* modern compact selects */
 .ntabl-select{
   appearance:none; -webkit-appearance:none; -moz-appearance:none;
-  background:#0f1113;
-  color:#e9eaec;
-  border:1px solid #222428;
-  border-radius:12px;
-  padding:10px 12px;
-  min-width:160px;
-  font-weight:600;
+  background:#0f1113; color:#e9eaec;
+  border:1px solid #222428; border-radius:12px;
+  padding:10px 12px; min-width:160px; font-weight:600;
 }
 .ntabl-select:focus{outline:none;border-color:#2b2f35;box-shadow:0 0 0 3px rgba(124,58,237,.28)}
 
-/* row & column hover highlighting */
 .ntabl-table tbody tr:hover td{ background:#eef2f7 !important; }
 .ntabl-table thead th.col-hover,
 .ntabl-table tbody td.col-hover,
-.ntabl-table tfoot td.col-hover{
-  background:#e6eaf1 !important;
-}
+.ntabl-table tfoot td.col-hover{ background:#e6eaf1 !important; }
 
-/* link-look buttons for player names */
-.link-like{
-  background:none;border:none;color:#2563eb;cursor:pointer;padding:0;font-weight:700;
-}
+.link-like{ background:none;border:none;color:#2563eb;cursor:pointer;padding:0;font-weight:700; }
 .link-like:hover{ text-decoration:underline; }
 </style>
 
 <script>
 (function(){
-  /* -------------------- CONFIG -------------------- */
   const CSV_PATH = "/ntabl-hitting-stats.csv";
 
-  // Known columns / order (we'll build dynamically but prefer this order)
-  const PREFERRED = [
-    'Player','Year','Season','Division','Team',
-    'GP','PA','AB','R','H','1B','2B','3B','HR','RBI','BB','HBP','SO','K-L','SB','TB','AVG','OBP','SLG','OPS','SF','SAC'
-  ];
-  const METRICS = new Set(['AVG','OBP','SLG','OPS']);
-  const TEXT_COLS = new Set(['Player','Year','Season','Division','Team']);
+  // Your preferred front columns in this exact order:
+  const FRONT = ['PLAYER','YEAR','SEASON','PROGRAM','TEAM'];
 
-  // Filter ordering
+  // Then numeric/stat columns (we’ll append any present in this order)
+  const STATS_ORDER = [
+    'GP','PA','AB','R','H','1B','2B','3B','HR','RBI','BB','HBP','SO','K-L','SB','TB',
+    'AVG','OBP','SLG','OPS','SF','SAC'
+  ];
+
+  // Metrics shown to .xxx
+  const METRICS = new Set(['AVG','OBP','SLG','OPS']);
+  // Treat these as text
+  const TEXT_COLS = new Set(['PLAYER','YEAR','SEASON','PROGRAM','TEAM']);
+
   const ORDER_YEAR = ['2025','2024'];
   const ORDER_SEASON = ['Summer','Fall','Spring'];
 
-  /* -------------------- DOM -------------------- */
   const table = document.getElementById('ntabl-table');
   const theadEl = table.querySelector('thead');
   const tbodyEl = table.querySelector('tbody');
@@ -108,7 +100,7 @@ permalink: /ntabl/
 
   const fYear = document.getElementById('f-year');
   const fSeason = document.getElementById('f-season');
-  const fDivision = document.getElementById('f-division');
+  const fProgram = document.getElementById('f-program');
   const fTeam = document.getElementById('f-team');
 
   const btnReset = document.getElementById('btn-reset');
@@ -116,35 +108,28 @@ permalink: /ntabl/
   const playerNameEl = document.getElementById('player-name');
   const btnClearPlayer = document.getElementById('btn-clear-player');
 
-  /* -------------------- STATE -------------------- */
-  let rows = [];        // normalized with Player + Year/Season derived
-  let viewRows = [];    // filtered
-  let COLS = [];        // resolved columns present in CSV (ordered)
+  let rows = [];
+  let viewRows = [];
+  let COLS = [];
   let sortKey = null;
   let sortDir = 1;
-  let currentPlayer = ""; // set when clicking a player
+  let currentPlayer = "";
 
-  /* -------------------- HELPERS -------------------- */
-  const norm = s => String(s||'').trim();
+  const norm = s => String(s??'').trim();
   const lower = s => norm(s).toLowerCase();
-  const numLike = v => v !== '' && v !== null && !isNaN(v);
+  const numLike = v => v!=='' && v!==null && !isNaN(v);
   const to3 = v => Number(v).toFixed(3).replace(/^0/,'');
 
-  function titleCase(s){return norm(s).replace(/\b(\w)/g, m => m.toUpperCase());}
-
-  // derive Year/Season from a Season string like "Summer 2025"
-  function splitSeasonYear(v){
-    const m = String(v||'').match(/(Summer|Fall|Spring)\s+(\d{4})/i);
-    return m ? {season:titleCase(m[1].toLowerCase()), year:m[2]} : {season:'',year:''};
+  // case-insensitive get
+  function getCI(obj, name){
+    for(const k in obj){ if(k.toLowerCase()===String(name).toLowerCase()) return obj[k]; }
+    return undefined;
   }
 
   function setOptions(sel, list, labelAll){
-    sel.innerHTML = '';
-    const all = document.createElement('option');
-    all.value=''; all.textContent=labelAll; sel.appendChild(all);
-    list.forEach(v=>{
-      const o=document.createElement('option'); o.value=v; o.textContent=v; sel.appendChild(o);
-    });
+    sel.innerHTML='';
+    const all=document.createElement('option'); all.value=''; all.textContent=labelAll; sel.appendChild(all);
+    list.forEach(v=>{ const o=document.createElement('option'); o.value=v; o.textContent=v; sel.appendChild(o); });
   }
 
   function totalsFor(rows, cols){
@@ -162,10 +147,13 @@ permalink: /ntabl/
     const av=a[k], bv=b[k];
     const an=numLike(av), bn=numLike(bv);
     if(an&&bn) return (av-bv)*sortDir;
-    return String(av||'').localeCompare(String(bv||''))*sortDir;
+    return String(av??'').localeCompare(String(bv??''))*sortDir;
   }
 
-  /* -------------------- BUILD TABLE -------------------- */
+  function escapeHtml(s){
+    return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+  }
+
   function buildHead(){
     theadEl.innerHTML = '<tr>'+COLS.map(c=>{
       const cls = TEXT_COLS.has(c)?'t-text':'t-num';
@@ -173,13 +161,12 @@ permalink: /ntabl/
       return `<th data-col="${c}" class="${cls}" style="cursor:pointer" title="Sort by ${c}">${c}${arrow}</th>`;
     }).join('')+'</tr>';
 
-    // sort handlers
     theadEl.querySelectorAll('th').forEach(th=>{
       th.addEventListener('click',()=>{
         const k = th.getAttribute('data-col');
         if(sortKey===k) sortDir*=-1; else { sortKey=k; sortDir=1; }
         renderBody();
-        buildHead(); // refresh arrows
+        buildHead();
       });
     });
   }
@@ -189,9 +176,7 @@ permalink: /ntabl/
       return '<tr>'+COLS.map((c,idx)=>{
         let v = r[c] ?? '';
         if(METRICS.has(c) && numLike(v)) v = to3(v);
-
-        // Link player name for filtering
-        if(c==='Player' && v){
+        if(c==='PLAYER' && v){
           v = `<button class="link-like player-link" data-player="${escapeHtml(String(v))}" title="Filter to ${escapeHtml(String(v))}">${escapeHtml(String(v))}</button>`;
         }
         const cls = TEXT_COLS.has(c)?'t-text':'t-num';
@@ -206,7 +191,6 @@ permalink: /ntabl/
 
     tbodyEl.innerHTML = buildBodyRows(data);
 
-    // totals
     const t = totalsFor(data, COLS);
     tfootEl.innerHTML = '<tr>'+COLS.map((c,i)=>{
       if(i===0) return '<th scope="row" class="t-text">Totals</th>';
@@ -214,7 +198,7 @@ permalink: /ntabl/
       return `<td class="${cls}">${numLike(t[c])?t[c]:''}</td>`;
     }).join('')+'</tr>';
 
-    // attach player-link handlers
+    // player filter
     tbodyEl.querySelectorAll('.player-link').forEach(btn=>{
       btn.addEventListener('click', ()=>{
         currentPlayer = btn.getAttribute('data-player');
@@ -225,47 +209,36 @@ permalink: /ntabl/
     });
   }
 
-  /* -------------------- ROW/COLUMN HOVER -------------------- */
-  // Column highlight on hover
+  // column hover
   tbodyEl.addEventListener('mouseover', (e)=>{
-    const cell = e.target.closest('td');
-    if(!cell) return;
-    const idx = +cell.getAttribute('data-col-idx');
-    if(isNaN(idx)) return;
-
-    // add col-hover to this column cells + header + footer
+    const cell = e.target.closest('td'); if(!cell) return;
+    const idx = +cell.getAttribute('data-col-idx'); if(isNaN(idx)) return;
     markColumn(idx, true);
   });
   tbodyEl.addEventListener('mouseout', (e)=>{
-    const cell = e.target.closest('td');
-    if(!cell) return;
-    const idx = +cell.getAttribute('data-col-idx');
-    if(isNaN(idx)) return;
+    const cell = e.target.closest('td'); if(!cell) return;
+    const idx = +cell.getAttribute('data-col-idx'); if(isNaN(idx)) return;
     markColumn(idx, false);
   });
-
   function markColumn(idx, on){
     const selector = `td[data-col-idx="${idx}"]`;
     tbodyEl.querySelectorAll(selector).forEach(td=>td.classList.toggle('col-hover', on));
-    const th = theadEl.querySelectorAll('th')[idx];
-    if(th) th.classList.toggle('col-hover', on);
-    const tf = tfootEl.querySelectorAll('td')[idx-1]; // -1 because first is th "Totals"
-    if(tf) tf.classList.toggle('col-hover', on);
+    const th = theadEl.querySelectorAll('th')[idx]; if(th) th.classList.toggle('col-hover', on);
+    const tf = tfootEl.querySelectorAll('td')[idx-1]; if(tf) tf.classList.toggle('col-hover', on);
   }
 
-  /* -------------------- FILTERS -------------------- */
   function applyFilters(){
     const y = fYear.value;
     const s = fSeason.value;
-    const d = lower(fDivision.value);
+    const p = fProgram.value;
     const t = fTeam.value;
 
     viewRows = rows.filter(r=>{
-      if(currentPlayer && r.Player !== currentPlayer) return false;
-      if(y && String(r.Year)!==y) return false;
-      if(s && String(r.Season)!==s) return false;
-      if(d && !lower(r.Division).includes(d)) return false;
-      if(t && String(r.Team)!==t) return false;
+      if(currentPlayer && r['PLAYER'] !== currentPlayer) return false;
+      if(y && String(r['YEAR'])!==y) return false;
+      if(s && String(r['SEASON'])!==s) return false;
+      if(p && String(r['PROGRAM'])!==p) return false;
+      if(t && String(r['TEAM'])!==t) return false;
       return true;
     });
     renderBody();
@@ -274,80 +247,63 @@ permalink: /ntabl/
   function resetFilters(){
     currentPlayer = "";
     playerChip.style.display = 'none';
-    fYear.value=''; fSeason.value=''; fDivision.value=''; fTeam.value='';
+    fYear.value=''; fSeason.value=''; fProgram.value=''; fTeam.value='';
     applyFilters();
   }
-
   btnReset.addEventListener('click', resetFilters);
-  btnClearPlayer.addEventListener('click', ()=>{
-    currentPlayer = "";
-    playerChip.style.display = 'none';
-    applyFilters();
-  });
+  btnClearPlayer.addEventListener('click', ()=>{ currentPlayer=""; playerChip.style.display='none'; applyFilters(); });
 
-  /* -------------------- CSV LOAD -------------------- */
   Papa.parse(CSV_PATH, {
     download:true, header:true, dynamicTyping:true, skipEmptyLines:'greedy',
     complete: res => {
       const raw = res.data || [];
 
-      // Normalize: ensure Player, Year, Season exist
+      // Normalize all to uppercase keys so we can reference reliably
       rows = raw.map(r=>{
-        const obj = {...r};
+        const obj = {};
+        Object.keys(r).forEach(k=>{ obj[String(k).toUpperCase()] = r[k]; });
 
-        // Player column detection or construction
-        const hasPlayer = !!obj.Player || !!obj.NAME || (!!obj.First && !!obj.Last);
-        if(!obj.Player){
-          if(obj.NAME) obj.Player = norm(obj.NAME);
-          else if(obj.First && obj.Last) obj.Player = norm(`${obj.First} ${obj.Last}`);
-          else obj.Player = hasPlayer ? norm(obj.Player) : ''; // fallback
-        } else {
-          obj.Player = norm(obj.Player);
-        }
+        // Ensure required identity fields exist (exactly your headers)
+        obj['PLAYER']  = norm( obj['PLAYER']  ?? '' );
+        obj['YEAR']    = String( obj['YEAR'] ?? '' );
+        obj['SEASON']  = norm( obj['SEASON'] ?? '' );
+        obj['PROGRAM'] = norm( obj['PROGRAM'] ?? '' );
+        obj['TEAM']    = norm( obj['TEAM'] ?? '' );
 
-        // Year / Season
-        if(!obj.Year || !obj.Season){
-          const parsed = splitSeasonYear(obj.Season || obj.SEASON || '');
-          obj.Season = obj.Season || parsed.season;
-          obj.Year = obj.Year || parsed.year;
-        } else {
-          obj.Season = titleCase(obj.Season);
-          obj.Year = String(obj.Year);
-        }
-
-        // Standardize common columns casing
-        if(obj.Team===undefined && obj.TEAM!==undefined) obj.Team = obj.TEAM;
-        if(obj.Division===undefined && obj.DIVISION!==undefined) obj.Division = obj.DIVISION;
+        // Alias common variations (optional safety)
+        if(obj['K_L'] !== undefined && obj['K-L'] === undefined) obj['K-L'] = obj['K_L'];
 
         return obj;
       });
 
-      // Resolve columns = intersection of preferred + actually present in data
-      const present = new Set(Object.keys(rows[0]||{}));
-      COLS = PREFERRED.filter(c => present.has(c));
+      // Column order: your five headers first, then any present stats by STATS_ORDER, then any remaining extras
+      const present = new Set();
+      rows.forEach(r=>Object.keys(r).forEach(k=>present.add(k)));
 
-      // Build filters
-      const years = Array.from(new Set(rows.map(r=>r.Year).filter(Boolean)))
-        .sort((a,b)=>ORDER_YEAR.indexOf(a)-ORDER_YEAR.indexOf(b));
-      const seasons = Array.from(new Set(rows.map(r=>r.Season).filter(Boolean)))
-        .sort((a,b)=>ORDER_SEASON.indexOf(a)-ORDER_SEASON.indexOf(b));
-      const divisions = Array.from(new Set(rows.map(r=>r.Division).filter(Boolean))).sort();
-      const teams = Array.from(new Set(rows.map(r=>r.Team).filter(Boolean))).sort();
+      const stats = STATS_ORDER.filter(c=>present.has(c));
+      const rest = Array.from(present).filter(c=>!FRONT.includes(c) && !stats.includes(c));
+      COLS = [...FRONT, ...stats, ...rest];
+
+      // Filters
+      const years = Array.from(new Set(rows.map(r=>r['YEAR']).filter(Boolean)))
+        .sort((a,b)=>ORDER_YEAR.indexOf(a)-ORDER_YEAR.indexOf(b) || b.localeCompare(a));
+      const seasons = Array.from(new Set(rows.map(r=>r['SEASON']).filter(Boolean)))
+        .sort((a,b)=>ORDER_SEASON.indexOf(a)-ORDER_SEASON.indexOf(b) || a.localeCompare(b));
+      const programs = Array.from(new Set(rows.map(r=>r['PROGRAM']).filter(Boolean))).sort();
+      const teams = Array.from(new Set(rows.map(r=>r['TEAM']).filter(Boolean))).sort();
 
       setOptions(fYear, years, 'All Years');
       setOptions(fSeason, seasons, 'All Seasons');
-      setOptions(fDivision, divisions, 'All Divisions');
+      setOptions(fProgram, programs, 'All Programs');
       setOptions(fTeam, teams, 'All Teams');
 
-      // Build table
       buildHead();
       viewRows = rows.slice();
       renderBody();
 
-      // Hook filter changes
       fYear.addEventListener('change', applyFilters);
       fSeason.addEventListener('change', applyFilters);
-      fDivision.addEventListener('change', applyFilters);
+      fProgram.addEventListener('change', applyFilters);
       fTeam.addEventListener('change', applyFilters);
     },
     error: err => {
@@ -356,10 +312,5 @@ permalink: /ntabl/
       tfootEl.innerHTML = '';
     }
   });
-
-  /* -------------------- UTIL -------------------- */
-  function escapeHtml(s){
-    return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
-  }
 })();
 </script>
