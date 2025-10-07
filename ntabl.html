@@ -1,3 +1,7 @@
+---
+permalink: /ntabl/
+---
+
 <!doctype html>
 <html lang="en">
 <head>
@@ -57,9 +61,7 @@
   tbody tr:nth-child(odd){background:var(--row)}
   tbody tr:nth-child(even){background:var(--row-alt)}
   tbody tr:hover td{background:var(--row-hl)}
-  /* row/col hover highlight */
   tbody td.hover, thead th.hover{background:var(--row-hl) !important}
-  /* first columns */
   .col-player{width:220px; text-align:left}
   .col-player a{color:#cfe1ff; text-decoration:none; border-bottom:1px dotted transparent}
   .col-player a:hover{color:#fff; border-color:#cfe1ff}
@@ -69,15 +71,12 @@
   .col-team{width:136px; text-align:left}
   .col-num{width:54px}
   .col-rate{width:56px}
-  /* totals row */
   tfoot td{
     font-weight:600; background:rgba(255,255,255,.05);
     border-top:1px solid rgba(255,255,255,.10); padding:8px 6px; text-align:center;
   }
   tfoot td.left{text-align:left}
-  /* compact font for numbers */
   .num{font-variant-numeric: tabular-nums}
-  /* make sure filters and table have same width feel */
   @media (max-width:1200px){
     .wrap{max-width: 1000px}
   }
@@ -87,7 +86,6 @@
   <div class="wrap">
     <h1>North Texas Amateur Baseball League | Interactive Hitting Stats</h1>
 
-    <!-- Filters -->
     <div class="filters" id="filters">
       <div class="chip">
         <label for="fYear">Year</label>
@@ -118,7 +116,6 @@
       </div>
     </div>
 
-    <!-- Data board -->
     <div class="board">
       <table id="stats">
         <thead>
@@ -160,47 +157,35 @@
   </div>
 
 <script>
-/* ---------- Utilities ---------- */
 const by = (sel, el=document) => el.querySelector(sel);
 const all = (sel, el=document) => [...el.querySelectorAll(sel)];
 
 const RATE_COLS = ["AVG","OBP","SLG","OPS"];
 const INT_COLS  = ["GP","PA","AB","R","H","1B","2B","3B","HR","RBI","BB","HBP","SO","SB","K-L"];
-const TEXT_COLS = ["PLAYER","YEAR","SEASON","PROGRAM","TEAM"];
+const text = v => (v ?? "").toString();
 
 const formatRate = v => {
   if (v === "" || v === null || v === undefined) return "–";
   let n = Number(v);
   if (Number.isNaN(n)) return "–";
-  // If the source used short decimals like .5, expand to .500; if integer 0 => .000
   if (String(v).trim() === "0") return ".000";
-  // n might be between 0 and 1 (already fractional) or like .5 -> 0.5 parse
   if (n < 1 && n >= 0) return (Math.round(n*1000)/1000).toFixed(3).replace(/^0/,'');
-  // If the file had values like 500 meaning .500
   if (n > 1 && n <= 2) return (Math.round(n*1000)/1000).toFixed(3).replace(/^0/,'');
-  if (n > 2) return ( (n/1000).toFixed(3) ).replace(/^0/,''); // 500 -> .500 safeguard
+  if (n > 2) return ((n/1000).toFixed(3)).replace(/^0/,'');
   return "–";
 };
+const formatInt = v => { let n = parseInt(v,10); return Number.isFinite(n) ? String(n) : "0"; };
 
-const formatInt = v => {
-  let n = parseInt(v,10);
-  return Number.isFinite(n) ? String(n) : "0";
-};
-
-const text = v => (v ?? "").toString();
-
-/* ---------- CSV Loader ---------- */
 async function loadCSV(path){
   const res = await fetch(path, {cache:"no-store"});
   if(!res.ok) throw new Error("CSV fetch error");
   const raw = await res.text();
 
-  // Simple CSV parse (quoted values supported)
   const rows = [];
   let i = 0, cur = "", inQ = false, row = [];
   while(i < raw.length){
     const c = raw[i];
-    if (c === '"' ){ // toggle quote
+    if (c === '"' ){
       if (inQ && raw[i+1] === '"'){ cur += '"'; i++; }
       else inQ = !inQ;
     } else if (c === ',' && !inQ){ row.push(cur); cur = ""; }
@@ -219,32 +204,26 @@ async function loadCSV(path){
   });
 }
 
-/* ---------- Render ---------- */
 let DATA = [];
 let filtered = [];
 let sortKey = "PLAYER", sortDir = "asc";
-let colCount;
 
 function uniqueSorted(list, key){
   return [...new Set(list.map(r => r[key]).filter(v => v!=="" ))].sort((a,b)=> (a>b?1:-1));
 }
-
 function populateFilters(list){
   const years = uniqueSorted(list,"YEAR").reverse();
   const seasons = uniqueSorted(list,"SEASON");
   const programs = uniqueSorted(list,"PROGRAM");
   const teams = uniqueSorted(list,"TEAM");
   const players = uniqueSorted(list,"PLAYER");
-
   const opt = (v,l=v)=> `<option value="${v}">${l}</option>`;
-
-  by("#fYear").innerHTML    = `<option value="">All Years</option>${years.map(y=>opt(y)).join("")}`;
-  by("#fSeason").innerHTML  = `<option value="">All Seasons</option>${seasons.map(x=>opt(x)).join("")}`;
-  by("#fProgram").innerHTML = `<option value="">All Programs</option>${programs.map(x=>opt(x)).join("")}`;
-  by("#fTeam").innerHTML    = `<option value="">All Teams</option>${teams.map(x=>opt(x)).join("")}`;
-  by("#fPlayer").innerHTML  = `<option value="">All Players</option>${players.map(x=>opt(x)).join("")}`;
+  by("#fYear").innerHTML    = `<option value="">All Years</option>${years.map(opt).join("")}`;
+  by("#fSeason").innerHTML  = `<option value="">All Seasons</option>${seasons.map(opt).join("")}`;
+  by("#fProgram").innerHTML = `<option value="">All Programs</option>${programs.map(opt).join("")}`;
+  by("#fTeam").innerHTML    = `<option value="">All Teams</option>${teams.map(opt).join("")}`;
+  by("#fPlayer").innerHTML  = `<option value="">All Players</option>${players.map(opt).join("")}`;
 }
-
 function applyFilters(){
   const fy = by("#fYear").value;
   const fs = by("#fSeason").value;
@@ -261,34 +240,30 @@ function applyFilters(){
   );
 
   renderTable();
-  // show/hide player pill & clear button
   const pill = by("#playerPill"), clr = by("#clearPlayer");
   if (pl){
     pill.style.display="inline-block";
     pill.querySelector("strong").textContent = pl;
     clr.style.display="inline-block";
-  } else {
-    pill.style.display="none"; clr.style.display="none";
-  }
+  } else { pill.style.display="none"; clr.style.display="none"; }
 }
-
 function computeTotals(rows){
   const totals = {};
-  INT_COLS.forEach(k => totals[k] = rows.reduce((s,r)=> s + (parseInt(r[k],10) || 0), 0));
-  // derived rates if present: AVG, OBP, SLG, OPS – use sums (already provided), but show 3-decimals
+  ["GP","PA","AB","R","H","1B","2B","3B","HR","RBI","BB","HBP","SO","SB","K-L"].forEach(k => totals[k] =
+    rows.reduce((s,r)=> s + (parseInt(r[k],10) || 0), 0)
+  );
   totals.AVG = rows.length ? formatRate(rows.reduce((s,r)=> s + (parseFloat(r.AVG)||0),0) / rows.length) : "–";
   totals.OBP = rows.length ? formatRate(rows.reduce((s,r)=> s + (parseFloat(r.OBP)||0),0) / rows.length) : "–";
   totals.SLG = rows.length ? formatRate(rows.reduce((s,r)=> s + (parseFloat(r.SLG)||0),0) / rows.length) : "–";
   totals.OPS = rows.length ? formatRate(rows.reduce((s,r)=> s + (parseFloat(r.OPS)||0),0) / rows.length) : "–";
   return totals;
 }
-
 function sortRows(rows){
   const k = sortKey, dir = sortDir === "asc" ? 1 : -1;
   return rows.slice().sort((a,b)=>{
-    if (INT_COLS.includes(k)){
+    if (["GP","PA","AB","R","H","1B","2B","3B","HR","RBI","BB","HBP","SO","SB","K-L"].includes(k)){
       return ( (parseInt(a[k],10)||0) - (parseInt(b[k],10)||0) ) * dir;
-    } else if (RATE_COLS.includes(k)){
+    } else if (["AVG","OBP","SLG","OPS"].includes(k)){
       const av = parseFloat(a[k])||0, bv = parseFloat(b[k])||0;
       return (av - bv) * dir;
     } else {
@@ -296,13 +271,11 @@ function sortRows(rows){
     }
   });
 }
-
 function renderTable(){
   const tbody = by("#stats tbody");
   const tfoot = by("#stats tfoot");
   const rows = sortRows(filtered);
 
-  // rows
   tbody.innerHTML = rows.map(r=>{
     const rate = k => `<td class="num">${formatRate(r[k])}</td>`;
     const num  = k => `<td class="num">${formatInt(r[k])}</td>`;
@@ -312,7 +285,6 @@ function renderTable(){
       <td class="col-season">${text(r.SEASON)}</td>
       <td class="col-program">${text(r.PROGRAM)}</td>
       <td class="col-team">${text(r.TEAM)}</td>
-
       ${num("GP")}${num("PA")}${num("AB")}
       ${num("R")}${num("H")}${num("1B")}${num("2B")}${num("3B")}${num("HR")}
       ${num("RBI")}${num("BB")}${num("HBP")}${num("SO")}${num("SB")}${num("K-L")}
@@ -320,7 +292,6 @@ function renderTable(){
     </tr>`;
   }).join("");
 
-  // totals
   const t = computeTotals(rows);
   tfoot.innerHTML = `<tr>
     <td class="left col-player"><strong>Totals</strong></td>
@@ -328,14 +299,12 @@ function renderTable(){
     <td class="col-season"></td>
     <td class="col-program"></td>
     <td class="col-team"></td>
-
     <td class="num">${t.GP}</td><td class="num">${t.PA}</td><td class="num">${t.AB}</td>
     <td class="num">${t.R}</td><td class="num">${t.H}</td><td class="num">${t["1B"]}</td><td class="num">${t["2B"]}</td><td class="num">${t["3B"]}</td><td class="num">${t.HR}</td>
     <td class="num">${t.RBI}</td><td class="num">${t.BB}</td><td class="num">${t.HBP}</td><td class="num">${t.SO}</td><td class="num">${t.SB}</td><td class="num">${t["K-L"]}</td>
     <td class="num">${t.AVG}</td><td class="num">${t.OBP}</td><td class="num">${t.SLG}</td><td class="num">${t.OPS}</td>
   </tr>`;
 
-  // clickable names -> filter
   all('a[data-player]', tbody).forEach(a=>{
     a.addEventListener('click', e=>{
       e.preventDefault();
@@ -344,19 +313,13 @@ function renderTable(){
     });
   });
 
-  // column hover
   wireColumnHover();
 }
-
-/* column hover shading */
 function wireColumnHover(){
   const table = by('#stats');
   const cols = all('thead th', table);
   const bodyCells = all('tbody td', table);
-
-  // clear
   const clear = ()=>{ cols.forEach(c=>c.classList.remove('hover')); bodyCells.forEach(c=>c.classList.remove('hover')); };
-
   all('tbody tr', table).forEach(tr=>{
     const tds = all('td', tr);
     tds.forEach((td, idx)=>{
@@ -369,8 +332,6 @@ function wireColumnHover(){
   });
   table.addEventListener('mouseleave', clear);
 }
-
-/* sorting */
 all('thead th[data-key]').forEach(th=>{
   th.style.cursor = 'pointer';
   th.title = 'Click to sort';
@@ -381,8 +342,6 @@ all('thead th[data-key]').forEach(th=>{
     renderTable();
   });
 });
-
-/* filters events */
 ['#fYear','#fSeason','#fProgram','#fTeam','#fPlayer'].forEach(sel=>{
   by(sel).addEventListener('change', applyFilters);
 });
@@ -395,20 +354,15 @@ by('#clearPlayer').addEventListener('click', ()=>{
   applyFilters();
 });
 
-/* boot */
 (async function init(){
   try{
-    // IMPORTANT: CSV file expected at repo root with this exact name
     DATA = await loadCSV('ntabl-hitting-stats.csv');
-
-    // Normalize keys to expected headers
     DATA = DATA.map(r=>({
       PLAYER : r.PLAYER || r.Player || r.name || "",
       YEAR   : r.YEAR || r.Year || "",
       SEASON : r.SEASON || r.Season || "",
       PROGRAM: r.PROGRAM || r.Program || r.DIVISION || "",
       TEAM   : r.TEAM || r.Team || "",
-
       GP: r.GP || r.G || "0",
       PA: r.PA || "0",
       AB: r.AB || "0",
@@ -429,7 +383,6 @@ by('#clearPlayer').addEventListener('click', ()=>{
       SLG: r.SLG ?? "",
       OPS: r.OPS ?? ""
     }));
-
     populateFilters(DATA);
     applyFilters();
   }catch(e){
