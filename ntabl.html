@@ -8,123 +8,54 @@ permalink: /ntabl/
 <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 
 <style>
-  .ntabl-wrap {
-    max-width: 1600px;
-    margin: 24px auto 80px;
-    padding: 0 12px;
+  .ntabl-wrap{max-width:1600px;margin:24px auto 80px;padding:0 12px}
+  .ntabl-title{font-weight:600;font-size:18px;text-align:center;margin:6px 0 14px}
+
+  .ntabl-filters{
+    display:grid;grid-template-columns:repeat(7,1fr);gap:10px;
+    background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);
+    padding:12px;border-radius:10px
   }
-  .ntabl-title {
-    font-weight: 600;
-    font-size: 18px;
-    text-align: center;
-    margin: 6px 0 14px;
+  .ntabl-select,.ntabl-btn{
+    appearance:none;width:100%;padding:10px 12px;border-radius:10px;
+    border:1px solid rgba(255,255,255,.10);background:rgba(18,18,18,.6);
+    color:#eaeaea;font-size:13px;outline:none
+  }
+  .ntabl-btn{text-align:center;cursor:pointer;background:linear-gradient(180deg,rgba(130,87,229,.22),rgba(130,87,229,.12))}
+  .ntabl-btn:disabled{opacity:.45;cursor:not-allowed}
+
+  .table-card{margin-top:14px;border-radius:12px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.03);overflow:hidden}
+
+  table.stats{width:100%;border-collapse:separate;border-spacing:0;table-layout:fixed;font-size:11.5px}
+  thead th{
+    position:sticky;top:0;background:rgba(24,24,28,.95);color:#e8e8e8;
+    font-weight:600;text-align:center;padding:8px 6px;border-bottom:1px solid rgba(255,255,255,.08)
+  }
+  tbody td{
+    padding:7px 6px;color:#e0e0e0;text-align:center;border-bottom:1px solid rgba(255,255,255,.06);white-space:nowrap
+  }
+  tbody td.left,thead th.left{text-align:left}
+
+  .col-player{width:170px}.col-year{width:52px}.col-season{width:74px}.col-program{width:88px}.col-team{width:118px}
+  .col-gp,.col-pa,.col-ab,.col-r,.col-h,.col-1b,.col-2b,.col-3b,.col-hr,.col-rbi,
+  .col-bb,.col-hbp,.col-so,.col-sb,.col-kl,.col-sf,.col-avg,.col-obp,.col-slg,.col-ops{width:42px}
+
+  tbody tr:hover td{background:rgba(128,128,160,.10)}
+  tbody td.hover-col{background:rgba(128,128,160,.14)!important}
+  thead th.hover-head{background:rgba(24,24,28,1);color:#fff}
+
+  thead th.sortable{cursor:pointer}
+  thead th.sortable:hover{color:#a98bff}
+
+  a.player-link{color:#cbd5ff;text-decoration:none;border-bottom:1px dotted transparent}
+  a.player-link:hover{border-bottom-color:#cbd5ff;color:#e4e8ff}
+
+  tfoot td{
+    font-weight:600;background:rgba(255,255,255,.05);border-top:1px solid rgba(255,255,255,.10);
+    padding:8px 6px;text-align:center /* centered totals */
   }
 
-  .ntabl-filters {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 10px;
-    background: rgba(255,255,255,.04);
-    border: 1px solid rgba(255,255,255,.08);
-    padding: 12px;
-    border-radius: 10px;
-  }
-  .ntabl-select, .ntabl-btn {
-    appearance: none;
-    width: 100%;
-    padding: 10px 12px;
-    border-radius: 10px;
-    border: 1px solid rgba(255,255,255,.10);
-    background: rgba(18,18,18,.6);
-    color: #eaeaea;
-    font-size: 13px;
-    outline: none;
-  }
-  .ntabl-btn {
-    text-align: center;
-    cursor: pointer;
-    background: linear-gradient(180deg, rgba(130,87,229,.22), rgba(130,87,229,.12));
-  }
-  .ntabl-btn:disabled {
-    opacity: .45;
-    cursor: not-allowed;
-  }
-
-  .table-card {
-    margin-top: 14px;
-    border-radius: 12px;
-    border: 1px solid rgba(255,255,255,.08);
-    background: rgba(255,255,255,.03);
-    overflow: hidden;
-  }
-  table.stats {
-    width: 100%;
-    border-collapse: separate;
-    border-spacing: 0;
-    table-layout: fixed;
-    font-size: 11.5px;
-  }
-  thead th {
-    position: sticky;
-    top: 0;
-    background: rgba(24,24,28,.95);
-    color: #e8e8e8;
-    font-weight: 600;
-    text-align: center;
-    padding: 8px 6px;
-    border-bottom: 1px solid rgba(255,255,255,.08);
-  }
-  tbody td {
-    padding: 7px 6px;
-    color: #e0e0e0;
-    text-align: center;
-    border-bottom: 1px solid rgba(255,255,255,.06);
-    white-space: nowrap;
-  }
-  tbody td.left, thead th.left { text-align: left; }
-
-  .col-player  { width: 170px; }
-  .col-year    { width: 52px; }
-  .col-season  { width: 74px; }
-  .col-program { width: 88px; }
-  .col-team    { width: 118px; }
-
-  .col-gp, .col-pa, .col-ab, .col-r, .col-h,
-  .col-1b, .col-2b, .col-3b, .col-hr, .col-rbi,
-  .col-bb, .col-hbp, .col-so, .col-sb, .col-kl, .col-sf,
-  .col-avg, .col-obp, .col-slg, .col-ops { width: 42px; }
-
-  tbody tr:hover td { background: rgba(128,128,160,.10); }
-  tbody td.hover-col { background: rgba(128,128,160,.14) !important; }
-  thead th.hover-head { background: rgba(24,24,28,1); color: #fff; }
-
-  thead th.sortable { cursor: pointer; }
-  thead th.sortable:hover { color: #a98bff; }
-
-  a.player-link {
-    color: #cbd5ff;
-    text-decoration: none;
-    border-bottom: 1px dotted transparent;
-  }
-  a.player-link:hover {
-    border-bottom-color: #cbd5ff;
-    color: #e4e8ff;
-  }
-
-  tfoot td {
-    font-weight: 600;
-    background: rgba(255,255,255,.05);
-    border-top: 1px solid rgba(255,255,255,.10);
-    padding: 8px 6px;
-    text-align: center; /* CENTERED TOTALS */
-  }
-
-  .helper {
-    font-size: 12px;
-    color: #b7b7b7;
-    margin-top: 8px;
-    text-align: left;
-  }
+  .helper{font-size:12px;color:#b7b7b7;margin-top:8px;text-align:left}
 </style>
 
 <div class="ntabl-wrap">
@@ -153,167 +84,189 @@ permalink: /ntabl/
 
 <script>
   const CSV_URL = "{{ '/ntabl-hitting-stats.csv' | relative_url }}";
+
   const COLS = [
-    { key: 'PLAYER',  label: 'Player', class: 'col-player left'  },
-    { key: 'YEAR',    label: 'Year',   class: 'col-year'   },
-    { key: 'SEASON',  label: 'Season', class: 'col-season' },
-    { key: 'PROGRAM', label: 'Program',class: 'col-program'},
-    { key: 'TEAM',    label: 'Team',   class: 'col-team left' },
-    { key: 'GP',  label: 'GP',  class: 'col-gp'  },
-    { key: 'PA',  label: 'PA',  class: 'col-pa'  },
-    { key: 'AB',  label: 'AB',  class: 'col-ab'  },
-    { key: 'R',   label: 'R',   class: 'col-r'   },
-    { key: 'H',   label: 'H',   class: 'col-h'   },
-    { key: '1B',  label: '1B',  class: 'col-1b'  },
-    { key: '2B',  label: '2B',  class: 'col-2b'  },
-    { key: '3B',  label: '3B',  class: 'col-3b'  },
-    { key: 'HR',  label: 'HR',  class: 'col-hr'  },
-    { key: 'RBI', label: 'RBI', class: 'col-rbi' },
-    { key: 'BB',  label: 'BB',  class: 'col-bb'  },
-    { key: 'HBP', label: 'HBP', class: 'col-hbp' },
-    { key: 'SO',  label: 'SO',  class: 'col-so'  },
-    { key: 'SB',  label: 'SB',  class: 'col-sb'  },
-    { key: 'K-L', label: 'K-L', class: 'col-kl'  },
-    { key: 'SF',  label: 'SF',  class: 'col-sf'  },
-    { key: 'AVG', label: 'AVG', class: 'col-avg' },
-    { key: 'OBP', label: 'OBP', class: 'col-obp' },
-    { key: 'SLG', label: 'SLG', class: 'col-slg' },
-    { key: 'OPS', label: 'OPS', class: 'col-ops' },
+    { key:'PLAYER',  label:'Player',  class:'col-player left' },
+    { key:'YEAR',    label:'Year',    class:'col-year' },
+    { key:'SEASON',  label:'Season',  class:'col-season' },
+    { key:'PROGRAM', label:'Program', class:'col-program' },
+    { key:'TEAM',    label:'Team',    class:'col-team left' },
+    { key:'GP', label:'GP', class:'col-gp' },   { key:'PA', label:'PA', class:'col-pa' },
+    { key:'AB', label:'AB', class:'col-ab' },   { key:'R',  label:'R',  class:'col-r'  },
+    { key:'H',  label:'H',  class:'col-h'  },   { key:'1B', label:'1B', class:'col-1b' },
+    { key:'2B', label:'2B', class:'col-2b' },   { key:'3B', label:'3B', class:'col-3b' },
+    { key:'HR', label:'HR', class:'col-hr' },   { key:'RBI',label:'RBI',class:'col-rbi'},
+    { key:'BB', label:'BB', class:'col-bb' },   { key:'HBP',label:'HBP',class:'col-hbp'},
+    { key:'SO', label:'SO', class:'col-so' },   { key:'SB', label:'SB', class:'col-sb' },
+    { key:'K-L',label:'K-L',class:'col-kl'},    { key:'SF', label:'SF', class:'col-sf' },
+    { key:'AVG',label:'AVG',class:'col-avg' },  { key:'OBP',label:'OBP',class:'col-obp'},
+    { key:'SLG',label:'SLG',class:'col-slg' },  { key:'OPS',label:'OPS',class:'col-ops'}
   ];
 
   let RAW = [], VIEW = [], sortKey = null, sortAsc = true;
+
   const sel = id => document.getElementById(id);
   const val = id => sel(id).value;
   const uniq = arr => [...new Set(arr.filter(Boolean))];
   const toNum = v => (v === null || v === undefined || v === '') ? 0 : Number(v);
-  const rate = v => (v===undefined||v==='') ? '' : String(v).replace(/^0\./,'.');
-  const fmt3 = v => isNaN(v) ? '' : (v/1000).toFixed(3).replace(/^0/,''); // ensures .200 style
+
+  // Parse and format rate columns consistently
+  function parseRate(v){
+    if (v === undefined || v === null) return null;
+    const s = String(v).trim();
+    if (s === '' || s === '-') return null;
+    const n = Number(s);
+    if (!isNaN(n)) return n;     // handles 0.333, .333, 0, etc.
+    return null;
+  }
+  function fmtRate(v){
+    const n = parseRate(v);
+    if (n === null) return '-';          // empty/missing -> hyphen
+    if (Math.abs(n) < 1e-12) return '.000'; // zero -> .000
+    // If the CSV had ".333" or "0.333" or ".5", they all become 0.xxx numbers here
+    return n.toFixed(3).replace(/^0/, ''); // .333 / .500 / .400 etc.
+  }
 
   const td = (v, cls='') => `<td class="${cls}">${v ?? ''}</td>`;
   function escapeHtml(s=''){return s.replace(/[&<>"']/g, m=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m]));}
   const tdPlayer = (name) => `<td class="left col-player"><a class="player-link" href="javascript:void(0)" onclick="filterByPlayer('${escapeHtml(name)}')">${escapeHtml(name)}</a></td>`;
 
-  function buildHeader() {
-    const thead = sel('thead');
-    const tr = document.createElement('tr');
-    COLS.forEach((c, idx) => {
-      const th = document.createElement('th');
-      th.textContent = c.label;
-      th.className = `${c.class} sortable`;
-      th.addEventListener('click', () => {
-        sortKey = c.key; sortAsc = !sortAsc; renderBody();
-      });
+  function buildHeader(){
+    const tr=document.createElement('tr');
+    COLS.forEach(c=>{
+      const th=document.createElement('th');
+      th.className=`${c.class} sortable`;
+      th.textContent=c.label;
+      th.addEventListener('click',()=>{sortKey=c.key;sortAsc=!sortAsc;renderBody();});
       tr.appendChild(th);
     });
-    thead.innerHTML = ''; thead.appendChild(tr);
+    sel('thead').innerHTML=''; sel('thead').appendChild(tr);
   }
 
-  function wireHover() {
-    const tbody = sel('tbody');
-    const thead = sel('thead');
-    tbody.addEventListener('mousemove', (e) => {
-      const cell = e.target.closest('td');
-      if (!cell) return;
-      const idx = [...cell.parentNode.children].indexOf(cell);
-      tbody.querySelectorAll('.hover-col').forEach(td => td.classList.remove('hover-col'));
-      thead.querySelectorAll('.hover-head').forEach(th => th.classList.remove('hover-head'));
-      tbody.querySelectorAll(`td:nth-child(${idx+1})`).forEach(td => td.classList.add('hover-col'));
+  function wireHover(){
+    const tbody=sel('tbody'), thead=sel('thead');
+    tbody.addEventListener('mousemove',e=>{
+      const cell=e.target.closest('td'); if(!cell) return;
+      const idx=[...cell.parentNode.children].indexOf(cell);
+      tbody.querySelectorAll('.hover-col').forEach(x=>x.classList.remove('hover-col'));
+      thead.querySelectorAll('.hover-head').forEach(x=>x.classList.remove('hover-head'));
+      tbody.querySelectorAll(`td:nth-child(${idx+1})`).forEach(x=>x.classList.add('hover-col'));
       thead.querySelector(`th:nth-child(${idx+1})`)?.classList.add('hover-head');
     });
-    tbody.addEventListener('mouseleave', () => {
-      tbody.querySelectorAll('.hover-col').forEach(td => td.classList.remove('hover-col'));
-      thead.querySelectorAll('.hover-head').forEach(th => th.classList.remove('hover-head'));
+    tbody.addEventListener('mouseleave',()=>{
+      tbody.querySelectorAll('.hover-col').forEach(x=>x.classList.remove('hover-col'));
+      thead.querySelectorAll('.hover-head').forEach(x=>x.classList.remove('hover-head'));
     });
   }
 
-  function buildFilters() {
-    fill('filter-year', uniq(RAW.map(r => r.YEAR)), 'All Years');
-    fill('filter-season', uniq(RAW.map(r => r.SEASON)), 'All Seasons');
-    fill('filter-program', uniq(RAW.map(r => r.PROGRAM)), 'All Programs');
-    fill('filter-team', uniq(RAW.map(r => r.TEAM)), 'All Teams');
-    fill('filter-player', uniq(RAW.map(r => r.PLAYER)), 'All Players');
-
-    ['filter-year','filter-season','filter-program','filter-team','filter-player']
-      .forEach(id => sel(id).addEventListener('change', onFilterChange));
-
-    sel('btn-reset').addEventListener('click', () => {
-      ['filter-year','filter-season','filter-program','filter-team','filter-player']
-        .forEach(id => sel(id).selectedIndex = 0);
-      onFilterChange();
-    });
-    sel('btn-clear-player').addEventListener('click', () => {
-      sel('filter-player').selectedIndex = 0; onFilterChange();
-    });
-  }
-  function fill(id, values, all) {
-    const s = sel(id);
-    s.innerHTML = `<option value="">${all}</option>` +
+  function fill(id, values, all){
+    const s=sel(id);
+    s.innerHTML=`<option value="">${all}</option>`+
       values.sort().map(v=>`<option value="${v}">${v}</option>`).join('');
   }
 
-  function onFilterChange(){ applyFilters(); sel('btn-clear-player').disabled = !val('filter-player'); }
+  function buildFilters(){
+    fill('filter-year',    uniq(RAW.map(r=>r.YEAR)),    'All Years');
+    fill('filter-season',  uniq(RAW.map(r=>r.SEASON)),  'All Seasons');
+    fill('filter-program', uniq(RAW.map(r=>r.PROGRAM)), 'All Programs');
+    fill('filter-team',    uniq(RAW.map(r=>r.TEAM)),    'All Teams');
+    fill('filter-player',  uniq(RAW.map(r=>r.PLAYER)),  'All Players');
+
+    ['filter-year','filter-season','filter-program','filter-team','filter-player']
+      .forEach(id=>sel(id).addEventListener('change',onFilterChange));
+
+    sel('btn-reset').addEventListener('click',()=>{
+      ['filter-year','filter-season','filter-program','filter-team','filter-player']
+        .forEach(id=>sel(id).selectedIndex=0);
+      onFilterChange();
+    });
+
+    sel('btn-clear-player').addEventListener('click',()=>{
+      sel('filter-player').selectedIndex=0; onFilterChange();
+    });
+  }
+
+  function onFilterChange(){
+    applyFilters();
+    sel('btn-clear-player').disabled = !val('filter-player');
+  }
 
   function applyFilters(){
     const y=val('filter-year'), s=val('filter-season'), p=val('filter-program'),
           t=val('filter-team'), pl=val('filter-player');
     VIEW = RAW.filter(r =>
       (!y || r.YEAR==y) && (!s||r.SEASON==s) && (!p||r.PROGRAM==p) &&
-      (!t||r.TEAM==t) && (!pl||r.PLAYER==pl)
+      (!t||r.TEAM==t)   && (!pl||r.PLAYER==pl)
     );
     renderBody();
   }
 
   function filterByPlayer(name){
     const ps=sel('filter-player');
-    [...ps.options].forEach((o,i)=>{if(o.value===name)ps.selectedIndex=i});
+    [...ps.options].forEach((o,i)=>{ if(o.value===name) ps.selectedIndex=i; });
     onFilterChange();
   }
   window.filterByPlayer=filterByPlayer;
 
   function renderBody(){
-    const tbody=sel('tbody'),tfoot=sel('tfoot');
+    const tbody=sel('tbody'), tfoot=sel('tfoot');
     let rows=VIEW.slice();
-    if(sortKey)rows.sort((a,b)=>{
-      const va=a[sortKey]??'',vb=b[sortKey]??'';
-      return sortAsc?(va>vb?1:-1):(va<vb?1:-1);
-    });
-    tbody.innerHTML=rows.map(r=>`
+    if (sortKey){
+      rows.sort((a,b)=>{
+        const va=a[sortKey]??'', vb=b[sortKey]??'';
+        return sortAsc ? (va>vb?1:-1) : (va<vb?1:-1);
+      });
+    }
+
+    tbody.innerHTML = rows.map(r => `
       <tr>
         ${tdPlayer(r.PLAYER)}${td(r.YEAR)}${td(r.SEASON)}${td(r.PROGRAM)}${td(r.TEAM)}
         ${td(r.GP)}${td(r.PA)}${td(r.AB)}${td(r.R)}${td(r.H)}
         ${td(r['1B'])}${td(r['2B'])}${td(r['3B'])}${td(r.HR)}${td(r.RBI)}
         ${td(r.BB)}${td(r.HBP)}${td(r.SO)}${td(r.SB)}${td(r['K-L'])}${td(r.SF)}
-        ${td(rate(r.AVG))}${td(rate(r.OBP))}${td(rate(r.SLG))}${td(rate(r.OPS))}
-      </tr>`).join('');
+        ${td(fmtRate(r.AVG))}${td(fmtRate(r.OBP))}${td(fmtRate(r.SLG))}${td(fmtRate(r.OPS))}
+      </tr>
+    `).join('');
 
-    const sum=k=>rows.reduce((a,r)=>a+toNum(r[k]||0),0);
-    const t={GP:sum('GP'),PA:sum('PA'),AB:sum('AB'),R:sum('R'),H:sum('H'),'1B':sum('1B'),
-             '2B':sum('2B'),'3B':sum('3B'),HR:sum('HR'),RBI:sum('RBI'),BB:sum('BB'),
-             HBP:sum('HBP'),SO:sum('SO'),SB:sum('SB'),'K-L':sum('K-L'),SF:sum('SF')};
+    // Totals
+    const sum=k=>rows.reduce((a,r)=>a + (r[k]===''?0:Number(r[k]||0)),0);
+    const t={
+      GP:sum('GP'),PA:sum('PA'),AB:sum('AB'),R:sum('R'),H:sum('H'),
+      '1B':sum('1B'),'2B':sum('2B'),'3B':sum('3B'),HR:sum('HR'),RBI:sum('RBI'),
+      BB:sum('BB'),HBP:sum('HBP'),SO:sum('SO'),SB:sum('SB'),'K-L':sum('K-L'),SF:sum('SF')
+    };
+    const avg =(t.AB ? t.H/t.AB : 0);
+    const obp =((t.AB+t.BB+t.HBP+t.SF) ? (t.H+t.BB+t.HBP)/(t.AB+t.BB+t.HBP+t.SF) : 0);
+    const slg =(t.AB ? ((t['1B'] + 2*t['2B'] + 3*t['3B'] + 4*t.HR) / t.AB) : 0);
+    const ops = obp + slg;
 
-    const avg = (t.H/t.AB)||0, obp=(t.H+t.BB+t.HBP)/(t.AB+t.BB+t.HBP+t.SF)||0,
-          slg=((t['1B']+2*t['2B']+3*t['3B']+4*t.HR)/t.AB)||0, ops=obp+slg;
+    tfoot.innerHTML = `
+      <tr>
+        <td class="left col-player"><strong>Totals</strong></td><td></td><td></td><td></td><td></td>
+        ${td(t.GP)}${td(t.PA)}${td(t.AB)}${td(t.R)}${td(t.H)}
+        ${td(t['1B'])}${td(t['2B'])}${td(t['3B'])}${td(t.HR)}${td(t.RBI)}
+        ${td(t.BB)}${td(t.HBP)}${td(t.SO)}${td(t.SB)}${td(t['K-L'])}${td(t.SF)}
+        ${td(fmtRate(avg))}${td(fmtRate(obp))}${td(fmtRate(slg))}${td(fmtRate(ops))}
+      </tr>
+    `;
 
-    tfoot.innerHTML=`<tr>
-      <td class="left col-player"><strong>Totals</strong></td><td></td><td></td><td></td><td></td>
-      ${td(t.GP)}${td(t.PA)}${td(t.AB)}${td(t.R)}${td(t.H)}
-      ${td(t['1B'])}${td(t['2B'])}${td(t['3B'])}${td(t.HR)}${td(t.RBI)}
-      ${td(t.BB)}${td(t.HBP)}${td(t.SO)}${td(t.SB)}${td(t['K-L'])}${td(t.SF)}
-      ${td(fmt3(avg*1000))}${td(fmt3(obp*1000))}${td(fmt3(slg*1000))}${td(fmt3(ops*1000))}
-    </tr>`;
     wireHover();
   }
 
+  // Load & init
   fetch(CSV_URL)
     .then(r=>r.text())
     .then(txt=>new Promise(res=>Papa.parse(txt,{header:true,skipEmptyLines:true,complete:res})))
     .then(results=>{
-      RAW=results.data.map(row=>{
-        const o={};Object.keys(row).forEach(k=>o[k.trim()]=row[k]);
-        ['GP','PA','AB','R','H','1B','2B','3B','HR','RBI','BB','HBP','SO','SB','K-L','SF']
-          .forEach(k=>o[k]=o[k]===''?'':Number(o[k]));
+      RAW = results.data.map(row=>{
+        const o={}; Object.keys(row).forEach(k=>o[k.trim()]=row[k]);
+        // numerics (counting columns)
+        ['GP','PA','AB','R','H','1B','2B','3B','HR','RBI','BB','HBP','SO','SB','K-L','SF'].forEach(k=>{
+          o[k] = (o[k]==='' || o[k]===undefined || o[k]===null) ? '' : Number(o[k]);
+        });
+        // rates: keep raw string/number; we format with fmtRate() at render time
         return o;
       });
-      buildHeader();buildFilters();VIEW=RAW.slice();renderBody();
+      buildHeader(); buildFilters(); VIEW = RAW.slice(); renderBody();
     });
 </script>
