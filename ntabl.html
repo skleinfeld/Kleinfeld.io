@@ -1,272 +1,442 @@
----
-layout: default
-title: NTABL
-permalink: /ntabl/
----
-
-<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
-<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
-
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>North Texas Amateur Baseball League | Interactive Hitting Stats</title>
+<link rel="icon" href="favicon.ico">
 <style>
-  .ntabl-wrap{max-width:1600px;margin:24px auto 80px;padding:0 12px}
-  .ntabl-title{font-weight:600;font-size:18px;text-align:center;margin:6px 0 14px}
-
-  .ntabl-filters{
-    display:grid;grid-template-columns:repeat(7,1fr);gap:10px;
-    background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);
-    padding:12px;border-radius:10px
+  :root{
+    --bg:#0b0c0f;--panel:#13151a;--muted:#8b8fa3;--text:#e9e9ee;
+    --ink:#d7d7df;--border:rgba(255,255,255,.10);--glow:#6a4bd8;
+    --chip:#1c1f27;--chip-bd:rgba(255,255,255,.12);--chip-t:#dcdcf5;
+    --head:#0f1117;--head-bd:rgba(255,255,255,.12);
+    --row:#0f1117;--row-alt:#0e1014;--row-hl:rgba(106,75,216,.12);
   }
-  .ntabl-select,.ntabl-btn{
-    appearance:none;width:100%;padding:10px 12px;border-radius:10px;
-    border:1px solid rgba(255,255,255,.10);background:rgba(18,18,18,.6);
-    color:#eaeaea;font-size:13px;outline:none
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0;background:radial-gradient(1200px 500px at 10% 75%, rgba(106,75,216,.08) 0%, transparent 60%), var(--bg);
+    color:var(--text); font: 500 14px/1.45 ui-sans-serif, -apple-system, Segoe UI, Roboto, Inter, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji","Segoe UI Emoji";
   }
-  .ntabl-btn{text-align:center;cursor:pointer;background:linear-gradient(180deg,rgba(130,87,229,.22),rgba(130,87,229,.12))}
-  .ntabl-btn:disabled{opacity:.45;cursor:not-allowed}
-
-  .table-card{margin-top:14px;border-radius:12px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.03);overflow:hidden}
-
-  table.stats{width:100%;border-collapse:separate;border-spacing:0;table-layout:fixed;font-size:11.5px}
+  .wrap{max-width:1180px;margin:42px auto;padding:0 20px}
+  h1{margin:0 0 18px;font-weight:700;font-size:20px;letter-spacing:.2px}
+  .filters{
+    display:grid; grid-template-columns: repeat(5, 1fr) 140px; gap:12px;
+    background:linear-gradient(180deg, rgba(106,75,216,.12), rgba(106,75,216,0)) border-box;
+    border:1px solid var(--border); border-radius:14px; padding:12px;
+  }
+  .chip{
+    display:flex; align-items:center; gap:8px; background:var(--chip);
+    border:1px solid var(--chip-bd); border-radius:10px; padding:8px 10px;
+  }
+  .chip label{font-size:12px;color:var(--muted)}
+  .chip select, .chip button{
+    width:100%; background:transparent; color:var(--text); border:0; outline:0;
+    padding:4px 2px; font:inherit; appearance:none;
+  }
+  .chip button{
+    background:rgba(106,75,216,.12); border:1px solid var(--chip-bd);
+    border-radius:8px; cursor:pointer; transition:.15s ease;
+  }
+  .chip button:hover{box-shadow:0 0 0 2px rgba(106,75,216,.35) inset}
+  .chip .pill{display:inline-block; padding:.35rem .55rem; border:1px solid var(--chip-bd); border-radius:999px; color:var(--chip-t); font-size:12px; white-space:nowrap}
+  .chip .pill strong{color:#fff}
+  .board{margin-top:16px; background:var(--panel); border:1px solid var(--border); border-radius:14px; overflow:hidden}
+  table{width:100%; border-collapse:separate; border-spacing:0; table-layout:fixed}
   thead th{
-    position:sticky;top:0;background:rgba(24,24,28,.95);color:#e8e8e8;
-    font-weight:600;text-align:center;padding:8px 6px;border-bottom:1px solid rgba(255,255,255,.08)
+    position:sticky; top:0; background:var(--head); color:#dfe3f3;
+    border-bottom:1px solid var(--head-bd); font-size:12px; letter-spacing:.3px;
+    padding:10px 6px; text-align:center; z-index:2; white-space:nowrap;
   }
+  thead th.grouped{border-right:1px solid var(--head-bd)}
   tbody td{
-    padding:7px 6px;color:#e0e0e0;text-align:center;border-bottom:1px solid rgba(255,255,255,.06);white-space:nowrap
+    padding:8px 6px; border-bottom:1px solid rgba(255,255,255,.06);
+    text-align:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
   }
-  tbody td.left,thead th.left{text-align:left}
-
-  .col-player{width:170px}.col-year{width:52px}.col-season{width:74px}.col-program{width:88px}.col-team{width:118px}
-  .col-gp,.col-pa,.col-ab,.col-r,.col-h,.col-1b,.col-2b,.col-3b,.col-hr,.col-rbi,
-  .col-bb,.col-hbp,.col-so,.col-sb,.col-kl,.col-sf,.col-avg,.col-obp,.col-slg,.col-ops{width:42px}
-
-  tbody tr:hover td{background:rgba(128,128,160,.10)}
-  tbody td.hover-col{background:rgba(128,128,160,.14)!important}
-  thead th.hover-head{background:rgba(24,24,28,1);color:#fff}
-
-  thead th.sortable{cursor:pointer}
-  thead th.sortable:hover{color:#a98bff}
-
-  a.player-link{color:#cbd5ff;text-decoration:none;border-bottom:1px dotted transparent}
-  a.player-link:hover{border-bottom-color:#cbd5ff;color:#e4e8ff}
-
+  tbody tr:nth-child(odd){background:var(--row)}
+  tbody tr:nth-child(even){background:var(--row-alt)}
+  tbody tr:hover td{background:var(--row-hl)}
+  /* row/col hover highlight */
+  tbody td.hover, thead th.hover{background:var(--row-hl) !important}
+  /* first columns */
+  .col-player{width:220px; text-align:left}
+  .col-player a{color:#cfe1ff; text-decoration:none; border-bottom:1px dotted transparent}
+  .col-player a:hover{color:#fff; border-color:#cfe1ff}
+  .col-year{width:64px}
+  .col-season{width:86px}
+  .col-program{width:110px}
+  .col-team{width:136px; text-align:left}
+  .col-num{width:54px}
+  .col-rate{width:56px}
+  /* totals row */
   tfoot td{
-    font-weight:600;background:rgba(255,255,255,.05);border-top:1px solid rgba(255,255,255,.10);
-    padding:8px 6px;text-align:center /* centered totals */
+    font-weight:600; background:rgba(255,255,255,.05);
+    border-top:1px solid rgba(255,255,255,.10); padding:8px 6px; text-align:center;
   }
-
-  .helper{font-size:12px;color:#b7b7b7;margin-top:8px;text-align:left}
+  tfoot td.left{text-align:left}
+  /* compact font for numbers */
+  .num{font-variant-numeric: tabular-nums}
+  /* make sure filters and table have same width feel */
+  @media (max-width:1200px){
+    .wrap{max-width: 1000px}
+  }
 </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>North Texas Amateur Baseball League | Interactive Hitting Stats</h1>
 
-<div class="ntabl-wrap">
-  <h1 class="ntabl-title">North Texas Amateur Baseball League | Interactive Hitting Stats</h1>
+    <!-- Filters -->
+    <div class="filters" id="filters">
+      <div class="chip">
+        <label for="fYear">Year</label>
+        <select id="fYear"><option value="">All Years</option></select>
+      </div>
+      <div class="chip">
+        <label for="fSeason">Season</label>
+        <select id="fSeason"><option value="">All Seasons</option></select>
+      </div>
+      <div class="chip">
+        <label for="fProgram">Program</label>
+        <select id="fProgram"><option value="">All Programs</option></select>
+      </div>
+      <div class="chip">
+        <label for="fTeam">Team</label>
+        <select id="fTeam"><option value="">All Teams</option></select>
+      </div>
+      <div class="chip">
+        <label for="fPlayer">Player</label>
+        <select id="fPlayer"><option value="">All Players</option></select>
+      </div>
+      <div class="chip">
+        <div style="display:flex;gap:8px;width:100%;align-items:center">
+          <span id="playerPill" class="pill" style="display:none">Player: <strong></strong></span>
+          <button id="clearPlayer" type="button" style="display:none">Clear Player</button>
+          <button id="resetAll" type="button" style="margin-left:auto">Reset Filters</button>
+        </div>
+      </div>
+    </div>
 
-  <div class="ntabl-filters" id="filters">
-    <select id="filter-year" class="ntabl-select"></select>
-    <select id="filter-season" class="ntabl-select"></select>
-    <select id="filter-program" class="ntabl-select"></select>
-    <select id="filter-team" class="ntabl-select"></select>
-    <select id="filter-player" class="ntabl-select"></select>
-    <button id="btn-clear-player" class="ntabl-btn" type="button" disabled>Clear Player</button>
-    <button id="btn-reset" class="ntabl-btn" type="button">Reset Filters</button>
+    <!-- Data board -->
+    <div class="board">
+      <table id="stats">
+        <thead>
+          <tr>
+            <th class="col-player">Player</th>
+            <th class="col-year">Year</th>
+            <th class="col-season">Season</th>
+            <th class="col-program">Program</th>
+            <th class="col-team">Team</th>
+
+            <th class="col-num grouped" data-key="GP">GP</th>
+            <th class="col-num" data-key="PA">PA</th>
+            <th class="col-num" data-key="AB">AB</th>
+
+            <th class="col-num grouped" data-key="R">R</th>
+            <th class="col-num" data-key="H">H</th>
+            <th class="col-num" data-key="1B">1B</th>
+            <th class="col-num" data-key="2B">2B</th>
+            <th class="col-num" data-key="3B">3B</th>
+            <th class="col-num" data-key="HR">HR</th>
+
+            <th class="col-num grouped" data-key="RBI">RBI</th>
+            <th class="col-num" data-key="BB">BB</th>
+            <th class="col-num" data-key="HBP">HBP</th>
+            <th class="col-num" data-key="SO">SO</th>
+            <th class="col-num" data-key="SB">SB</th>
+            <th class="col-num" data-key="K-L">K-L</th>
+
+            <th class="col-rate grouped" data-key="AVG">AVG</th>
+            <th class="col-rate" data-key="OBP">OBP</th>
+            <th class="col-rate" data-key="SLG">SLG</th>
+            <th class="col-rate" data-key="OPS">OPS</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+        <tfoot></tfoot>
+      </table>
+    </div>
   </div>
-
-  <div class="table-card">
-    <table class="stats" id="stats">
-      <thead id="thead"></thead>
-      <tbody id="tbody"></tbody>
-      <tfoot id="tfoot"></tfoot>
-    </table>
-  </div>
-
-  <div class="helper">Hover to highlight row &amp; column. Click a player name to filter by that player. Click headers to sort.</div>
-</div>
 
 <script>
-  const CSV_URL = "{{ '/ntabl-hitting-stats.csv' | relative_url }}";
+/* ---------- Utilities ---------- */
+const by = (sel, el=document) => el.querySelector(sel);
+const all = (sel, el=document) => [...el.querySelectorAll(sel)];
 
-  const COLS = [
-    { key:'PLAYER',  label:'Player',  class:'col-player left' },
-    { key:'YEAR',    label:'Year',    class:'col-year' },
-    { key:'SEASON',  label:'Season',  class:'col-season' },
-    { key:'PROGRAM', label:'Program', class:'col-program' },
-    { key:'TEAM',    label:'Team',    class:'col-team left' },
-    { key:'GP', label:'GP', class:'col-gp' },   { key:'PA', label:'PA', class:'col-pa' },
-    { key:'AB', label:'AB', class:'col-ab' },   { key:'R',  label:'R',  class:'col-r'  },
-    { key:'H',  label:'H',  class:'col-h'  },   { key:'1B', label:'1B', class:'col-1b' },
-    { key:'2B', label:'2B', class:'col-2b' },   { key:'3B', label:'3B', class:'col-3b' },
-    { key:'HR', label:'HR', class:'col-hr' },   { key:'RBI',label:'RBI',class:'col-rbi'},
-    { key:'BB', label:'BB', class:'col-bb' },   { key:'HBP',label:'HBP',class:'col-hbp'},
-    { key:'SO', label:'SO', class:'col-so' },   { key:'SB', label:'SB', class:'col-sb' },
-    { key:'K-L',label:'K-L',class:'col-kl'},    { key:'SF', label:'SF', class:'col-sf' },
-    { key:'AVG',label:'AVG',class:'col-avg' },  { key:'OBP',label:'OBP',class:'col-obp'},
-    { key:'SLG',label:'SLG',class:'col-slg' },  { key:'OPS',label:'OPS',class:'col-ops'}
-  ];
+const RATE_COLS = ["AVG","OBP","SLG","OPS"];
+const INT_COLS  = ["GP","PA","AB","R","H","1B","2B","3B","HR","RBI","BB","HBP","SO","SB","K-L"];
+const TEXT_COLS = ["PLAYER","YEAR","SEASON","PROGRAM","TEAM"];
 
-  let RAW = [], VIEW = [], sortKey = null, sortAsc = true;
+const formatRate = v => {
+  if (v === "" || v === null || v === undefined) return "–";
+  let n = Number(v);
+  if (Number.isNaN(n)) return "–";
+  // If the source used short decimals like .5, expand to .500; if integer 0 => .000
+  if (String(v).trim() === "0") return ".000";
+  // n might be between 0 and 1 (already fractional) or like .5 -> 0.5 parse
+  if (n < 1 && n >= 0) return (Math.round(n*1000)/1000).toFixed(3).replace(/^0/,'');
+  // If the file had values like 500 meaning .500
+  if (n > 1 && n <= 2) return (Math.round(n*1000)/1000).toFixed(3).replace(/^0/,'');
+  if (n > 2) return ( (n/1000).toFixed(3) ).replace(/^0/,''); // 500 -> .500 safeguard
+  return "–";
+};
 
-  const sel = id => document.getElementById(id);
-  const val = id => sel(id).value;
-  const uniq = arr => [...new Set(arr.filter(Boolean))];
-  const toNum = v => (v === null || v === undefined || v === '') ? 0 : Number(v);
+const formatInt = v => {
+  let n = parseInt(v,10);
+  return Number.isFinite(n) ? String(n) : "0";
+};
 
-  // Parse and format rate columns consistently
-  function parseRate(v){
-    if (v === undefined || v === null) return null;
-    const s = String(v).trim();
-    if (s === '' || s === '-') return null;
-    const n = Number(s);
-    if (!isNaN(n)) return n;     // handles 0.333, .333, 0, etc.
-    return null;
+const text = v => (v ?? "").toString();
+
+/* ---------- CSV Loader ---------- */
+async function loadCSV(path){
+  const res = await fetch(path, {cache:"no-store"});
+  if(!res.ok) throw new Error("CSV fetch error");
+  const raw = await res.text();
+
+  // Simple CSV parse (quoted values supported)
+  const rows = [];
+  let i = 0, cur = "", inQ = false, row = [];
+  while(i < raw.length){
+    const c = raw[i];
+    if (c === '"' ){ // toggle quote
+      if (inQ && raw[i+1] === '"'){ cur += '"'; i++; }
+      else inQ = !inQ;
+    } else if (c === ',' && !inQ){ row.push(cur); cur = ""; }
+      else if ((c === '\n' || c === '\r') && !inQ){
+        if (cur.length || row.length){ row.push(cur); rows.push(row); row = []; cur=""; }
+      } else { cur += c; }
+    i++;
   }
-  function fmtRate(v){
-    const n = parseRate(v);
-    if (n === null) return '-';          // empty/missing -> hyphen
-    if (Math.abs(n) < 1e-12) return '.000'; // zero -> .000
-    // If the CSV had ".333" or "0.333" or ".5", they all become 0.xxx numbers here
-    return n.toFixed(3).replace(/^0/, ''); // .333 / .500 / .400 etc.
+  if (cur.length || row.length) { row.push(cur); rows.push(row); }
+
+  const headers = rows.shift().map(h => h.trim());
+  return rows.map(r => {
+    const rec = {};
+    headers.forEach((h,j)=> rec[h] = (r[j] ?? "").trim());
+    return rec;
+  });
+}
+
+/* ---------- Render ---------- */
+let DATA = [];
+let filtered = [];
+let sortKey = "PLAYER", sortDir = "asc";
+let colCount;
+
+function uniqueSorted(list, key){
+  return [...new Set(list.map(r => r[key]).filter(v => v!=="" ))].sort((a,b)=> (a>b?1:-1));
+}
+
+function populateFilters(list){
+  const years = uniqueSorted(list,"YEAR").reverse();
+  const seasons = uniqueSorted(list,"SEASON");
+  const programs = uniqueSorted(list,"PROGRAM");
+  const teams = uniqueSorted(list,"TEAM");
+  const players = uniqueSorted(list,"PLAYER");
+
+  const opt = (v,l=v)=> `<option value="${v}">${l}</option>`;
+
+  by("#fYear").innerHTML    = `<option value="">All Years</option>${years.map(y=>opt(y)).join("")}`;
+  by("#fSeason").innerHTML  = `<option value="">All Seasons</option>${seasons.map(x=>opt(x)).join("")}`;
+  by("#fProgram").innerHTML = `<option value="">All Programs</option>${programs.map(x=>opt(x)).join("")}`;
+  by("#fTeam").innerHTML    = `<option value="">All Teams</option>${teams.map(x=>opt(x)).join("")}`;
+  by("#fPlayer").innerHTML  = `<option value="">All Players</option>${players.map(x=>opt(x)).join("")}`;
+}
+
+function applyFilters(){
+  const fy = by("#fYear").value;
+  const fs = by("#fSeason").value;
+  const fp = by("#fProgram").value;
+  const ft = by("#fTeam").value;
+  const pl = by("#fPlayer").value;
+
+  filtered = DATA.filter(r =>
+    (!fy || r.YEAR===fy) &&
+    (!fs || r.SEASON===fs) &&
+    (!fp || r.PROGRAM===fp) &&
+    (!ft || r.TEAM===ft) &&
+    (!pl || r.PLAYER===pl)
+  );
+
+  renderTable();
+  // show/hide player pill & clear button
+  const pill = by("#playerPill"), clr = by("#clearPlayer");
+  if (pl){
+    pill.style.display="inline-block";
+    pill.querySelector("strong").textContent = pl;
+    clr.style.display="inline-block";
+  } else {
+    pill.style.display="none"; clr.style.display="none";
   }
+}
 
-  const td = (v, cls='') => `<td class="${cls}">${v ?? ''}</td>`;
-  function escapeHtml(s=''){return s.replace(/[&<>"']/g, m=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m]));}
-  const tdPlayer = (name) => `<td class="left col-player"><a class="player-link" href="javascript:void(0)" onclick="filterByPlayer('${escapeHtml(name)}')">${escapeHtml(name)}</a></td>`;
+function computeTotals(rows){
+  const totals = {};
+  INT_COLS.forEach(k => totals[k] = rows.reduce((s,r)=> s + (parseInt(r[k],10) || 0), 0));
+  // derived rates if present: AVG, OBP, SLG, OPS – use sums (already provided), but show 3-decimals
+  totals.AVG = rows.length ? formatRate(rows.reduce((s,r)=> s + (parseFloat(r.AVG)||0),0) / rows.length) : "–";
+  totals.OBP = rows.length ? formatRate(rows.reduce((s,r)=> s + (parseFloat(r.OBP)||0),0) / rows.length) : "–";
+  totals.SLG = rows.length ? formatRate(rows.reduce((s,r)=> s + (parseFloat(r.SLG)||0),0) / rows.length) : "–";
+  totals.OPS = rows.length ? formatRate(rows.reduce((s,r)=> s + (parseFloat(r.OPS)||0),0) / rows.length) : "–";
+  return totals;
+}
 
-  function buildHeader(){
-    const tr=document.createElement('tr');
-    COLS.forEach(c=>{
-      const th=document.createElement('th');
-      th.className=`${c.class} sortable`;
-      th.textContent=c.label;
-      th.addEventListener('click',()=>{sortKey=c.key;sortAsc=!sortAsc;renderBody();});
-      tr.appendChild(th);
-    });
-    sel('thead').innerHTML=''; sel('thead').appendChild(tr);
-  }
-
-  function wireHover(){
-    const tbody=sel('tbody'), thead=sel('thead');
-    tbody.addEventListener('mousemove',e=>{
-      const cell=e.target.closest('td'); if(!cell) return;
-      const idx=[...cell.parentNode.children].indexOf(cell);
-      tbody.querySelectorAll('.hover-col').forEach(x=>x.classList.remove('hover-col'));
-      thead.querySelectorAll('.hover-head').forEach(x=>x.classList.remove('hover-head'));
-      tbody.querySelectorAll(`td:nth-child(${idx+1})`).forEach(x=>x.classList.add('hover-col'));
-      thead.querySelector(`th:nth-child(${idx+1})`)?.classList.add('hover-head');
-    });
-    tbody.addEventListener('mouseleave',()=>{
-      tbody.querySelectorAll('.hover-col').forEach(x=>x.classList.remove('hover-col'));
-      thead.querySelectorAll('.hover-head').forEach(x=>x.classList.remove('hover-head'));
-    });
-  }
-
-  function fill(id, values, all){
-    const s=sel(id);
-    s.innerHTML=`<option value="">${all}</option>`+
-      values.sort().map(v=>`<option value="${v}">${v}</option>`).join('');
-  }
-
-  function buildFilters(){
-    fill('filter-year',    uniq(RAW.map(r=>r.YEAR)),    'All Years');
-    fill('filter-season',  uniq(RAW.map(r=>r.SEASON)),  'All Seasons');
-    fill('filter-program', uniq(RAW.map(r=>r.PROGRAM)), 'All Programs');
-    fill('filter-team',    uniq(RAW.map(r=>r.TEAM)),    'All Teams');
-    fill('filter-player',  uniq(RAW.map(r=>r.PLAYER)),  'All Players');
-
-    ['filter-year','filter-season','filter-program','filter-team','filter-player']
-      .forEach(id=>sel(id).addEventListener('change',onFilterChange));
-
-    sel('btn-reset').addEventListener('click',()=>{
-      ['filter-year','filter-season','filter-program','filter-team','filter-player']
-        .forEach(id=>sel(id).selectedIndex=0);
-      onFilterChange();
-    });
-
-    sel('btn-clear-player').addEventListener('click',()=>{
-      sel('filter-player').selectedIndex=0; onFilterChange();
-    });
-  }
-
-  function onFilterChange(){
-    applyFilters();
-    sel('btn-clear-player').disabled = !val('filter-player');
-  }
-
-  function applyFilters(){
-    const y=val('filter-year'), s=val('filter-season'), p=val('filter-program'),
-          t=val('filter-team'), pl=val('filter-player');
-    VIEW = RAW.filter(r =>
-      (!y || r.YEAR==y) && (!s||r.SEASON==s) && (!p||r.PROGRAM==p) &&
-      (!t||r.TEAM==t)   && (!pl||r.PLAYER==pl)
-    );
-    renderBody();
-  }
-
-  function filterByPlayer(name){
-    const ps=sel('filter-player');
-    [...ps.options].forEach((o,i)=>{ if(o.value===name) ps.selectedIndex=i; });
-    onFilterChange();
-  }
-  window.filterByPlayer=filterByPlayer;
-
-  function renderBody(){
-    const tbody=sel('tbody'), tfoot=sel('tfoot');
-    let rows=VIEW.slice();
-    if (sortKey){
-      rows.sort((a,b)=>{
-        const va=a[sortKey]??'', vb=b[sortKey]??'';
-        return sortAsc ? (va>vb?1:-1) : (va<vb?1:-1);
-      });
+function sortRows(rows){
+  const k = sortKey, dir = sortDir === "asc" ? 1 : -1;
+  return rows.slice().sort((a,b)=>{
+    if (INT_COLS.includes(k)){
+      return ( (parseInt(a[k],10)||0) - (parseInt(b[k],10)||0) ) * dir;
+    } else if (RATE_COLS.includes(k)){
+      const av = parseFloat(a[k])||0, bv = parseFloat(b[k])||0;
+      return (av - bv) * dir;
+    } else {
+      return (a[k] > b[k] ? 1 : -1) * dir;
     }
+  });
+}
 
-    tbody.innerHTML = rows.map(r => `
-      <tr>
-        ${tdPlayer(r.PLAYER)}${td(r.YEAR)}${td(r.SEASON)}${td(r.PROGRAM)}${td(r.TEAM)}
-        ${td(r.GP)}${td(r.PA)}${td(r.AB)}${td(r.R)}${td(r.H)}
-        ${td(r['1B'])}${td(r['2B'])}${td(r['3B'])}${td(r.HR)}${td(r.RBI)}
-        ${td(r.BB)}${td(r.HBP)}${td(r.SO)}${td(r.SB)}${td(r['K-L'])}${td(r.SF)}
-        ${td(fmtRate(r.AVG))}${td(fmtRate(r.OBP))}${td(fmtRate(r.SLG))}${td(fmtRate(r.OPS))}
-      </tr>
-    `).join('');
+function renderTable(){
+  const tbody = by("#stats tbody");
+  const tfoot = by("#stats tfoot");
+  const rows = sortRows(filtered);
 
-    // Totals
-    const sum=k=>rows.reduce((a,r)=>a + (r[k]===''?0:Number(r[k]||0)),0);
-    const t={
-      GP:sum('GP'),PA:sum('PA'),AB:sum('AB'),R:sum('R'),H:sum('H'),
-      '1B':sum('1B'),'2B':sum('2B'),'3B':sum('3B'),HR:sum('HR'),RBI:sum('RBI'),
-      BB:sum('BB'),HBP:sum('HBP'),SO:sum('SO'),SB:sum('SB'),'K-L':sum('K-L'),SF:sum('SF')
-    };
-    const avg =(t.AB ? t.H/t.AB : 0);
-    const obp =((t.AB+t.BB+t.HBP+t.SF) ? (t.H+t.BB+t.HBP)/(t.AB+t.BB+t.HBP+t.SF) : 0);
-    const slg =(t.AB ? ((t['1B'] + 2*t['2B'] + 3*t['3B'] + 4*t.HR) / t.AB) : 0);
-    const ops = obp + slg;
+  // rows
+  tbody.innerHTML = rows.map(r=>{
+    const rate = k => `<td class="num">${formatRate(r[k])}</td>`;
+    const num  = k => `<td class="num">${formatInt(r[k])}</td>`;
+    return `<tr>
+      <td class="col-player"><a href="#" data-player="${text(r.PLAYER)}">${text(r.PLAYER)}</a></td>
+      <td class="col-year">${text(r.YEAR)}</td>
+      <td class="col-season">${text(r.SEASON)}</td>
+      <td class="col-program">${text(r.PROGRAM)}</td>
+      <td class="col-team">${text(r.TEAM)}</td>
 
-    tfoot.innerHTML = `
-      <tr>
-        <td class="left col-player"><strong>Totals</strong></td><td></td><td></td><td></td><td></td>
-        ${td(t.GP)}${td(t.PA)}${td(t.AB)}${td(t.R)}${td(t.H)}
-        ${td(t['1B'])}${td(t['2B'])}${td(t['3B'])}${td(t.HR)}${td(t.RBI)}
-        ${td(t.BB)}${td(t.HBP)}${td(t.SO)}${td(t.SB)}${td(t['K-L'])}${td(t.SF)}
-        ${td(fmtRate(avg))}${td(fmtRate(obp))}${td(fmtRate(slg))}${td(fmtRate(ops))}
-      </tr>
-    `;
+      ${num("GP")}${num("PA")}${num("AB")}
+      ${num("R")}${num("H")}${num("1B")}${num("2B")}${num("3B")}${num("HR")}
+      ${num("RBI")}${num("BB")}${num("HBP")}${num("SO")}${num("SB")}${num("K-L")}
+      ${rate("AVG")}${rate("OBP")}${rate("SLG")}${rate("OPS")}
+    </tr>`;
+  }).join("");
 
-    wireHover();
-  }
+  // totals
+  const t = computeTotals(rows);
+  tfoot.innerHTML = `<tr>
+    <td class="left col-player"><strong>Totals</strong></td>
+    <td class="col-year"></td>
+    <td class="col-season"></td>
+    <td class="col-program"></td>
+    <td class="col-team"></td>
 
-  // Load & init
-  fetch(CSV_URL)
-    .then(r=>r.text())
-    .then(txt=>new Promise(res=>Papa.parse(txt,{header:true,skipEmptyLines:true,complete:res})))
-    .then(results=>{
-      RAW = results.data.map(row=>{
-        const o={}; Object.keys(row).forEach(k=>o[k.trim()]=row[k]);
-        // numerics (counting columns)
-        ['GP','PA','AB','R','H','1B','2B','3B','HR','RBI','BB','HBP','SO','SB','K-L','SF'].forEach(k=>{
-          o[k] = (o[k]==='' || o[k]===undefined || o[k]===null) ? '' : Number(o[k]);
-        });
-        // rates: keep raw string/number; we format with fmtRate() at render time
-        return o;
-      });
-      buildHeader(); buildFilters(); VIEW = RAW.slice(); renderBody();
+    <td class="num">${t.GP}</td><td class="num">${t.PA}</td><td class="num">${t.AB}</td>
+    <td class="num">${t.R}</td><td class="num">${t.H}</td><td class="num">${t["1B"]}</td><td class="num">${t["2B"]}</td><td class="num">${t["3B"]}</td><td class="num">${t.HR}</td>
+    <td class="num">${t.RBI}</td><td class="num">${t.BB}</td><td class="num">${t.HBP}</td><td class="num">${t.SO}</td><td class="num">${t.SB}</td><td class="num">${t["K-L"]}</td>
+    <td class="num">${t.AVG}</td><td class="num">${t.OBP}</td><td class="num">${t.SLG}</td><td class="num">${t.OPS}</td>
+  </tr>`;
+
+  // clickable names -> filter
+  all('a[data-player]', tbody).forEach(a=>{
+    a.addEventListener('click', e=>{
+      e.preventDefault();
+      by('#fPlayer').value = a.dataset.player;
+      applyFilters();
     });
+  });
+
+  // column hover
+  wireColumnHover();
+}
+
+/* column hover shading */
+function wireColumnHover(){
+  const table = by('#stats');
+  const cols = all('thead th', table);
+  const bodyCells = all('tbody td', table);
+
+  // clear
+  const clear = ()=>{ cols.forEach(c=>c.classList.remove('hover')); bodyCells.forEach(c=>c.classList.remove('hover')); };
+
+  all('tbody tr', table).forEach(tr=>{
+    const tds = all('td', tr);
+    tds.forEach((td, idx)=>{
+      td.addEventListener('mouseenter', ()=>{
+        clear();
+        cols[idx].classList.add('hover');
+        all(`tbody tr td:nth-child(${idx+1})`, table).forEach(c=>c.classList.add('hover'));
+      });
+    });
+  });
+  table.addEventListener('mouseleave', clear);
+}
+
+/* sorting */
+all('thead th[data-key]').forEach(th=>{
+  th.style.cursor = 'pointer';
+  th.title = 'Click to sort';
+  th.addEventListener('click', ()=>{
+    const k = th.dataset.key;
+    if (sortKey === k) sortDir = (sortDir === 'asc' ? 'desc' : 'asc');
+    else { sortKey = k; sortDir = 'desc'; }
+    renderTable();
+  });
+});
+
+/* filters events */
+['#fYear','#fSeason','#fProgram','#fTeam','#fPlayer'].forEach(sel=>{
+  by(sel).addEventListener('change', applyFilters);
+});
+by('#resetAll').addEventListener('click', ()=>{
+  ['#fYear','#fSeason','#fProgram','#fTeam','#fPlayer'].forEach(sel=> by(sel).value = "");
+  applyFilters();
+});
+by('#clearPlayer').addEventListener('click', ()=>{
+  by('#fPlayer').value = "";
+  applyFilters();
+});
+
+/* boot */
+(async function init(){
+  try{
+    // IMPORTANT: CSV file expected at repo root with this exact name
+    DATA = await loadCSV('ntabl-hitting-stats.csv');
+
+    // Normalize keys to expected headers
+    DATA = DATA.map(r=>({
+      PLAYER : r.PLAYER || r.Player || r.name || "",
+      YEAR   : r.YEAR || r.Year || "",
+      SEASON : r.SEASON || r.Season || "",
+      PROGRAM: r.PROGRAM || r.Program || r.DIVISION || "",
+      TEAM   : r.TEAM || r.Team || "",
+
+      GP: r.GP || r.G || "0",
+      PA: r.PA || "0",
+      AB: r.AB || "0",
+      R:  r.R  || "0",
+      H:  r.H  || "0",
+      "1B": r["1B"] || r["1B "] || "0",
+      "2B": r["2B"] || "0",
+      "3B": r["3B"] || "0",
+      HR: r.HR || "0",
+      RBI: r.RBI || "0",
+      BB:  r.BB  || "0",
+      HBP: r.HBP || "0",
+      SO:  r.SO  || "0",
+      SB:  r.SB  || "0",
+      "K-L": r["K-L"] || r["K_L"] || "0",
+      AVG: r.AVG ?? "",
+      OBP: r.OBP ?? "",
+      SLG: r.SLG ?? "",
+      OPS: r.OPS ?? ""
+    }));
+
+    populateFilters(DATA);
+    applyFilters();
+  }catch(e){
+    by('#stats tbody').innerHTML = `<tr><td colspan="24" style="text-align:center;padding:18px">Error loading data.</td></tr>`;
+    console.error(e);
+  }
+})();
 </script>
+</body>
+</html>
