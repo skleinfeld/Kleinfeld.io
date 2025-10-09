@@ -1,18 +1,242 @@
 ---
-layout: default
-title: Photos
-permalink: /photos.html
+permalink: /photos/
 ---
 
-<section class="wrap" style="padding:48px 0">
-  <h1 style="font-size:28px;font-weight:600;margin:0 0 14px">Photos</h1>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Photos — Cover Flow</title>
+<link rel="icon" href="favicon.ico">
+<style>
+  :root{
+    --bg:#0b0c0f; --panel:#12141a; --ink:#e8eaf2; --muted:#9aa0b3;
+    --accent:#6a4bd8; --edge:rgba(255,255,255,.12); --glow:rgba(106,75,216,.25);
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0; color:var(--ink);
+    background:
+      radial-gradient(1200px 520px at 10% 80%, rgba(106,75,216,.10), transparent 55%),
+      var(--bg);
+    font: 500 14px/1.45 ui-sans-serif, -apple-system, Segoe UI, Roboto, Inter, "Helvetica Neue", Arial;
+    -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
+  }
 
-  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px">
-    <figure class="card" style="padding:0;overflow:hidden">
-      <img src="/Saul D. Kleinfeld & Mickey Mantle.JPG" alt="Saul D. Kleinfeld & Mickey Mantle" style="width:100%;display:block">
-    </figure>
-    <figure class="card" style="padding:0;overflow:hidden">
-      <img src="/saul-kleinfeld-newspaper.jpeg" alt="Newspaper article" style="width:100%;display:block">
-    </figure>
+  .wrap{max-width:1200px;margin:48px auto;padding:0 20px}
+
+  header h1{
+    margin:0 0 16px; font-size:22px; font-weight:700; letter-spacing:.2px;
+  }
+  header p{margin:0 0 22px; color:var(--muted)}
+
+  .stage{
+    position:relative; height:72vh; min-height:420px;
+    border:1px solid var(--edge); border-radius:18px; background:var(--panel);
+    overflow:hidden;
+  }
+
+  /* rail holds cards that we arrange with transforms */
+  .rail{
+    position:absolute; inset:0; perspective:1200px;
+    display:flex; align-items:center; justify-content:center;
+    touch-action:pan-y; user-select:none;
+  }
+
+  .card{
+    position:absolute; top:50%; left:50%;
+    transform-style:preserve-3d;
+    transition:transform .45s cubic-bezier(.2,.7,.2,1), opacity .35s;
+    will-change:transform, opacity;
+    box-shadow:0 30px 60px rgba(0,0,0,.35), 0 0 0 1px rgba(255,255,255,.06) inset;
+    border-radius:14px; overflow:hidden; background:#000;
+  }
+  .card img{
+    display:block; height:62vh; max-height:760px; width:auto; max-width:84vw;
+    object-fit:contain; background:#000;
+  }
+
+  /* depth labels */
+  .caption{
+    position:absolute; left:50%; transform:translateX(-50%); bottom:14px;
+    background:rgba(10,12,18,.72); color:#fff; padding:8px 12px;
+    border:1px solid rgba(255,255,255,.14); border-radius:10px;
+    font-size:13px; backdrop-filter:saturate(160%) blur(8px);
+    white-space:nowrap;
+  }
+
+  /* controls */
+  .controls{
+    position:absolute; inset:auto 0 12px 0; display:flex;
+    align-items:center; justify-content:center; gap:12px; pointer-events:none;
+  }
+  .btn{
+    pointer-events:auto;
+    width:42px; height:42px; display:grid; place-items:center;
+    border-radius:12px; border:1px solid var(--edge);
+    background:linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.03));
+    color:#fff; cursor:pointer; transition:box-shadow .15s, transform .08s;
+  }
+  .btn:hover{ box-shadow:0 0 0 2px var(--glow) inset }
+  .btn:active{ transform:scale(.98) }
+  .btn svg{ width:18px; height:18px; opacity:.9 }
+
+  .dots{ pointer-events:auto; display:flex; gap:8px; align-items:center }
+  .dot{
+    width:8px; height:8px; border-radius:100%;
+    background:rgba(255,255,255,.28); transition:transform .2s, background .2s;
+  }
+  .dot.active{ background:#fff; transform:scale(1.25) }
+
+  /* hint text */
+  .hint{
+    position:absolute; top:12px; right:16px; color:var(--muted);
+    font-size:12px; letter-spacing:.2px;
+  }
+
+  @media (max-width:720px){
+    .card img{ height:58vh; max-width:92vw }
+    .stage{ height:70vh }
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>Photos</h1>
+      <p>Swipe, use arrow keys, or click to navigate. Click a card to center it.</p>
+    </header>
+
+    <section class="stage" id="stage">
+      <div class="rail" id="rail" aria-live="polite"></div>
+
+      <div class="hint">← / →</div>
+      <div class="controls">
+        <button class="btn" id="prevBtn" aria-label="Previous">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M15 5l-7 7 7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <div class="dots" id="dots"></div>
+        <button class="btn" id="nextBtn" aria-label="Next">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M9 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+    </section>
   </div>
-</section>
+
+<script>
+/* ==== image list (filename + caption) ==== */
+const photos = [
+  { src: "Saul D. Kleinfeld & Mickey Mantle.JPG", caption: "Saul D. Kleinfeld & Mickey Mantle" },
+  { src: "saul-kleinfeld-newspaper.jpeg",         caption: "Newspaper feature on Saul's grandfather" },
+  { src: "NTABL_Charity.jpeg",                   caption: "NTABL Charity Event" },
+  { src: "SBK-Headshot.jpeg",                    caption: "Saul B. Kleinfeld — Headshot" }
+];
+
+/* ==== cover flow engine ==== */
+const rail = document.getElementById("rail");
+const dotsWrap = document.getElementById("dots");
+let index = 0;
+let cards = [];
+
+function makeCard(item, i){
+  const el = document.createElement("figure");
+  el.className = "card";
+  el.setAttribute("role", "group");
+  el.setAttribute("aria-roledescription", "slide");
+  el.setAttribute("aria-label", `${i+1} of ${photos.length}`);
+
+  const img = document.createElement("img");
+  img.alt = item.caption || `Photo ${i+1}`;
+  img.loading = "eager"; // small set; keep it snappy
+  img.src = encodeURI(item.src); // handle spaces/&
+
+  const cap = document.createElement("figcaption");
+  cap.className = "caption";
+  cap.textContent = item.caption || "";
+
+  el.appendChild(img);
+  el.appendChild(cap);
+  el.addEventListener("click", () => goTo(i));
+  rail.appendChild(el);
+  return el;
+}
+
+function layout(){
+  const spread = 110;  // px gap between covers
+  const tilt =  -45;   // deg for side covers
+  const zLift = 20;    // subtle lift
+  const maxSide = 6;   // how many covers visible on each side
+
+  cards.forEach((card, i) => {
+    const d = i - index;
+    if (Math.abs(d) > maxSide){
+      card.style.opacity = 0;
+      card.style.pointerEvents = "none";
+      return;
+    }
+    card.style.opacity = 1;
+    card.style.pointerEvents = "auto";
+
+    if (d === 0){
+      card.style.transform =
+        `translate(-50%, -50%) translateZ(${zLift}px) rotateY(0deg)`;
+      card.style.zIndex = 999;
+    } else {
+      const sign = Math.sign(d);
+      const x = (spread * d);
+      const rot = tilt * sign;
+      const scale = 1 - Math.min(Math.abs(d) * 0.06, 0.4);
+      card.style.transform =
+        `translate(-50%, -50%) translateX(${x}px) rotateY(${rot}deg) scale(${scale})`;
+      card.style.zIndex = 999 - Math.abs(d);
+    }
+  });
+
+  [...dotsWrap.children].forEach((dot, i) =>
+    dot.classList.toggle("active", i === index));
+}
+
+function goTo(i){
+  index = (i + photos.length) % photos.length;
+  layout();
+}
+function next(){ goTo(index + 1); }
+function prev(){ goTo(index - 1); }
+
+/* keyboard */
+window.addEventListener("keydown", (e)=>{
+  if (e.key === "ArrowRight") next();
+  else if (e.key === "ArrowLeft") prev();
+});
+
+/* swipe */
+let startX = null;
+rail.addEventListener("pointerdown", e => { startX = e.clientX; rail.setPointerCapture(e.pointerId); });
+rail.addEventListener("pointerup", e => {
+  if (startX == null) return;
+  const dx = e.clientX - startX;
+  if (dx > 40) prev();
+  else if (dx < -40) next();
+  startX = null;
+});
+
+/* dots + buttons */
+document.getElementById("nextBtn").addEventListener("click", next);
+document.getElementById("prevBtn").addEventListener("click", prev);
+
+/* init */
+function init(){
+  photos.forEach((p, i) => {
+    cards.push(makeCard(p, i));
+    const d = document.createElement("div");
+    d.className = "dot"; d.addEventListener("click", ()=>goTo(i));
+    dotsWrap.appendChild(d);
+  });
+  layout();
+}
+init();
+</script>
+</body>
+</html>
