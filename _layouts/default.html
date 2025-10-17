@@ -2,129 +2,38 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>{{ page.title }}</title>
-  <meta name="color-scheme" content="dark light">
-  <link rel="icon" href="/favicon.ico">
-  <style>
-    :root{
-      --bg:#0a0b0c; --surface:#0f1113; --line:#222428; --fg:#e9eaec; --sub:#a5adb6;
-      --accent:#6c5ce7; --accent-2:#7c3aed; --accent-3:#2563eb;
-      --chip1:#1f3a8a; --chip1fg:#a6b7ff;
-      --chip2:#5b21b6; --chip2fg:#d0c6ff;
-      --chip3:#7c1431; --chip3fg:#ffbfd0;
-    }
-
-    /* Base */
-    html,body{height:100%}
-    body{
-      margin:0; background:
-        radial-gradient(1200px 600px at 10% -10%, rgba(124,58,237,.16), transparent 50%),
-        radial-gradient(900px 500px at 110% 10%, rgba(37,99,235,.12), transparent 55%),
-        var(--bg);
-      color:var(--fg);
-      font:15px/1.6 ui-sans-serif,system-ui,-apple-system,Segoe UI,Inter,Roboto,Arial;
-      -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
-    }
-    a{color:inherit;text-decoration:none}
-
-    /* Containers */
-    .wrap{max-width:1200px;margin:0 auto;padding:0 24px}
-    .wrap-wide{max-width:1600px;margin:0 auto;padding:0 24px}
-
-    /* Header */
-    header{
-      position:sticky; top:0; z-index:50;
-      background:linear-gradient(180deg, rgba(15,17,19,.92), rgba(15,17,19,.78));
-      backdrop-filter:saturate(140%) blur(10px);
-      border-bottom:1px solid var(--line);
-    }
-    .nav{height:64px; display:flex; align-items:center; justify-content:space-between}
-    .brand{font-weight:700; letter-spacing:.2px}
-    .links{display:flex; gap:22px; color:#cfd4db; font-weight:500}
-    .links a{
-      position:relative; transition:color .15s ease;
-    }
-    .links a:hover{color:#fff;}
-    .links a::after{
-      content:""; position:absolute; left:0; right:0; bottom:-15px; height:2px;
-      background:linear-gradient(90deg, var(--accent), var(--accent-3));
-      border-radius:2px;
-      transform:scaleX(0); transform-origin:center;
-      transition:transform .2s ease;
-    }
-    .links a:hover::after{
-      transform:scaleX(1);
-    }
-
-    /* Common Blocks */
-    .hero{padding:72px 0 32px; text-align:center}
-    .avatar{width:160px;height:160px;border-radius:9999px;border:4px solid #25282d;box-shadow:0 16px 44px rgba(0,0,0,.35)}
-    h1{font-size:40px; line-height:1.15; margin:16px 0 8px}
-    .tag{color:var(--sub); font-size:18px; margin-bottom:10px}
-    .chips{display:flex; gap:8px; flex-wrap:wrap; justify-content:center; margin:10px 0 18px}
-    .chip{padding:6px 10px; border-radius:999px; font-size:13px}
-    .c1{background:var(--chip1); color:var(--chip1fg)}
-    .c2{background:var(--chip2); color:var(--chip2fg)}
-    .c3{background:var(--chip3); color:var(--chip3fg)}
-
-    .section{padding:36px 0 64px}
-    .grid{display:grid; grid-template-columns:repeat(1,minmax(0,1fr)); gap:18px}
-    @media (min-width:900px){.grid{grid-template-columns:repeat(2,minmax(0,1fr));}}
-    .card{
-      border:1px solid var(--line); background:linear-gradient(180deg, #121418, #101215);
-      border-radius:18px; padding:22px;
-      box-shadow:0 20px 50px rgba(0,0,0,.30);
-      transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease;
-    }
-    .card:hover{transform:translateY(-2px); box-shadow:0 30px 70px rgba(0,0,0,.36); border-color:#2b2f35}
-    .row{display:flex; align-items:center; gap:12px; margin-bottom:8px}
-    .logo{width:44px;height:44px;border-radius:10px;object-fit:cover}
-
-    .btn{
-      display:inline-flex; align-items:center; justify-content:center;
-      gap:8px; padding:10px 14px; border-radius:12px; font-weight:700;
-      background:linear-gradient(180deg, var(--accent), var(--accent-2));
-      color:#fff; box-shadow:0 8px 24px rgba(108,92,231,.35);
-      transition:transform .12s ease, filter .12s ease;
-    }
-    .btn:hover{filter:brightness(1.06); transform:translateY(-1px)}
-    .btn.alt{background:linear-gradient(180deg, var(--accent-3), #3b82f6)}
-
-    /* Light card for white table shells */
-    .surface{
-      border:1px solid #e6e6e6; border-radius:14px; background:#fff;
-      box-shadow:0 10px 26px rgba(0,0,0,.10); overflow:hidden;
-    }
-
-    /* NTABL Table */
-    .ntabl-wrap{overflow-x:auto}
-    .ntabl-table{
-      width:100%; min-width:1300px; border-collapse:separate; border-spacing:0; font-size:13px;
-    }
-    .ntabl-table thead th{
-      position:sticky; top:0; z-index:2; background:#0f1113; color:#fff;
-      font-weight:700; text-align:left; padding:12px 14px; border-bottom:1px solid #1f2126; white-space:nowrap;
-    }
-    .ntabl-table tbody td{
-      background:#fff; color:#121417; padding:12px 14px; border-top:1px solid #eef0f3; white-space:nowrap;
-    }
-    .ntabl-table tbody tr:nth-child(even) td{background:#fafbfc}
-    .ntabl-table tbody tr:hover td{background:#f3f6fa}
-    .ntabl-table tfoot th,.ntabl-table tfoot td{
-      background:#f7f8fb; color:#111; font-weight:800; padding:12px 14px; border-top:2px solid #e8ebf0;
-    }
-    .t-text{text-align:left} .t-num{text-align:center}
-
-    /* Footer */
-    footer{color:var(--sub); font-size:12px; text-align:center; padding:28px 0; border-top:1px solid var(--line)}
-  </style>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{% if page.title %}{{ page.title }} — {% endif %}Saul B. Kleinfeld</title>
+  <meta name="theme-color" content="#0b0c0f" />
+  <link rel="icon" href="{{ '/favicon.ico' | relative_url }}" />
+  <link rel="preload" as="style" href="{{ '/assets/site.css' | relative_url }}">
+  <link rel="stylesheet" href="{{ '/assets/site.css' | relative_url }}">
+  {% if page.head %}{{ page.head }}{% endif %}
 </head>
 <body>
-  {% include header.html %}
-  <main>
+  <nav class="nav">
+    <div class="nav-inner">
+      <a class="brand" href="{{ '/' | relative_url }}">Saul B. Kleinfeld</a>
+      <ul class="nav-links">
+        <li><a class="{% if page.url == '/' %}active{% endif %}" href="{{ '/' | relative_url }}">Home</a></li>
+        <li><a class="{% if page.url == '/biography/' %}active{% endif %}" href="{{ '/biography/' | relative_url }}">Biography</a></li>
+        <li><a class="{% if page.url == '/resume/' %}active{% endif %}" href="{{ '/resume/' | relative_url }}">Resume</a></li>
+        <li><a class="{% if page.url == '/baseball/' %}active{% endif %}" href="{{ '/baseball/' | relative_url }}">Baseball</a></li>
+        <li><a class="{% if page.url == '/northwestern/' %}active{% endif %}" href="{{ '/northwestern/' | relative_url }}">Northwestern</a></li>
+        <li><a class="{% if page.url == '/photos' or page.url == '/photos/' %}active{% endif %}" href="{{ '/photos' | relative_url }}">Photos</a></li>
+        <li><a class="{% if page.url == '/contact/' %}active{% endif %}" href="{{ '/contact/' | relative_url }}">Contact</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <main class="container">
     {{ content }}
   </main>
-  {% include footer.html %}
+
+  <footer class="site-footer">
+    <div class="small">© 2025 Saul B. Kleinfeld — Built on GitHub Pages.</div>
+  </footer>
+
+  {% if page.scripts %}{{ page.scripts }}{% endif %}
 </body>
 </html>
