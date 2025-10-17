@@ -1,9 +1,5 @@
 /* =========================================================
-   Saul B. Kleinfeld — Site Styles
-   - Dark topo background (inline SVG)
-   - Leaner type + tighter radii
-   - Slim footer
-   - Wider header container
+   Saul B. Kleinfeld — Site Styles (spaced/grown middle)
 ========================================================= */
 
 :root{
@@ -18,7 +14,7 @@
   --accent:#a3ff12;
   --accent-dim:rgba(163,255,18,.12);
 
-  /* tighter radii (less bulbous) */
+  /* tighter radii */
   --r-lg:12px;
   --r-md:10px;
 
@@ -26,9 +22,9 @@
   --sh-1:0 10px 24px rgba(0,0,0,.32);
   --sh-2:0 14px 34px rgba(0,0,0,.40);
 
-  /* widths */
-  --wrap-wide:1400px;   /* wider header */
-  --wrap-main:1160px;   /* main content width */
+  /* wider center content */
+  --wrap-wide:1400px;    /* header/nav width */
+  --wrap-main:1280px;    /* main content (grew the middle) */
 }
 
 /* ------------- Base ------------- */
@@ -39,7 +35,7 @@ body{
   font:500 15px/1.55 Inter, ui-sans-serif, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
   background:var(--bg);
 
-  /* Visible dark topographic background (inline SVG) + subtle glows */
+  /* dark topographic background + subtle glows */
   background-image:
     radial-gradient(900px 420px at 18% 78%, rgba(163,255,18,.08), transparent 60%),
     radial-gradient(800px 380px at 86% 14%, rgba(122,92,255,.06), transparent 60%),
@@ -55,7 +51,7 @@ body{
   </g>\
 </svg>");
   background-repeat:no-repeat,no-repeat,repeat;
-  background-size: auto, auto, 700px 700px;
+  background-size:auto, auto, 700px 700px;
   background-attachment:fixed, fixed, fixed;
 }
 
@@ -78,7 +74,7 @@ body::after{
   border-bottom:1px solid var(--edge);
 }
 .nav-inner{
-  max-width:var(--wrap-wide);  /* wider header */
+  max-width:var(--wrap-wide);
   margin:0 auto;
   padding:10px 22px;
   display:flex;align-items:center;justify-content:space-between;
@@ -97,32 +93,37 @@ body::after{
 }
 .nav-links a:hover::after,.nav-links a.active::after{opacity:1;transform:scaleX(1)}
 
-/* ------------- Home: Hero ------------- */
-.home-hero{padding:34px 0 48px}
-.home-hero__inner{max-width:var(--wrap-main);margin:0 auto;text-align:center}
+/* ------------- Home: Hero (more space) ------------- */
+.home-hero{
+  padding:64px 0 78px;  /* increased top/bottom space */
+}
+.home-hero__inner{
+  max-width:var(--wrap-main);
+  margin:0 auto;
+  text-align:center;
+}
 
-.home-headshot-wrapper{position:relative;width:132px;height:132px;margin:0 auto 12px}
+.home-headshot-wrapper{position:relative;width:132px;height:132px;margin:0 auto 16px}
 .home-headshot-ring{position:absolute;inset:0;border-radius:50%;border:2px solid var(--accent);box-shadow:0 0 10px rgba(163,255,18,.35),0 0 36px rgba(163,255,18,.22) inset}
 .home-headshot{width:100%;height:100%;border-radius:50%;object-fit:cover;border:2px solid rgba(163,255,18,.22);position:relative;z-index:1}
 
-/* Leaner type sizes */
-.home-title{
-  font-size: clamp(28px, 4vw, 34px);
-  margin:10px 0 8px;color:var(--accent);font-weight:900;
-}
-.home-subtitle{
-  margin:0 0 14px;
-  color:#cfd3df;font-weight:700;font-size:14px;
-}
-.home-blurb{
-  max-width:720px;margin:0 auto 14px;color:#b9bfce;font-size:14px;
-}
-.home-divider{width:56px;height:2px;background:var(--edge);margin:10px auto 26px;border-radius:3px}
+/* Leaner type sizes (unchanged) */
+.home-title{font-size:clamp(28px,4vw,34px);margin:12px 0 10px;color:var(--accent);font-weight:900}
+.home-subtitle{margin:0 0 16px;color:#cfd3df;font-weight:700;font-size:14px}
+.home-blurb{max-width:760px;margin:0 auto 18px;color:#b9bfce;font-size:14px}
 
-/* ------------- Home: Cards ------------- */
+/* Divider + extra gap below so cards clear the middle line */
+.home-divider{
+  width:56px;height:2px;background:var(--edge);margin:14px auto 36px;border-radius:3px; /* more space under divider */
+}
+
+/* ------------- Home: Cards (more vertical air) ------------- */
 .home-grid{
-  display:grid;gap:18px;grid-template-columns:repeat(3,1fr);
-  max-width:var(--wrap-main);margin:0 auto 34px;padding:0 8px;
+  display:grid;gap:20px;grid-template-columns:repeat(3,1fr);
+  max-width:var(--wrap-main);
+  margin:10px auto 50px;     /* pushed down a bit & added bottom space */
+  padding:0 8px;
+  min-height: 340px;         /* “grow the middle” */
 }
 @media (max-width:1000px){.home-grid{grid-template-columns:1fr}}
 
@@ -130,32 +131,32 @@ body::after{
   background:var(--panel);
   border:1px solid var(--panel-edge);
   border-radius:var(--r-lg);
-  padding:18px;text-align:left;box-shadow:var(--sh-1);
+  padding:20px;text-align:left;box-shadow:var(--sh-1);
 }
-.home-card__title{color:var(--accent);margin:2px 0 8px;font-size:16px;font-weight:900}
-.home-card__body{color:#cfd2df;margin:0 0 12px;font-size:14px}
+.home-card__title{color:var(--accent);margin:2px 0 10px;font-size:16px;font-weight:900}
+.home-card__body{color:#cfd2df;margin:0 0 14px;font-size:14px}
 
 .home-btn{
   display:inline-block;text-decoration:none;font-weight:900;background:var(--accent);color:#0d0f12;
-  padding:9px 12px;border-radius:10px;box-shadow:var(--sh-2);font-size:14px;
+  padding:10px 14px;border-radius:10px;box-shadow:var(--sh-2);font-size:14px
 }
 .home-btn:hover{filter:brightness(1.05)}
 
-/* ------------- CTA ------------- */
-.home-cta{margin:34px auto 0;max-width:680px;text-align:center}
-.home-cta__title{margin:0 0 10px;font-size:22px;font-weight:900}
+/* ------------- CTA (slightly more space) ------------- */
+.home-cta{margin:46px auto 0;max-width:720px;text-align:center}
+.home-cta__title{margin:0 0 12px;font-size:22px;font-weight:900}
 .home-cta__btn{
   display:inline-block;text-decoration:none;font-weight:900;padding:10px 14px;border-radius:10px;color:#0d0f12;background:var(--accent);font-size:14px
 }
 
 /* ------------- Footer (slim) ------------- */
 .site-footer{
-  padding:12px 18px;   /* much slimmer */
+  padding:12px 18px;
   text-align:center;color:#aab0c1;border-top:1px solid var(--edge);
 }
 .small{font-size:13px}
 
-/* ------------- Tables / generic helpers (from other pages) ------------- */
+/* ------------- Tables / helpers ------------- */
 .table{width:100%;border-collapse:separate;border-spacing:0}
 .table th,.table td{padding:8px 10px}
 .center{text-align:center}
