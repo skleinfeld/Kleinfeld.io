@@ -1,20 +1,160 @@
----
-layout: default
-title: Biography
-permalink: /biography/
----
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Biography — Saul B. Kleinfeld</title>
 
-<div class="two-col">
-  <div class="panel">
-    <h2 class="section-title">About Me</h2>
-    <p class="muted">Born and raised in El Paso, TX, named after my grandfather, Saul D. Kleinfeld — a civic leader who helped shape the city’s amateur sports community.</p>
-    <p>I serve as Senior Product Manager at RazorMetrics and Vice President of the Rookie Division for the NTABL, combining product thinking with league operations and player development.</p>
-    <p class="muted">I’m an Eagle Scout with 25+ fifty-mile treks (AK, HI, NZ, CO). I love cooking, traveling, and life with my wife, Hannah, plus our two dogs and four cats.</p>
-    <p>For me, life mirrors baseball: it’s not about perfection — it’s about showing up, learning, and staying in the game.</p>
-  </div>
-  <div class="panel">
-    <h3 class="section-title" style="font-size:22px">Connect</h3>
-    <p><a class="btn" href="https://www.linkedin.com/in/saul-kleinfeld" target="_blank" rel="noopener">LinkedIn</a></p>
-    <p><a class="btn" href="{{ '/contact/' | relative_url }}">Book Time</a></p>
-  </div>
-</div>
+  <!-- Favicon / app icons (match your repo asset names) -->
+  <link rel="icon" type="image/png" sizes="512x512" href="sbk-favicon-512.png">
+  <link rel="apple-touch-icon" href="apple-touch-180.png">
+
+  <!-- Site styles -->
+  <link rel="stylesheet" href="assets/site.css" />
+
+  <!-- Page-scoped polish (small, safe overrides) -->
+  <style>
+    .wrap{max-width:var(--wrap-main);margin:0 auto;padding:0 20px}
+    .bio-hero{padding:56px 0 28px;text-align:center}
+    .bio-hero .headshot{
+      width:132px;height:132px;border-radius:50%;
+      object-fit:cover;border:2px solid rgba(163,255,18,.22)
+    }
+    .bio-hero .ring{
+      position:absolute;inset:-6px;border-radius:50%;
+      border:2px solid var(--accent);
+      box-shadow:0 0 10px rgba(163,255,18,.35),0 0 36px rgba(163,255,18,.22) inset
+    }
+    .bio-hero__img{position:relative;display:inline-block}
+    .bio-title{font-size:clamp(28px,3.6vw,36px);margin:14px 0 8px;color:var(--accent);font-weight:900}
+    .bio-sub{margin:0;color:#cfd3df;font-weight:700;font-size:14px}
+    .bio-divider{width:56px;height:2px;background:var(--edge);margin:16px auto 0;border-radius:3px}
+
+    .bio-grid{
+      display:grid;gap:22px;grid-template-columns:2.3fr 1fr;
+      margin:28px 0 46px
+    }
+    @media (max-width:980px){.bio-grid{grid-template-columns:1fr}}
+
+    .prose{
+      background:var(--panel);
+      border:1px solid var(--panel-edge);
+      border-radius:12px;
+      padding:22px 22px;
+      box-shadow:var(--sh-1);
+      color:#e6e8f1;
+      font-size:15px;
+    }
+    .prose p{margin:0 0 14px;color:#cfd2df}
+    .prose p:last-child{margin-bottom:0}
+
+    .facts{
+      background:var(--panel);
+      border:1px solid var(--panel-edge);
+      border-radius:12px;
+      padding:18px 18px;
+      box-shadow:var(--sh-1);
+      height:max-content
+    }
+    .facts h3{margin:2px 0 12px;font-size:15px;color:#e8e9ef}
+    .facts ul{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+    .facts li{display:flex;gap:10px;align-items:flex-start;color:#cfd2df;font-size:14px}
+    .facts .dot{width:8px;height:8px;border-radius:50%;background:var(--accent);margin-top:6px;flex:0 0 8px}
+
+    .bio-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:14px}
+    .btn{
+      display:inline-block;text-decoration:none;font-weight:900;
+      padding:10px 14px;border-radius:10px;font-size:14px
+    }
+    .btn-primary{background:var(--accent);color:#0d0f12;box-shadow:var(--sh-2)}
+    .btn-ghost{background:rgba(255,255,255,.06);border:1px solid var(--panel-edge);color:#e6e8f1}
+    .btn:hover{filter:brightness(1.05)}
+
+    /* subtle section label */
+    .section-label{
+      display:inline-block;margin-bottom:10px;color:#aab0c1;font-weight:800;
+      letter-spacing:.08em;text-transform:uppercase;font-size:12px
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- NAV -->
+  <nav class="nav">
+    <div class="nav-inner">
+      <a class="brand" href="index.html">Saul B. Kleinfeld</a>
+      <ul class="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a class="active" href="biography.html">Biography</a></li>
+        <li><a href="resume.html">Resume</a></li>
+        <li><a href="baseball.html">Baseball</a></li>
+        <li><a href="northwestern.html">Northwestern</a></li>
+        <li><a href="photos.html">Photos</a></li>
+        <li><a href="contact.html">Contact</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <header class="bio-hero wrap">
+    <div class="bio-hero__img">
+      <span class="ring"></span>
+      <!-- keep your headshot file name as in repo -->
+      <img class="headshot" src="SBK-Headshot.jpeg" alt="Saul B. Kleinfeld headshot" />
+    </div>
+    <h1 class="bio-title">Saul B. Kleinfeld</h1>
+    <p class="bio-sub">Product Leader | Aspiring Sports Leader | Data-Driven Strategist</p>
+    <div class="bio-divider"></div>
+  </header>
+
+  <!-- CONTENT -->
+  <main class="wrap">
+    <div class="bio-grid">
+
+      <!-- Story -->
+      <article class="prose">
+        <span class="section-label">About</span>
+
+        <p>Saul B. Kleinfeld was born and raised in El Paso, Texas, named after his grandfather, Saul D. Kleinfeld, a civic leader who helped shape the city’s amateur sports community. That legacy continues to guide Saul’s work and passion today.</p>
+
+        <p>He serves as Senior Product Manager at RazorMetrics, where he leads creative technology solutions that simplify complex problems and improve the customer experience. His leadership style is grounded in servant leadership, empowering teams to succeed through collaboration and purpose.</p>
+
+        <p>Beyond his professional work, Saul is Vice President of the Rookie League for the North Texas Amateur Baseball League (NTABL), where he oversees league operations, team development, and player engagement. On the field, he plays for the East Dallas Expos and manages Gann’s Bulls, combining his lifelong love for baseball with a commitment to growing the game and its community.</p>
+
+        <p>An Eagle Scout and avid traveler, Saul has completed more than 25 fifty-mile treks across places like Alaska, Hawaii, and New Zealand. He enjoys cooking, exploring new places, and spending time with his wife, Hannah, and their two dogs and four cats.</p>
+
+        <p>For Saul, life mirrors baseball: it’s not about perfection, but about showing up, learning, and always staying in the game.</p>
+
+        <div class="bio-actions">
+          <a class="btn btn-primary" href="https://www.linkedin.com/in/saul-kleinfeld" target="_blank" rel="noopener">Connect on LinkedIn</a>
+          <a class="btn btn-ghost" href="contact.html">Book Time</a>
+        </div>
+      </article>
+
+      <!-- Facts / Quick links -->
+      <aside class="facts">
+        <h3>Quick Facts</h3>
+        <ul>
+          <li><span class="dot"></span>Senior Product Manager — RazorMetrics</li>
+          <li><span class="dot"></span>VP, Rookie League — NTABL</li>
+          <li><span class="dot"></span>East Dallas Expos (player) • Gann’s Bulls (manager)</li>
+          <li><span class="dot"></span>Eagle Scout • 25+ fifty-mile treks</li>
+          <li><span class="dot"></span>Passions: baseball, automation, travel, cooking</li>
+        </ul>
+        <div class="bio-actions" style="margin-top:14px">
+          <a class="btn btn-ghost" href="resume.html">View Résumé</a>
+          <a class="btn btn-ghost" href="baseball.html">View Baseball</a>
+        </div>
+      </aside>
+
+    </div>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="site-footer">
+    <p class="small">© 2025 Saul B. Kleinfeld — Built on GitHub Pages.</p>
+  </footer>
+
+</body>
+</html>
