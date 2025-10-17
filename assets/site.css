@@ -1,308 +1,165 @@
-/* ---------------------------------------------------------
-   Global Theme
---------------------------------------------------------- */
-:root {
-  --bg: #0b0c0f;
-  --layer: #0f1117;
-  --panel: #151821;
-  --ink: #e8e9ef;
-  --muted: #b5bac9;
-  --dim: #8c93a7;
-  --edge: rgba(255, 255, 255, 0.12);
+/* =========================================================
+   Saul B. Kleinfeld — Site Styles
+   - Dark topo background (inline SVG)
+   - Leaner type + tighter radii
+   - Slim footer
+   - Wider header container
+========================================================= */
 
-  --lime: #a3ff12;
-  --accent: #a3ff12;
-  --accent-dim: rgba(163, 255, 18, 0.12);
+:root{
+  --bg:#0b0c0f;
+  --ink:#e8e9ef;
+  --muted:#b5bac9;
+  --edge:rgba(255,255,255,.14);
 
-  --card-bg: rgba(255, 255, 255, 0.045);
-  --card-edge: rgba(255, 255, 255, 0.1);
+  --panel:rgba(255,255,255,.04);
+  --panel-edge:rgba(255,255,255,.10);
 
-  --radius-lg: 14px;
-  --radius-md: 12px;
+  --accent:#a3ff12;
+  --accent-dim:rgba(163,255,18,.12);
 
-  --shadow-1: 0 10px 30px rgba(0, 0, 0, 0.35);
-  --shadow-2: 0 16px 40px rgba(0, 0, 0, 0.45);
+  /* tighter radii (less bulbous) */
+  --r-lg:12px;
+  --r-md:10px;
+
+  /* leaner shadows */
+  --sh-1:0 10px 24px rgba(0,0,0,.32);
+  --sh-2:0 14px 34px rgba(0,0,0,.40);
+
+  /* widths */
+  --wrap-wide:1400px;   /* wider header */
+  --wrap-main:1160px;   /* main content width */
 }
 
-* {
-  box-sizing: border-box;
-}
+/* ------------- Base ------------- */
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;color:var(--ink);
+  font:500 15px/1.55 Inter, ui-sans-serif, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+  background:var(--bg);
 
-html,
-body {
-  height: 100%;
-}
-
-/* ---------------------------------------------------------
-   BACKGROUND: Dark Topographic Map + Lime Glows
---------------------------------------------------------- */
-body {
-  margin: 0;
-  color: var(--ink);
-  background: var(--bg);
-  font: 500 16px/1.55 ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, "Helvetica Neue", Arial;
+  /* Visible dark topographic background (inline SVG) + subtle glows */
   background-image:
-    radial-gradient(1000px 500px at 20% 80%, rgba(163, 255, 18, 0.08), transparent 60%),
-    radial-gradient(800px 400px at 85% 10%, rgba(122, 92, 255, 0.05), transparent 60%),
-    url("https://www.transparenttextures.com/patterns/topography.png");
-  background-repeat: repeat;
-  background-size: auto, auto, 600px;
-  background-attachment: fixed;
-  background-position: center center;
+    radial-gradient(900px 420px at 18% 78%, rgba(163,255,18,.08), transparent 60%),
+    radial-gradient(800px 380px at 86% 14%, rgba(122,92,255,.06), transparent 60%),
+    url("data:image/svg+xml;utf8,\
+<svg xmlns='http://www.w3.org/2000/svg' width='600' height='600' viewBox='0 0 600 600'>\
+  <g fill='none' stroke='%23ffffff' stroke-opacity='.06' stroke-width='1'>\
+    <path d='M0 80 C120 40 240 120 360 80 C480 40 600 80 600 80'/>\
+    <path d='M0 160 C120 120 240 200 360 160 C480 120 600 160 600 160'/>\
+    <path d='M0 240 C100 200 220 280 340 240 C460 200 600 240 600 240'/>\
+    <path d='M0 320 C120 280 240 360 360 320 C480 280 600 320 600 320'/>\
+    <path d='M0 400 C110 360 230 440 350 400 C470 360 600 400 600 400'/>\
+    <path d='M0 480 C120 440 240 520 360 480 C480 440 600 480 600 480'/>\
+  </g>\
+</svg>");
+  background-repeat:no-repeat,no-repeat,repeat;
+  background-size: auto, auto, 700px 700px;
+  background-attachment:fixed, fixed, fixed;
 }
 
-body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  z-index: -2;
-  pointer-events: none;
-  background: linear-gradient(to bottom, rgba(11, 12, 15, 0.85) 0%, rgba(11, 12, 15, 0.95) 100%);
+body::before{
+  content:"";position:fixed;inset:0;z-index:-2;pointer-events:none;
+  background:linear-gradient(to bottom, rgba(11,12,15,.85) 0%, rgba(11,12,15,.94) 100%);
 }
-
-body::after {
-  content: "";
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  opacity: 0.25;
+body::after{
+  content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;mix-blend-mode:overlay;opacity:.22;
   background:
-    radial-gradient(900px 450px at 85% 15%, rgba(163, 255, 18, 0.05), transparent 60%),
-    radial-gradient(1200px 600px at 15% 85%, rgba(163, 255, 18, 0.07), transparent 60%);
-  mix-blend-mode: overlay;
+    radial-gradient(1100px 520px at 12% 88%, rgba(163,255,18,.07), transparent 60%),
+    radial-gradient(1200px 560px at 88% 8%, rgba(163,255,18,.05), transparent 60%);
 }
 
-/* ---------------------------------------------------------
-   NAVIGATION BAR
---------------------------------------------------------- */
-.nav {
-  position: sticky;
-  top: 0;
-  z-index: 50;
-  background: rgba(11, 12, 15, 0.75);
-  backdrop-filter: blur(10px);
-  border-bottom: 1px solid var(--edge);
+/* ------------- Nav ------------- */
+.nav{
+  position:sticky;top:0;z-index:50;
+  background:rgba(11,12,15,.78);
+  backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--edge);
+}
+.nav-inner{
+  max-width:var(--wrap-wide);  /* wider header */
+  margin:0 auto;
+  padding:10px 22px;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.brand{
+  color:#fff;text-decoration:none;font-weight:800;letter-spacing:.2px;font-size:14px;
+}
+.nav-links{display:flex;gap:14px;list-style:none;margin:0;padding:0}
+.nav-links a{
+  color:#d9dbe4;text-decoration:none;padding:8px 10px;border-radius:10px;font-weight:700;font-size:14px;position:relative;
+}
+.nav-links a:hover{color:var(--accent)}
+.nav-links a.active{color:var(--accent)}
+.nav-links a::after{
+  content:"";position:absolute;left:10px;right:10px;bottom:4px;height:2px;background:currentColor;opacity:0;transform:scaleX(.2);transition:.18s ease;
+}
+.nav-links a:hover::after,.nav-links a.active::after{opacity:1;transform:scaleX(1)}
+
+/* ------------- Home: Hero ------------- */
+.home-hero{padding:34px 0 48px}
+.home-hero__inner{max-width:var(--wrap-main);margin:0 auto;text-align:center}
+
+.home-headshot-wrapper{position:relative;width:132px;height:132px;margin:0 auto 12px}
+.home-headshot-ring{position:absolute;inset:0;border-radius:50%;border:2px solid var(--accent);box-shadow:0 0 10px rgba(163,255,18,.35),0 0 36px rgba(163,255,18,.22) inset}
+.home-headshot{width:100%;height:100%;border-radius:50%;object-fit:cover;border:2px solid rgba(163,255,18,.22);position:relative;z-index:1}
+
+/* Leaner type sizes */
+.home-title{
+  font-size: clamp(28px, 4vw, 34px);
+  margin:10px 0 8px;color:var(--accent);font-weight:900;
+}
+.home-subtitle{
+  margin:0 0 14px;
+  color:#cfd3df;font-weight:700;font-size:14px;
+}
+.home-blurb{
+  max-width:720px;margin:0 auto 14px;color:#b9bfce;font-size:14px;
+}
+.home-divider{width:56px;height:2px;background:var(--edge);margin:10px auto 26px;border-radius:3px}
+
+/* ------------- Home: Cards ------------- */
+.home-grid{
+  display:grid;gap:18px;grid-template-columns:repeat(3,1fr);
+  max-width:var(--wrap-main);margin:0 auto 34px;padding:0 8px;
+}
+@media (max-width:1000px){.home-grid{grid-template-columns:1fr}}
+
+.home-card{
+  background:var(--panel);
+  border:1px solid var(--panel-edge);
+  border-radius:var(--r-lg);
+  padding:18px;text-align:left;box-shadow:var(--sh-1);
+}
+.home-card__title{color:var(--accent);margin:2px 0 8px;font-size:16px;font-weight:900}
+.home-card__body{color:#cfd2df;margin:0 0 12px;font-size:14px}
+
+.home-btn{
+  display:inline-block;text-decoration:none;font-weight:900;background:var(--accent);color:#0d0f12;
+  padding:9px 12px;border-radius:10px;box-shadow:var(--sh-2);font-size:14px;
+}
+.home-btn:hover{filter:brightness(1.05)}
+
+/* ------------- CTA ------------- */
+.home-cta{margin:34px auto 0;max-width:680px;text-align:center}
+.home-cta__title{margin:0 0 10px;font-size:22px;font-weight:900}
+.home-cta__btn{
+  display:inline-block;text-decoration:none;font-weight:900;padding:10px 14px;border-radius:10px;color:#0d0f12;background:var(--accent);font-size:14px
 }
 
-.nav-inner {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 12px 18px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+/* ------------- Footer (slim) ------------- */
+.site-footer{
+  padding:12px 18px;   /* much slimmer */
+  text-align:center;color:#aab0c1;border-top:1px solid var(--edge);
 }
+.small{font-size:13px}
 
-.brand {
-  color: #fff;
-  text-decoration: none;
-  font-weight: 800;
-  letter-spacing: 0.2px;
-}
-
-.nav-links {
-  display: flex;
-  gap: 16px;
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-.nav-links a {
-  color: #d9dbe4;
-  text-decoration: none;
-  padding: 8px 10px;
-  border-radius: 10px;
-  position: relative;
-  font-weight: 700;
-}
-
-.nav-links a:hover {
-  color: var(--accent);
-}
-
-.nav-links a.active {
-  color: var(--accent);
-}
-
-.nav-links a::after {
-  content: "";
-  position: absolute;
-  left: 10px;
-  right: 10px;
-  bottom: 4px;
-  height: 2px;
-  background: currentColor;
-  opacity: 0;
-  transform: scaleX(0.2);
-  transition: 0.18s ease;
-}
-
-.nav-links a:hover::after,
-.nav-links a.active::after {
-  opacity: 1;
-  transform: scaleX(1);
-}
-
-/* ---------------------------------------------------------
-   HERO SECTION (Headshot + Text)
---------------------------------------------------------- */
-.home-hero {
-  padding: 38px 0 60px;
-}
-
-.home-hero__inner {
-  max-width: 1120px;
-  margin: 0 auto;
-  text-align: center;
-}
-
-/* Glowing Headshot */
-.home-headshot-wrapper {
-  position: relative;
-  width: 160px;
-  height: 160px;
-  margin: 0 auto 16px;
-}
-
-.home-headshot-ring {
-  position: absolute;
-  inset: 0;
-  border-radius: 50%;
-  border: 3px solid var(--lime);
-  box-shadow: 0 0 12px rgba(163, 255, 18, 0.4),
-              0 0 50px rgba(163, 255, 18, 0.25) inset;
-}
-
-.home-headshot {
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 3px solid rgba(163, 255, 18, 0.25);
-  position: relative;
-  z-index: 1;
-}
-
-/* Title / Subtitle / Description */
-.home-title {
-  font-size: clamp(34px, 5.6vw, 44px);
-  margin: 12px 0 10px;
-  color: var(--lime);
-  font-weight: 900;
-}
-
-.home-subtitle {
-  margin: 0 0 18px;
-  color: #cfd3df;
-  font-weight: 700;
-}
-
-.home-blurb {
-  max-width: 760px;
-  margin: 0 auto 18px;
-  color: #b9bfce;
-}
-
-.home-divider {
-  width: 64px;
-  height: 2px;
-  background: var(--edge);
-  margin: 12px auto 32px;
-  border-radius: 3px;
-}
-
-/* ---------------------------------------------------------
-   FEATURE CARDS
---------------------------------------------------------- */
-.home-grid {
-  display: grid;
-  gap: 22px;
-  grid-template-columns: repeat(3, 1fr);
-  max-width: 1180px;
-  margin: 0 auto 42px;
-  padding: 0 10px;
-}
-
-@media (max-width: 1000px) {
-  .home-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-.home-card {
-  background: var(--card-bg);
-  border: 1px solid var(--card-edge);
-  border-radius: var(--radius-lg);
-  padding: 22px;
-  text-align: left;
-  box-shadow: var(--shadow-1);
-}
-
-.home-card__title {
-  color: var(--accent);
-  margin: 4px 0 10px;
-  font-size: 18px;
-  font-weight: 900;
-}
-
-.home-card__body {
-  color: #cfd2df;
-  margin: 0 0 16px;
-}
-
-/* Lime Button */
-.home-btn {
-  display: inline-block;
-  text-decoration: none;
-  font-weight: 900;
-  background: var(--lime);
-  color: #0d0f12;
-  padding: 10px 14px;
-  border-radius: 12px;
-  box-shadow: var(--shadow-2);
-}
-
-.home-btn:hover {
-  filter: brightness(1.05);
-}
-
-/* ---------------------------------------------------------
-   CALL TO ACTION SECTION
---------------------------------------------------------- */
-.home-cta {
-  margin: 42px auto 0;
-  max-width: 720px;
-  text-align: center;
-}
-
-.home-cta__title {
-  margin: 0 0 12px;
-  font-size: 28px;
-  font-weight: 900;
-}
-
-.home-cta__btn {
-  display: inline-block;
-  text-decoration: none;
-  font-weight: 900;
-  padding: 12px 18px;
-  border-radius: 12px;
-  color: #0d0f12;
-  background: var(--lime);
-}
-
-/* ---------------------------------------------------------
-   FOOTER
---------------------------------------------------------- */
-.site-footer {
-  padding: 34px 18px;
-  text-align: center;
-  color: #aab0c1;
-  border-top: 1px solid var(--edge);
-}
-
-.small {
-  font-size: 14px;
-}
+/* ------------- Tables / generic helpers (from other pages) ------------- */
+.table{width:100%;border-collapse:separate;border-spacing:0}
+.table th,.table td{padding:8px 10px}
+.center{text-align:center}
+.left{text-align:left}
+.right{text-align:right}
+.card{background:var(--panel);border:1px solid var(--panel-edge);border-radius:var(--r-lg);box-shadow:var(--sh-1)}
+.tag{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;background:var(--accent-dim);color:var(--ink);font-weight:700;font-size:12px}
