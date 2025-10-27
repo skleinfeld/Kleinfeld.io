@@ -1,392 +1,402 @@
-<!doctype html>
+---
+layout: default
+title: Saul B. Kleinfeld — Baseball Card
+permalink: /baseball-card/
+---
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Saul B. Kleinfeld — Baseball Card</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <style>
-    :root{
-      --bg:#0b1220;
-      --ink:#e8eef7;
-      --muted:#a8b3c7;
-      --brand:#0C2340;           /* deep navy */
-      --brand-2:#1b3d66;         /* mid navy */
-      --accent:#7fb7ff;          /* subtle blue highlight */
-      --card:#0f1a2c;
-      --glass:rgba(255,255,255,.06);
-      --white:#fff;
-      --shadow:0 10px 30px rgba(0,0,0,.35);
-      --radius:18px;
-    }
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="robots" content="noindex, nofollow" />
+<title>Saul B. Kleinfeld — Baseball Card</title>
 
-    *{box-sizing:border-box}
-    html,body{height:100%}
-    body{
-      margin:0;
-      font-family:Inter, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol", sans-serif;
-      color:var(--ink);
-      background:
-        radial-gradient(1200px 600px at 50% -10%, rgba(74,217,142,.08), transparent 60%),
-        radial-gradient(1200px 600px at 50% 110%, rgba(127,183,255,.06), transparent 60%),
-        #0a111f;
-      /* subtle grid/contours */
-      background-image:
-        radial-gradient(circle at 50% 20%, rgba(127,183,255,.06), transparent 45%),
-        repeating-linear-gradient(90deg, rgba(255,255,255,.04) 0 1px, transparent 1px 24px),
-        repeating-linear-gradient(0deg, rgba(255,255,255,.03) 0 1px, transparent 1px 24px);
-      background-blend-mode: soft-light, overlay, normal;
-    }
+<style>
+  :root{
+    --bg:#0b0f12;
+    --ink:#d9e2ef;
+    --muted:#9fb3c8;
+    --accent:#9ef01a;
+    --navy:#103053;
+    --navy-2:#0b2442;
+    --panel:#0e223a;
+    --card:#0e2a4b;
+    --glass:rgba(255,255,255,.08);
+    --white:#fff;
+  }
 
-    .wrap{
-      min-height:100%;
-      display:grid;
-      place-items:center;
-      padding:clamp(16px,3vw,32px);
-    }
+  /* Page background – subtle tech grid + vignette */
+  body{
+    margin:0;
+    color:var(--ink);
+    background:
+      radial-gradient(1200px 600px at 50% -20%, rgba(158,240,26,.15), transparent 60%),
+      radial-gradient(1000px 500px at 80% 110%, rgba(158,240,26,.08), transparent 60%),
+      repeating-linear-gradient(0deg, rgba(255,255,255,.03) 0 1px, transparent 1px 24px),
+      repeating-linear-gradient(90deg, rgba(255,255,255,.02) 0 1px, transparent 1px 24px),
+      var(--bg);
+    font:14px/1.45 system-ui, -apple-system, Segoe UI, Roboto, Inter, Helvetica, Arial, sans-serif;
+  }
 
-    /* --- Card stage --- */
-    .stage{
-      width:min(1100px, 92vw);
-      perspective:1600px;
-    }
-    .card{
-      position:relative;
-      width:100%;
-      aspect-ratio: 16/9;
-      transform-style:preserve-3d;
-      transition:transform .7s cubic-bezier(.2,.7,.2,1);
-      will-change:transform;
-    }
-    .card.flipped{ transform: rotateY(180deg); }
-    .face{
-      position:absolute; inset:0;
-      display:flex; flex-direction:column;
-      background:linear-gradient(180deg, var(--brand) 0%, var(--brand-2) 100%);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      border:8px solid rgba(255,255,255,.85);
-      overflow:hidden;
-      backface-visibility:hidden;
-    }
-    .face.back{
-      transform: rotateY(180deg);
-      background:linear-gradient(180deg, #f6f8fb 0%, #ffffff 70%);
-      color:#0b1220;
-    }
+  .wrap{
+    max-width: min(1200px, 92vw);
+    margin: clamp(18px,2.5vw,28px) auto;
+  }
 
-    /* header chip */
-    .chip{
-      display:flex; align-items:center; gap:12px;
-      background: rgba(255,255,255,.94);
-      color:#0b1220;
-      border-radius:12px;
-      padding:10px 14px;
-      margin:16px;
-      width:max-content;
-      box-shadow:0 6px 16px rgba(0,0,0,.12);
-      border:1px solid rgba(20,30,50,.08);
-    }
-    .chip .avatar{
-      width:40px; height:40px; border-radius:10px; overflow:hidden; flex:0 0 auto;
-      border:1px solid rgba(20,30,50,.1);
-    }
-    .chip .avatar img{ width:100%; height:100%; object-fit:cover; display:block; }
-    .chip .title{ font-weight:800; letter-spacing:.3px; }
-    .chip .sub{ font:600 .8rem/1 Inter,system-ui; opacity:.7; margin-top:2px; }
+  /* Flip stage */
+  .stage{
+    perspective: 1600px;
+    position: relative;
+    margin-inline:auto;
+    width: min(1100px, 100%);
+    height: clamp(560px, 68vh, 720px);
+  }
+  .card3d{
+    position: relative;
+    width:100%;
+    height:100%;
+    transform-style: preserve-3d;
+    transition: transform 700ms cubic-bezier(.2,.7,.2,1);
+  }
+  .card3d.is-back{ transform: rotateY(180deg); }
 
-    /* front layout */
-    .front-grid{
-      display:grid;
-      grid-template-columns: 1.15fr 1fr 1fr;
-      grid-template-rows: 1fr auto;
-      gap:14px;
-      padding:8px 16px 16px;
-      height:100%;
-    }
+  /* Both faces */
+  .face{
+    position:absolute; inset:0;
+    border-radius: 18px;
+    overflow: hidden;
+    backface-visibility: hidden;
+    box-shadow:
+      0 20px 60px rgba(0,0,0,.55),
+      inset 0 0 0 2px rgba(255,255,255,.07);
+  }
 
-    .badge{
-      align-self:end;
-      grid-column:1 / -1;
-      display:grid;
-      grid-template-columns: repeat(5,1fr);
-      gap:12px;
-      padding:0 4px 2px;
-    }
-    .stat{
-      background:#ecf2ff;
-      color:#0b1220;
-      border-radius:12px;
-      padding:12px 14px;
-      box-shadow:0 8px 18px rgba(0,0,0,.12);
-      border:1px solid rgba(30,50,90,.1);
-    }
-    .stat .v{ font-weight:800; font-size:1.05rem; }
-    .stat .k{ opacity:.7; font-size:.8rem; margin-top:2px; }
+  /* FRONT */
+  .front{
+    background:
+      radial-gradient(120% 85% at 60% 30%, rgba(255,255,255,.08), transparent 60%),
+      linear-gradient(180deg, #163d6a 0%, #0f2e52 50%, #0c2543 100%);
+    display:grid;
+    grid-template-rows: auto 1fr auto;
+    grid-template-columns: 1fr;
+  }
 
-    .role{
-      grid-column:1 / span 2;
-      background:rgba(255,255,255,.9);
-      color:#0b1220;border-radius:12px;
-      padding:12px 14px;
-      width:fit-content;
-      font-weight:700; letter-spacing:.12em; text-transform:uppercase;
-      border:1px solid rgba(30,50,90,.12);
-      box-shadow:0 8px 18px rgba(0,0,0,.12);
-      margin:0 0 10px 16px;
-    }
+  /* Header strip */
+  .idbar{
+    display:flex; align-items:center; gap:12px;
+    background: rgba(255,255,255,.08);
+    border-bottom: 1px solid rgba(255,255,255,.08);
+    padding: 14px 16px;
+  }
+  .avatar{
+    width:42px; height:42px; border-radius: 10px; overflow:hidden;
+    box-shadow: 0 6px 18px rgba(0,0,0,.35), inset 0 0 0 1px rgba(255,255,255,.35);
+    background:#0a1627;
+  }
+  .avatar img{ width:100%; height:100%; object-fit: cover; display:block; }
+  .name{
+    font-weight: 800; letter-spacing:.5px; font-size: clamp(16px,1.8vw,20px);
+  }
+  .role{ color:var(--muted); font-size:12px; letter-spacing:.3px; margin-top:2px; }
 
-    /* Large hero art area (uses your headshot as a circle stamp on the chip; the canvas keeps things sleek) */
-    .hero{
-      grid-column:1 / -1;
-      border-radius:14px;
-      background:
-        radial-gradient(800px 300px at 50% 40%, rgba(255,255,255,.06), transparent 50%),
-        repeating-linear-gradient(90deg, rgba(255,255,255,.05) 0 1px, transparent 1px 18px);
-      border:1px solid rgba(255,255,255,.12);
-      box-shadow: inset 0 0 0 1px rgba(255,255,255,.06);
-    }
+  /* Main grid */
+  .front-main{
+    display:grid;
+    grid-template-columns: 1.1fr 1.2fr 1.2fr;
+    grid-template-rows: 1fr auto;
+    gap: 14px;
+    padding: 16px;
+  }
 
-    /* hint & flip button */
-    .hint{
-      position:absolute; left:16px; bottom:14px;
-      font-size:.78rem; color:rgba(255,255,255,.75);
-      display:flex; align-items:center; gap:8px;
-      user-select:none;
-    }
-    .hint .dot{width:6px; height:6px; border-radius:50%; background:rgba(255,255,255,.6)}
-    .flip-btn{
-      position:absolute; right:16px; bottom:12px;
-      background:linear-gradient(180deg,#ffffff,#f3f6fb);
-      color:#0b1220; border:1px solid rgba(0,0,0,.08);
-      padding:8px 12px; border-radius:10px; font-weight:700;
-      cursor:pointer; box-shadow:0 6px 16px rgba(0,0,0,.15);
-    }
-    .flip-btn:active{ transform:translateY(1px) }
+  .portrait{
+    grid-row: 1 / span 2;
+    border-radius: 14px;
+    background:
+      linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+    border: 1px solid rgba(255,255,255,.08);
+    display:flex; align-items:center; justify-content:center;
+    overflow:hidden;
+  }
+  .portrait img{
+    width:100%; height:100%; object-fit: cover;
+    filter: saturate(.9) contrast(1.05);
+  }
 
-    /* --- Back side --- */
-    .back-head{
-      background:linear-gradient(180deg, var(--brand) 0%, var(--brand-2) 100%);
-      color:#fff; padding:14px 18px; font-weight:800; letter-spacing:.16em;
-      font-size:.9rem; border-bottom:6px solid rgba(255,255,255,.9);
-    }
-    .back-body{
-      display:grid; grid-template-columns:1fr;
-      gap:18px; padding:18px;
-      overflow:auto; /* scroll inside card */
-    }
-    .panel{
-      background:#fff; border-radius:14px; border:1px solid #e6e9f2;
-      box-shadow:0 10px 20px rgba(10,20,40,.08);
-      overflow:hidden;
-    }
-    .panel .hd{
-      background:linear-gradient(90deg, rgba(12,35,64,.12), rgba(12,35,64,.05));
-      padding:10px 14px; font-weight:800; letter-spacing:.06em; color:#0c2340;
-      border-bottom:1px solid #e8edf7;
-    }
-    .panel .bd{ padding:14px }
-    .two-col{
-      display:grid; grid-template-columns:1fr 1fr; gap:12px;
-    }
-    .row{ display:flex; gap:10px; justify-content:space-between; padding:6px 0; border-bottom:1px dashed #edf1f7 }
-    .row:last-child{ border-bottom:0 }
-    .row b{ color:#0c2340 }
-    .pill{
-      display:inline-block; background:#eef4ff; color:#0c2340; font-weight:700;
-      border:1px solid #dce7ff; padding:6px 10px; border-radius:999px; margin:6px 6px 0 0;
-      font-size:.85rem;
-    }
-    .back-actions{
-      display:flex; justify-content:center; gap:10px; padding:8px 0 16px;
-    }
-    .ghost{
-      background:transparent; color:#0c2340; border:1px solid #d2d9e8;
-      padding:8px 12px; border-radius:10px; font-weight:700; cursor:pointer;
-    }
-    .solid{
-      background:linear-gradient(180deg,#0c2340,#122c52); color:#fff; border:1px solid rgba(0,0,0,.2);
-      padding:8px 12px; border-radius:10px; font-weight:800; cursor:pointer;
-      box-shadow:0 8px 18px rgba(12,35,64,.25);
-    }
+  .hero{
+    grid-column: 2 / -1;
+    border-radius: 14px;
+    border:1px solid rgba(255,255,255,.08);
+    background:
+      repeating-linear-gradient(90deg, rgba(255,255,255,.04) 0 2px, transparent 2px 12px),
+      radial-gradient(160% 120% at 60% 40%, rgba(158,240,26,.18), rgba(158,240,26,0) 50%),
+      linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+    position:relative;
+  }
+  .hero h2{
+    position:absolute; left:18px; top:14px;
+    font-weight:700; letter-spacing:.3px; margin:0; font-size: clamp(18px,2vw,22px);
+  }
+  .tags{
+    position:absolute; left:18px; top:48px; display:flex; gap:8px; flex-wrap:wrap;
+  }
+  .tag{
+    font-size:12px; padding:6px 10px; border-radius: 999px; color:#0e2139;
+    background:linear-gradient(180deg,#eaffc8,#b9ff6a);
+    border:1px solid #a2eb54;
+    box-shadow: 0 8px 18px rgba(158,240,26,.25);
+    font-weight:700;
+  }
 
-    /* responsive tweaks */
-    @media (max-width: 860px){
-      .chip{margin:12px}
-      .front-grid{ gap:10px; padding:6px 12px 12px }
-      .badge{ grid-template-columns: 1fr 1fr 1fr; }
-      .stat{ padding:10px 12px }
-      .role{ margin-left:12px }
-    }
-  </style>
+  /* Stat pills */
+  .pills{
+    grid-column: 2 / -1;
+    display:grid; grid-template-columns: repeat(5, 1fr); gap: 12px;
+  }
+  .pill{
+    background:#eef2f7;
+    border:2px solid #fff; border-radius: 12px;
+    padding:10px 12px;
+    color:#0b2240;
+    box-shadow: 0 10px 24px rgba(0,0,0,.18);
+  }
+  .pill b{ font-size:16px; display:block; }
+  .pill span{ font-size:11px; color:#3b4a64; }
+
+  .ribbon{
+    grid-column: 1 / -1;
+    margin: 0 16px 16px 16px;
+    background: rgba(255,255,255,.1);
+    border: 1px solid rgba(255,255,255,.15);
+    border-radius: 10px;
+    padding: 10px 14px;
+    letter-spacing:.5px; font-weight:800; width:max-content;
+  }
+
+  .front-cta{
+    position:absolute; right:16px; bottom:14px;
+  }
+
+  /* BACK */
+  .back{
+    transform: rotateY(180deg);
+    background: linear-gradient(180deg,#f5f7fb,#ffffff);
+    color:#0b2240;
+    display:flex; flex-direction:column;
+  }
+  .back-head{
+    background: linear-gradient(180deg,#15406e,#0f2f54);
+    color:#fff;
+    padding:14px 18px;
+    border-bottom: 1px solid rgba(255,255,255,.25);
+    display:flex; align-items:center; justify-content:space-between;
+  }
+  .back-body{
+    padding: 14px 18px;
+    display:grid;
+    grid-template-columns: 1.1fr 1.1fr;
+    gap: 14px;
+    font-size: 13px;
+  }
+
+  .section{
+    background:#ffffff;
+    border: 1px solid #e7eef7;
+    border-radius: 12px;
+    padding: 12px;
+    box-shadow: 0 10px 26px rgba(13,35,64,.10);
+  }
+  .section h4{
+    margin:0 0 8px; font-size:12px; letter-spacing:.25px; color:#51627d;
+  }
+  .job{
+    border-radius:10px;
+    border:1px solid #e9eef6;
+    background:linear-gradient(180deg,#f9fbff, #f3f7fd);
+    padding:10px 10px 8px;
+  }
+  .job .row{
+    display:flex; justify-content:space-between; gap:8px; margin-bottom:6px;
+    font-weight:700; color:#0d2b4d; font-size:13px;
+  }
+  .bullets{ display:grid; grid-template-columns: 1fr 1fr; gap:6px 12px; }
+  .bullets div{ font-size:12px; color:#375070; }
+
+  .chips{ display:flex; flex-wrap:wrap; gap:8px; }
+  .chip{
+    background:#0f2e54; color:#e9f3ff; padding:6px 10px; border-radius:999px;
+    border:1px solid #0a2748; font-size:12px;
+  }
+
+  /* Buttons */
+  .btn{
+    appearance:none; border:0; border-radius:10px; padding:10px 14px;
+    font-weight:800; letter-spacing:.3px; cursor:pointer;
+    background:#0f2e54; color:#e7f1ff; box-shadow: 0 8px 18px rgba(15,46,84,.35);
+  }
+  .btn.secondary{ background:var(--glass); color:var(--ink); border:1px solid rgba(255,255,255,.35); }
+  .btn:active{ transform: translateY(1px); }
+
+  /* Footer note */
+  .foot{
+    text-align:center; color:rgba(255,255,255,.6);
+    font-size:12px; margin-top: min(4vh,22px);
+  }
+
+  /* Responsive tweaks */
+  @media (max-width: 980px){
+    .front-main{ grid-template-columns: .95fr 1fr; grid-template-rows: .9fr auto auto; }
+    .portrait{ grid-row: 1 / span 3; }
+    .hero{ grid-column: 2 / -1; min-height: 180px; }
+    .pills{ grid-column: 2 / -1; grid-template-columns: repeat(3, 1fr); }
+  }
+  @media (max-width: 720px){
+    .stage{ height: 560px; }
+    .front-main{ grid-template-columns: 1fr; }
+    .portrait{ grid-row:auto; height: 220px; }
+    .hero{ grid-column:auto; height: 160px; }
+    .pills{ grid-column:auto; grid-template-columns: repeat(2, 1fr); }
+    .back-body{ grid-template-columns: 1fr; }
+  }
+</style>
 </head>
+
 <body>
   <div class="wrap">
-    <div class="stage">
-      <div id="card" class="card" aria-live="polite">
-        <!-- ============ FRONT ============ -->
-        <section class="face front" aria-label="Front of card">
-          <div class="chip" aria-hidden="true">
-            <span class="avatar"><img src="SBK-Headshot.jpeg" alt=""></span>
+    <div class="stage" id="stage">
+      <div class="card3d" id="card3d">
+
+        <!-- FRONT -->
+        <section class="face front">
+          <div class="idbar">
+            <div class="avatar">
+              <img src="/SBK-Headshot.jpeg" alt="Saul B. Kleinfeld headshot" />
+            </div>
             <div>
-              <div class="title">SAUL B. KLEINFELD</div>
-              <div class="sub">PRODUCT MANAGER</div>
+              <div class="name">SAUL B. KLEINFELD</div>
+              <div class="role">PRODUCT MANAGER</div>
             </div>
           </div>
 
-          <div class="front-grid">
-            <div class="hero" aria-hidden="true"></div>
+          <div class="front-main">
+            <figure class="portrait">
+              <img src="/SBK-Headshot.jpeg" alt="Saul B. Kleinfeld" />
+            </figure>
 
-            <div class="badge" style="grid-row:2">
-              <div class="stat">
-                <div class="v">+25%</div>
-                <div class="k">Revenue Growth</div>
+            <div class="hero">
+              <h2>Building products that move the scoreboard</h2>
+              <div class="tags">
+                <span class="tag">Mobile Apps</span>
+                <span class="tag">Loyalty & Rewards</span>
+                <span class="tag">KPI-Led Roadmaps</span>
               </div>
-              <div class="stat">
-                <div class="v">+17%</div>
-                <div class="k">DAU Lift</div>
-              </div>
-              <div class="stat">
-                <div class="v">99.8%</div>
-                <div class="k">Quality Rate</div>
-              </div>
-              <div class="stat">
-                <div class="v">-30%</div>
-                <div class="k">Cycle Time</div>
-              </div>
-              <div class="stat">
-                <div class="v">+40%</div>
-                <div class="k">Decision Velocity</div>
-              </div>
+            </div>
+
+            <div class="pills">
+              <div class="pill"><b>+25%</b><span>Revenue Growth</span></div>
+              <div class="pill"><b>+17%</b><span>DAU Lift</span></div>
+              <div class="pill"><b>99.8%</b><span>Quality Rate</span></div>
+              <div class="pill"><b>-30%</b><span>Cycle Time</span></div>
+              <div class="pill"><b>+40%</b><span>Decision Velocity</span></div>
             </div>
           </div>
 
-          <div class="role">Senior Product Manager</div>
+          <div class="ribbon">SENIOR PRODUCT MANAGER</div>
 
-          <div class="hint"><span class="dot"></span> Click or press <b>F</b> to flip</div>
-          <button class="flip-btn" id="flipFront" type="button" aria-label="Flip to back">View Stats ↻</button>
+          <div class="front-cta">
+            <button class="btn" id="toBack">View Stats ↻</button>
+          </div>
         </section>
 
-        <!-- ============ BACK ============ -->
-        <section class="face back" aria-label="Back of card">
-          <div class="back-head">CAREER STATISTICS</div>
+        <!-- BACK -->
+        <section class="face back">
+          <header class="back-head">
+            <strong>CAREER STATISTICS</strong>
+            <button class="btn secondary" id="toFront">Flip Front</button>
+          </header>
+
           <div class="back-body">
-            <div class="panel">
-              <div class="hd">RazorMetrics <span style="font-weight:600;opacity:.6">Sep 2024 – Nov 2025</span></div>
-              <div class="bd two-col">
-                <div>
-                  <div class="row"><span>Feature throughput</span><b>+25%</b></div>
-                  <div class="row"><span>On-time releases</span><b>+15 pts</b></div>
-                  <div class="row"><span>Config cycle time</span><b>-40%</b></div>
+            <!-- Left column -->
+            <div class="col">
+              <div class="section job">
+                <div class="row"><span>RazorMetrics</span><span>Sep 2024 – Nov 2025</span></div>
+                <div class="bullets">
+                  <div><strong>+25%</strong> feature throughput</div>
+                  <div><strong>+15 pts</strong> on-time releases</div>
+                  <div><strong>-40%</strong> config cycle time</div>
+                  <div><strong>-27%</strong> post-release rework</div>
                 </div>
-                <div>
-                  <div class="row"><span>Post-release rework</span><b>-27%</b></div>
-                  <div class="row"><span>Release predictability</span><b>↑</b></div>
-                  <div class="row"><span>Stakeholder NPS</span><b>+18</b></div>
+              </div>
+
+              <div class="section job">
+                <div class="row"><span>TeleVox</span><span>Apr 2023 – Apr 2024</span></div>
+                <div class="bullets">
+                  <div><strong>+17%</strong> DAU growth</div>
+                  <div><strong>-30%</strong> release cycle</div>
+                  <div><strong>+24%</strong> 90-day retention</div>
+                  <div><strong>+40%</strong> decision velocity</div>
+                </div>
+              </div>
+
+              <div class="section job">
+                <div class="row"><span>7-Eleven</span><span>Apr 2022 – Apr 2023</span></div>
+                <div class="bullets">
+                  <div><strong>+30%</strong> trial starts</div>
+                  <div>Redemption <strong>10% → 50%</strong></div>
+                  <div><strong>+10%</strong> campus cohort</div>
+                  <div><strong>+12%</strong> engagement</div>
                 </div>
               </div>
             </div>
 
-            <div class="panel">
-              <div class="hd">TeleVox <span style="font-weight:600;opacity:.6">Apr 2023 – Apr 2024</span></div>
-              <div class="bd two-col">
-                <div>
-                  <div class="row"><span>DAU growth</span><b>+17%</b></div>
-                  <div class="row"><span>90-day retention</span><b>+24%</b></div>
-                </div>
-                <div>
-                  <div class="row"><span>Release cycle</span><b>-30%</b></div>
-                  <div class="row"><span>Decision velocity</span><b>+40%</b></div>
-                </div>
-              </div>
-            </div>
-
-            <div class="panel">
-              <div class="hd">7-Eleven <span style="font-weight:600;opacity:.6">Apr 2022 – Apr 2023</span></div>
-              <div class="bd two-col">
-                <div>
-                  <div class="row"><span>Trial starts</span><b>+30%</b></div>
-                  <div class="row"><span>Redemption rate</span><b>10% → 50%</b></div>
-                </div>
-                <div>
-                  <div class="row"><span>Campus cohort</span><b>+10%</b></div>
-                  <div class="row"><span>Engagement</span><b>+12%</b></div>
+            <!-- Right column -->
+            <div class="col">
+              <div class="section">
+                <h4>Core Competencies</h4>
+                <div class="chips">
+                  <span class="chip">Strategy & Roadmap</span>
+                  <span class="chip">KPI Dashboards</span>
+                  <span class="chip">A/B Testing</span>
+                  <span class="chip">Mobile Apps</span>
+                  <span class="chip">Loyalty & Rewards</span>
+                  <span class="chip">Agile/Scrum</span>
+                  <span class="chip">Subscription Funnel</span>
+                  <span class="chip">User Engagement</span>
+                  <span class="chip">Analytics</span>
                 </div>
               </div>
-            </div>
 
-            <div class="panel">
-              <div class="hd">Core Competencies</div>
-              <div class="bd">
-                <span class="pill">Strategy & Roadmap</span>
-                <span class="pill">KPI Dashboards</span>
-                <span class="pill">A/B Testing</span>
-                <span class="pill">Mobile Apps</span>
-                <span class="pill">Loyalty & Rewards</span>
-                <span class="pill">Agile/Scrum</span>
-                <span class="pill">Subscription Funnel</span>
-                <span class="pill">User Engagement</span>
-                <span class="pill">Analytics</span>
-              </div>
-            </div>
-
-            <div class="panel">
-              <div class="hd">Education & Certifications</div>
-              <div class="bd two-col">
-                <div>
-                  <div class="row"><span>MBA</span><b>University of Phoenix</b></div>
-                  <div class="row"><span>MA Sports Admin (in progress)</span><b>Northwestern University</b></div>
-                  <div class="row"><span>BBA Management</span><b>UTEP</b></div>
-                </div>
-                <div>
-                  <div class="row"><span>CSPO</span><b>Certified Scrum PO</b></div>
-                  <div class="row"><span>Six Sigma</span><b>White Belt</b></div>
-                  <div class="row"><span>Product School</span><b>AI • Growth</b></div>
+              <div class="section">
+                <h4>Education & Certifications</h4>
+                <div class="bullets" style="grid-template-columns:1fr;">
+                  <div><strong>MBA</strong> — University of Phoenix</div>
+                  <div><strong>MA Sports Admin</strong> (in progress) — Northwestern University</div>
+                  <div><strong>BBA</strong> — UTEP</div>
+                  <div><strong>CSPO</strong> (Certified Scrum PO)</div>
+                  <div>Six Sigma (White Belt)</div>
+                  <div>Product School — AI & Growth</div>
                 </div>
               </div>
-            </div>
-
-            <div class="back-actions">
-              <button class="ghost" type="button" id="flipBackGhost">Flip Front</button>
-              <button class="solid" type="button" id="flipBack">Done ↺</button>
             </div>
           </div>
         </section>
+
       </div>
     </div>
+
+    <div class="foot">© 2025 Saul B. Kleinfeld</div>
   </div>
 
-  <script>
-    (function(){
-      const card = document.getElementById('card');
-      const flipFront = document.getElementById('flipFront');
-      const flipBack = document.getElementById('flipBack');
-      const flipBackGhost = document.getElementById('flipBackGhost');
+<script>
+  const card = document.getElementById('card3d');
+  document.getElementById('toBack').addEventListener('click', ()=>card.classList.add('is-back'));
+  document.getElementById('toFront').addEventListener('click', ()=>card.classList.remove('is-back'));
 
-      const toggle = () => card.classList.toggle('flipped');
-
-      // Click-to-flip (only when clicking buttons or empty zones – avoids accidental drags)
-      flipFront.addEventListener('click', toggle);
-      flipBack.addEventListener('click', toggle);
-      flipBackGhost.addEventListener('click', toggle);
-
-      // Keyboard shortcut: F to flip
-      document.addEventListener('keydown', (e)=>{
-        if(e.key.toLowerCase()==='f') toggle();
-      });
-
-      // Prevent scroll hijack (let inner back body scroll)
-      document.querySelectorAll('.back-body').forEach(node=>{
-        node.addEventListener('wheel', (e)=>{
-          const el = e.currentTarget;
-          const atTop = el.scrollTop === 0 && e.deltaY < 0;
-          const atBottom = Math.ceil(el.scrollTop + el.clientHeight) >= el.scrollHeight && e.deltaY > 0;
-          if(atTop || atBottom){ e.preventDefault(); }
-        }, {passive:false});
-      });
-    })();
-  </script>
+  // Keyboard support
+  window.addEventListener('keydown', (e)=>{
+    if(e.key==='Escape') card.classList.remove('is-back');
+    if(e.key===' ' || e.key==='Enter'){ e.preventDefault(); card.classList.toggle('is-back'); }
+  }, {passive:false});
+</script>
 </body>
 </html>
