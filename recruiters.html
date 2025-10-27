@@ -4,7 +4,6 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Saul B. Kleinfeld — Baseball Card</title>
-  <!-- keep this off search -->
   <meta name="robots" content="noindex,nofollow" />
 
   <style>
@@ -19,12 +18,10 @@
       margin:0;
       color:#fff;
       font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, "Helvetica Neue", Arial;
-      background: #0d0f12;
+      background:#0d0f12;
     }
-    /* backdrop */
     body::before{
-      content:"";
-      position:fixed; inset:0;
+      content:""; position:fixed; inset:0;
       background:
         radial-gradient(75% 60% at 50% 10%, rgba(163,255,18,.08), transparent 65%),
         radial-gradient(50% 40% at 90% 20%, rgba(163,255,18,.06), transparent 60%),
@@ -32,137 +29,127 @@
         repeating-linear-gradient(90deg, rgba(255,255,255,.03) 0 1px, transparent 1px 8px);
       pointer-events:none;
     }
-    .wrap{
-      max-width:1100px; margin:32px auto 24px; padding:0 16px;
-    }
+    .wrap{max-width:1100px; margin:28px auto 18px; padding:0 16px}
     .label{color:#a3a3a3; font-size:13px; margin-bottom:10px}
-    .foot{margin-top:20px; text-align:center; font-size:12px; color:#9aa3af}
+    .foot{margin-top:16px; text-align:center; font-size:12px; color:#9aa3af}
 
-    /* Card stage */
+    /* stage + hover effect that doesn't touch rotation */
     .stage{perspective:2000px; display:flex; justify-content:center}
+    .hover-shell{transition:filter .25s, transform .25s}
+    .hover-shell:hover{filter:drop-shadow(0 24px 60px rgba(0,0,0,.45))}
+
     .card{
       position:relative; width:min(100%,960px);
-      aspect-ratio:16/9; cursor:pointer;
+      aspect-ratio:16/10; /* taller than 16/9 to avoid clipping */
       transform-style:preserve-3d;
       transition:transform .7s cubic-bezier(.2,.8,.2,1);
+      cursor:pointer;
     }
     .card.is-flipped{transform:rotateY(180deg)}
+
     .face{
       position:absolute; inset:0; border-radius:var(--card-r);
-      overflow:hidden; box-shadow:0 25px 60px rgba(0,0,0,.45);
-      border:8px solid #fff; backface-visibility:hidden;
+      overflow:hidden; border:8px solid #fff; backface-visibility:hidden;
+      box-shadow:0 18px 45px rgba(0,0,0,.38);
     }
-    .front{
-      background:linear-gradient(135deg, var(--navy) 0%, var(--navy-2) 50%, var(--navy) 100%);
-    }
-    .back{
-      background:linear-gradient(#f8f9fa, #fff);
-      transform:rotateY(180deg);
-      color:#111827;
-    }
+    .front{background:linear-gradient(135deg,var(--navy) 0%,var(--navy-2) 50%,var(--navy) 100%)}
+    .back{background:linear-gradient(#f8f9fa,#fff); transform:rotateY(180deg); color:#111827}
     .inner{position:relative; height:100%}
 
-    /* pinstripes + outer border */
+    /* decorative borders / pinstripes */
     .front .inner::before{
       content:""; position:absolute; inset:0; opacity:.07;
       background-image:repeating-linear-gradient(90deg,transparent,transparent 6px,#fff 6px,#fff 7px);
     }
-    .front .inner::after,
-    .back .inner::after{
-      content:""; position:absolute; inset:0; border:4px solid rgba(196,206,212,.3);
-      margin:4px; border-radius:calc(var(--card-r) - 8px); pointer-events:none;
+    .front .inner::after, .back .inner::after{
+      content:""; position:absolute; inset:0; margin:4px;
+      border:4px solid rgba(196,206,212,.3);
+      border-radius:calc(var(--card-r) - 8px); pointer-events:none;
     }
     .back .inner::after{border-color:rgba(12,35,64,.12)}
 
-    /* top banner */
+    /* banner */
     .banner{
-      position:absolute; left:0; right:0; top:0; height:64px;
+      position:absolute; left:0; right:0; top:0; height:56px; /* smaller */
       background:linear-gradient(to bottom,#fff,#fff,transparent);
       display:flex; align-items:flex-start; justify-content:space-between;
-      padding:14px 24px; z-index:2; color:var(--navy)
+      padding:10px 18px; z-index:2; color:var(--navy)
     }
-    .badge{width:40px;height:40px;border-radius:9999px;background:var(--navy);
-      display:grid;place-items:center;color:#fff;border:2px solid #d1d5db;font-weight:800; font-size:13px}
+    .badge{width:34px;height:34px;border-radius:9999px;background:var(--navy);
+      display:grid;place-items:center;color:#fff;border:2px solid #d1d5db;font-weight:800; font-size:12px}
     .tiny{letter-spacing:.18em; font-size:10px}
     .muted{color:#9aa3af}
 
-    /* grid */
     .flex{display:flex} .col{display:flex;flex-direction:column}
-    .g{gap:16px} .g-sm{gap:10px}
+    .g{gap:14px} .g-sm{gap:10px}
+    .pad{padding:16px} .pad-l{padding:18px}
+    .pt-20{padding-top:64px} /* tighter than before */
 
-    .pad{padding:20px} .pad-l{padding:24px}
-    .pt-20{padding-top:80px}
-
-    /* left photo block */
     .photo-wrap{width:38%}
-    .frame{background:linear-gradient(#f3f4f6,#fff,#e5e7eb); padding:4px; border-radius:14px; box-shadow:0 20px 35px rgba(0,0,0,.4)}
-    .frame-inner{background:#fff; padding:12px; border-radius:10px}
+    .frame{background:linear-gradient(#f3f4f6,#fff,#e5e7eb); padding:4px; border-radius:12px; box-shadow:0 14px 28px rgba(0,0,0,.35)}
+    .frame-inner{background:#fff; padding:10px; border-radius:10px}
     .photo{width:100%; height:auto; display:block; border-radius:6px}
     .photo-ov{position:absolute; inset:0; background:linear-gradient(to top,rgba(0,0,0,.2),transparent)}
-    .title-chip{margin-top:12px; background:#fff; border:2px solid #e5e7eb; border-radius:10px; padding:10px 18px; text-align:center; color:var(--navy); letter-spacing:.2em; font-size:11px; font-weight:700}
+    .title-chip{margin-top:10px; background:#fff; border:2px solid #e5e7eb; border-radius:10px; padding:8px 14px; text-align:center; color:var(--navy); letter-spacing:.2em; font-size:10px; font-weight:800}
 
-    /* name plate */
-    .plate{background:rgba(255,255,255,.95); border:2px solid #fff; border-radius:16px; padding:14px 18px; box-shadow:0 20px 30px rgba(0,0,0,.25)}
-    .h1{font-size:28px; font-weight:900; letter-spacing:.02em; color:var(--navy); margin:0}
-    .rule{height:4px; width:64px; background:var(--navy); border-radius:9999px}
-    .sub{color:#374151; letter-spacing:.02em; margin-left:8px}
-    .caption{color:#6b7280; margin:.4rem 0 0; font-size:13px}
+    .plate{background:rgba(255,255,255,.95); border:2px solid #fff; border-radius:14px; padding:12px 14px; box-shadow:0 18px 28px rgba(0,0,0,.2)}
+    .h1{font-size:24px; font-weight:900; letter-spacing:.02em; color:var(--navy); margin:0}
+    .rule{height:3px; width:56px; background:var(--navy); border-radius:9999px}
+    .sub{color:#374151; letter-spacing:.02em; margin-left:8px; font-size:13px}
+    .caption{color:#6b7280; margin:.35rem 0 0; font-size:12px}
 
-    /* stat cards */
-    .stats{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px}
-    .s{border-radius:14px; padding:12px; border:2px solid #fff; background:linear-gradient(#fff,#f9fafb)}
-    .s:hover{transform:translateY(-2px); box-shadow:0 20px 25px -5px rgba(0,0,0,.12); transition:.25s}
-    .s-num{color:var(--navy); font-weight:800; font-size:22px}
-    .s-lab{color:#6b7280; font-size:12px}
+    .stats{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px}
+    .s{border-radius:12px; padding:10px; border:2px solid #fff; background:linear-gradient(#fff,#f9fafb)}
+    .s:hover{transform:translateY(-2px); box-shadow:0 18px 22px -6px rgba(0,0,0,.12); transition:.25s}
+    .s-num{color:var(--navy); font-weight:800; font-size:18px}
+    .s-lab{color:#6b7280; font-size:11px}
+    .ico-dark{color:#6b7280; width:18px; height:18px; margin-bottom:4px}
 
-    .glass{background:rgba(255,255,255,.18); border:1px solid rgba(255,255,255,.35); border-radius:10px; padding:10px}
-    .glass .s-num{color:#fff}
-    .glass .s-lab{color:#d1d5db}
+    .glass{background:rgba(255,255,255,.18); border:1px solid rgba(255,255,255,.35); border-radius:10px; padding:8px}
+    .glass .s-num{color:#fff; font-size:18px}
+    .glass .s-lab{color:#d1d5db; font-size:11px}
+    .ico{width:18px; height:18px; color:#d1d5db; margin-bottom:4px}
 
-    /* contact strip */
-    .contact{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px 24px; font-size:13px; align-items:center}
+    .contact{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px 18px; font-size:12.5px; align-items:center}
     .row{display:flex; align-items:center; gap:8px}
     .lnk{color:#e5e7eb; text-decoration:underline; text-underline-offset:3px; text-decoration-style:dotted}
-    .hint{color:#cbd5e1; font-size:12px; text-align:center; opacity:.8; margin-top:8px}
+    .hint{color:#cbd5e1; font-size:12px; text-align:center; opacity:.85; margin-top:6px}
 
-    /* back header */
+    /* back */
     .back-head{
       background:linear-gradient(90deg,var(--navy), var(--navy-2), var(--navy));
-      padding:20px; border-bottom:4px solid #fff; position:relative; color:#fff; text-align:center
+      padding:16px; border-bottom:4px solid #fff; position:relative; color:#fff; text-align:center
     }
     .back-head::after{
       content:""; position:absolute; inset:0; opacity:.08;
       background-image:repeating-linear-gradient(90deg,transparent,transparent 6px,#fff 6px,#fff 7px);
     }
-    .back-title{font-weight:900; letter-spacing:.08em; font-size:26px; position:relative}
-    .back-sub{color:#cbd5e1; margin-top:4px; position:relative}
-    .back-meta{display:flex; gap:10px; justify-content:center; color:#d1d5e8; font-size:12px; margin-top:8px; position:relative}
+    .back-title{font-weight:900; letter-spacing:.08em; font-size:22px; position:relative}
+    .back-sub{color:#cbd5e1; margin-top:2px; position:relative; font-size:13px}
+    .back-meta{display:flex; gap:10px; justify-content:center; color:#d1d5e8; font-size:12px; margin-top:6px; position:relative}
 
-    .back-scroll{padding:18px 22px; max-height:calc(100% - 180px); overflow:auto}
-    .section-label{display:flex; align-items:center; gap:10px; margin:10px 0}
+    .back-scroll{padding:14px 16px; max-height:calc(100% - 160px); overflow:auto}
+    .section-label{display:flex; align-items:center; gap:10px; margin:8px 0}
     .hr{flex:1; height:1px; background:linear-gradient(90deg,transparent,var(--navy),transparent)}
-    .tag{background:#fff; padding:2px 10px; font-weight:800; font-size:11px; letter-spacing:.15em; color:var(--navy)}
+    .tag{background:#fff; padding:2px 8px; font-weight:800; font-size:10px; letter-spacing:.15em; color:var(--navy)}
 
-    .perf{background:#fff; border:2px solid #eef2f7; border-radius:14px; overflow:hidden; box-shadow:0 8px 18px rgba(0,0,0,.06)}
-    .perf-h{background:linear-gradient(90deg, rgba(12,35,64,.06), rgba(12,35,64,.12)); padding:10px 14px; border-bottom:1px solid #e5e7eb}
-    .perf-grid{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px 16px; padding:12px 14px; color:#111827; font-size:14px}
-    .dot{width:6px; height:6px; border-radius:9999px; background:var(--navy); margin-right:8px; display:inline-block}
+    .perf{background:#fff; border:2px solid #eef2f7; border-radius:12px; overflow:hidden; box-shadow:0 8px 18px rgba(0,0,0,.06)}
+    .perf-h{background:linear-gradient(90deg, rgba(12,35,64,.06), rgba(12,35,64,.12)); padding:8px 12px; border-bottom:1px solid #e5e7eb; font-size:14px}
+    .perf-grid{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:6px 14px; padding:10px 12px; color:#111827; font-size:13px}
 
     .skills{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px}
-    .skill{background:linear-gradient(135deg,var(--navy),var(--navy-2)); color:#fff; text-align:center; border:1px solid rgba(12,35,64,.25); padding:7px 8px; border-radius:8px; font-size:12px; font-weight:600}
+    .skill{background:linear-gradient(135deg,var(--navy),var(--navy-2)); color:#fff; text-align:center; border:1px solid rgba(12,35,64,.25); padding:6px 8px; border-radius:8px; font-size:12px; font-weight:600}
 
-    .edu{background:#fff; border:2px solid #eef2f7; border-radius:14px; padding:14px}
-    .edu h4{margin:0 0 10px; color:var(--navy); letter-spacing:.08em; font-size:13px; display:flex; align-items:center; gap:8px}
-    .bar{width:4px; height:16px; background:var(--navy)}
-    .li{display:flex; align-items:flex-start; gap:8px; color:#374151; font-size:13px; margin:8px 0}
-    .li .dot{margin-top:6px}
+    .edu{background:#fff; border:2px solid #eef2f7; border-radius:12px; padding:12px}
+    .edu h4{margin:0 0 8px; color:var(--navy); letter-spacing:.08em; font-size:12px; display:flex; align-items:center; gap:8px}
+    .bar{width:4px; height:14px; background:var(--navy)}
+    .li{display:flex; align-items:flex-start; gap:8px; color:#374151; font-size:13px; margin:6px 0}
+    .li .dot{width:6px; height:6px; border-radius:9999px; background:var(--navy); margin-top:6px}
 
-    /* tiny icons */
-    .ico{width:18px; height:18px; color:#d1d5db}
-    .ico-dark{color:#6b7280}
+    /* icon */
+    .ico-line{width:18px;height:18px;color:#6b7280}
 
-    /* hover nudge */
-    .card:hover{transform:translateY(-2px) rotateY(var(--rot,0))}
+    /* remove previous conflicting hover-rotation */
   </style>
 </head>
 <body>
@@ -170,235 +157,225 @@
     <div class="label">For recruiters · Private link</div>
 
     <section class="stage">
-      <div class="card" id="card">
-        <!-- FRONT -->
-        <div class="face front">
-          <div class="inner pt-20">
-            <div class="banner">
-              <div class="flex g-sm">
-                <div class="badge">NY</div>
-                <div class="tiny">PRODUCT LEAGUE</div>
-              </div>
-              <div class="col" style="align-items:end">
-                <div class="tiny">CARD #027</div>
-                <div class="muted tiny" style="letter-spacing:.05em">2025–2026 EDITION</div>
-              </div>
-            </div>
-
-            <div class="flex g pad-l" style="height:100%; align-items:flex-start">
-              <!-- photo -->
-              <div class="photo-wrap">
-                <div class="frame">
-                  <div class="frame-inner" style="position:relative">
-                    <img src="SBK-Headshot.jpeg" alt="Saul B. Kleinfeld" class="photo" />
-                    <div class="photo-ov"></div>
-                  </div>
+      <div class="hover-shell">
+        <div class="card" id="card" aria-expanded="false">
+          <!-- FRONT -->
+          <div class="face front">
+            <div class="inner pt-20">
+              <div class="banner">
+                <div class="flex g-sm">
+                  <div class="badge">NY</div>
+                  <div class="tiny">PRODUCT LEAGUE</div>
                 </div>
-                <div class="title-chip">SENIOR PRODUCT MANAGER</div>
+                <div class="col" style="align-items:end">
+                  <div class="tiny">CARD #027</div>
+                  <div class="muted tiny" style="letter-spacing:.05em">2025–2026 EDITION</div>
+                </div>
               </div>
 
-              <!-- info -->
-              <div class="col g" style="flex:1">
-                <div class="plate">
-                  <h1 class="h1">SAUL B. KLEINFELD</h1>
-                  <div class="flex" style="align-items:center; margin-top:8px">
-                    <div class="rule"></div>
-                    <div class="sub">PRODUCT MANAGER</div>
+              <div class="flex g pad-l" style="height:100%; align-items:flex-start">
+                <!-- photo -->
+                <div class="photo-wrap">
+                  <div class="frame">
+                    <div class="frame-inner" style="position:relative">
+                      <img src="SBK-Headshot.jpeg" alt="Saul B. Kleinfeld" class="photo" />
+                      <div class="photo-ov"></div>
+                    </div>
                   </div>
-                  <div class="caption">Mobile Apps • Loyalty & Rewards • KPI-Led Roadmaps</div>
+                  <div class="title-chip">SENIOR PRODUCT MANAGER</div>
                 </div>
 
-                <div class="stats">
-                  <div class="s">
-                    <!-- TrendingUp -->
-                    <svg class="ico-dark" viewBox="0 0 24 24" fill="none">
-                      <path d="M3 17l6-6 4 4 7-7M14 5h7v7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                    <div class="s-num">+25%</div>
-                    <div class="s-lab">Revenue Growth</div>
+                <!-- info -->
+                <div class="col g" style="flex:1">
+                  <div class="plate">
+                    <h1 class="h1">SAUL B. KLEINFELD</h1>
+                    <div class="flex" style="align-items:center; margin-top:6px">
+                      <div class="rule"></div>
+                      <div class="sub">PRODUCT MANAGER</div>
+                    </div>
+                    <div class="caption">Mobile Apps • Loyalty & Rewards • KPI-Led Roadmaps</div>
                   </div>
-                  <div class="s">
-                    <!-- Users -->
-                    <svg class="ico-dark" viewBox="0 0 24 24" fill="none">
-                      <path d="M17 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                      <circle cx="9" cy="7" r="4" stroke="currentColor" stroke-width="2"/>
-                    </svg>
-                    <div class="s-num">+17%</div>
-                    <div class="s-lab">DAU Lift</div>
-                  </div>
-                  <div class="s">
-                    <!-- Award -->
-                    <svg class="ico-dark" viewBox="0 0 24 24" fill="none">
-                      <circle cx="12" cy="8" r="5" stroke="currentColor" stroke-width="2"/>
-                      <path d="M8.5 13L7 22l5-3 5 3-1.5-9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                    <div class="s-num">99.8%</div>
-                    <div class="s-lab">Quality Rate</div>
-                  </div>
-                </div>
 
-                <div class="stats">
-                  <div class="glass">
-                    <!-- Target -->
-                    <svg class="ico" viewBox="0 0 24 24" fill="none">
-                      <circle cx="12" cy="12" r="8" stroke="currentColor" stroke-width="2"/>
-                      <circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="2"/>
-                      <circle cx="12" cy="12" r="1" fill="currentColor"/>
-                    </svg>
-                    <div class="s-num">-30%</div>
-                    <div class="s-lab">Cycle Time</div>
+                  <!-- top three stats -->
+                  <div class="stats">
+                    <div class="s">
+                      <svg class="ico-dark" viewBox="0 0 24 24" fill="none">
+                        <path d="M3 17l6-6 4 4 7-7M14 5h7v7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                      <div class="s-num">+25%</div>
+                      <div class="s-lab">Revenue Growth</div>
+                    </div>
+                    <div class="s">
+                      <svg class="ico-dark" viewBox="0 0 24 24" fill="none">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <circle cx="9" cy="7" r="4" stroke="currentColor" stroke-width="2"/>
+                      </svg>
+                      <div class="s-num">+17%</div>
+                      <div class="s-lab">DAU Lift</div>
+                    </div>
+                    <div class="s">
+                      <svg class="ico-dark" viewBox="0 0 24 24" fill="none">
+                        <circle cx="12" cy="8" r="5" stroke="currentColor" stroke-width="2"/>
+                        <path d="M8.5 13L7 22l5-3 5 3-1.5-9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                      <div class="s-num">99.8%</div>
+                      <div class="s-lab">Quality Rate</div>
+                    </div>
                   </div>
-                  <div class="glass">
-                    <!-- Zap -->
-                    <svg class="ico" viewBox="0 0 24 24" fill="none">
-                      <path d="M13 2L3 14h7l-1 8 10-12h-7l1-8z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
-                    </svg>
-                    <div class="s-num">+40%</div>
-                    <div class="s-lab">Decision Velocity</div>
-                  </div>
-                  <div class="glass">
-                    <!-- BarChart3 -->
-                    <svg class="ico" viewBox="0 0 24 24" fill="none">
-                      <path d="M3 3v18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                      <rect x="7" y="9" width="2.5" height="7" fill="currentColor"/>
-                      <rect x="12" y="5" width="2.5" height="11" fill="currentColor"/>
-                      <rect x="17" y="12" width="2.5" height="4" fill="currentColor"/>
-                    </svg>
-                    <div class="s-num">+24%</div>
-                    <div class="s-lab">Retention</div>
-                  </div>
-                </div>
 
-                <div class="glass">
-                  <div class="contact">
-                    <div class="row">
-                      <!-- Phone -->
+                  <!-- bottom three stats (tightened paddings/sizes) -->
+                  <div class="stats">
+                    <div class="glass">
                       <svg class="ico" viewBox="0 0 24 24" fill="none">
-                        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.8 19.8 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.11 4.1 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.94.35 1.86.66 2.74a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.34-1.23a2 2 0 0 1 2.11-.45c.88.31 1.8.53 2.74.66A2 2 0 0 1 22 16.92z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <circle cx="12" cy="12" r="8" stroke="currentColor" stroke-width="2"/>
+                        <circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="2"/>
+                        <circle cx="12" cy="12" r="1" fill="currentColor"/>
                       </svg>
-                      <span>(915) 240-8402</span>
+                      <div class="s-num">-30%</div>
+                      <div class="s-lab">Cycle Time</div>
                     </div>
-                    <div class="row">
-                      <!-- Mail -->
+                    <div class="glass">
                       <svg class="ico" viewBox="0 0 24 24" fill="none">
-                        <path d="M4 4h16v16H4z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
-                        <path d="M22 6l-10 7L2 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M13 2L3 14h7l-1 8 10-12h-7l1-8z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
                       </svg>
-                      <span>saul@kleinfeld.io</span>
+                      <div class="s-num">+40%</div>
+                      <div class="s-lab">Decision Velocity</div>
                     </div>
-                    <div class="row">
-                      <!-- MapPin -->
+                    <div class="glass">
                       <svg class="ico" viewBox="0 0 24 24" fill="none">
-                        <path d="M12 21s-6-5.33-6-10a6 6 0 1 1 12 0c0 4.67-6 10-6 10z" stroke="currentColor" stroke-width="2" />
-                        <circle cx="12" cy="11" r="2" stroke="currentColor" stroke-width="2"/>
+                        <path d="M3 3v18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        <rect x="7" y="9" width="2.5" height="7" fill="currentColor"/>
+                        <rect x="12" y="5" width="2.5" height="11" fill="currentColor"/>
+                        <rect x="17" y="12" width="2.5" height="4" fill="currentColor"/>
                       </svg>
-                      <span>Dallas, TX</span>
-                    </div>
-                    <div class="row">
-                      <!-- LinkedIn -->
-                      <svg class="ico" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M4.98 3.5C4.98 4.88 3.88 6 2.5 6S0 4.88 0 3.5 1.12 1 2.5 1 4.98 2.12 4.98 3.5zM.5 8h4v16h-4V8zm7.5 0h3.8v2.2h.1c.5-.9 1.8-1.9 3.7-1.9 3.9 0 4.6 2.6 4.6 6V24h-4v-7.9c0-1.9 0-4.4-2.7-4.4-2.7 0-3.1 2.1-3.1 4.2V24h-4V8z"/>
-                      </svg>
-                      <a class="lnk" href="https://www.linkedin.com/in/saul-kleinfeld" target="_blank" rel="noopener">LinkedIn Profile</a>
-                    </div>
-                    <div class="row" style="grid-column:1 / -1">
-                      <!-- Globe -->
-                      <svg class="ico" viewBox="0 0 24 24" fill="none">
-                        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
-                        <path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                      </svg>
-                      <a class="lnk" href="https://kleinfeld.io" target="_blank" rel="noopener">Kleinfeld.io</a>
+                      <div class="s-num">+24%</div>
+                      <div class="s-lab">Retention</div>
                     </div>
                   </div>
-                  <div class="hint">↻ Click card to view career statistics</div>
+
+                  <div class="glass">
+                    <div class="contact">
+                      <div class="row">
+                        <svg class="ico" viewBox="0 0 24 24" fill="none">
+                          <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.8 19.8 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.11 4.1 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.94.35 1.86.66 2.74a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.34-1.23a2 2 0 0 1 2.11-.45c.88.31 1.8.53 2.74.66A2 2 0 0 1 22 16.92z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <span>(915) 240-8402</span>
+                      </div>
+                      <div class="row">
+                        <svg class="ico" viewBox="0 0 24 24" fill="none">
+                          <path d="M4 4h16v16H4z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                          <path d="M22 6l-10 7L2 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <span>saul@kleinfeld.io</span>
+                      </div>
+                      <div class="row">
+                        <svg class="ico" viewBox="0 0 24 24" fill="none">
+                          <path d="M12 21s-6-5.33-6-10a6 6 0 1 1 12 0c0 4.67-6 10-6 10z" stroke="currentColor" stroke-width="2" />
+                          <circle cx="12" cy="11" r="2" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                        <span>Dallas, TX</span>
+                      </div>
+                      <div class="row">
+                        <svg class="ico" viewBox="0 0 24 24" fill="currentColor">
+                          <path d="M4.98 3.5C4.98 4.88 3.88 6 2.5 6S0 4.88 0 3.5 1.12 1 2.5 1 4.98 2.12 4.98 3.5zM.5 8h4v16h-4V8zm7.5 0h3.8v2.2h.1c.5-.9 1.8-1.9 3.7-1.9 3.9 0 4.6 2.6 4.6 6V24h-4v-7.9c0-1.9 0-4.4-2.7-4.4-2.7 0-3.1 2.1-3.1 4.2V24h-4V8z"/>
+                        </svg>
+                        <a class="lnk" href="https://www.linkedin.com/in/saul-kleinfeld" target="_blank" rel="noopener">LinkedIn Profile</a>
+                      </div>
+                      <div class="row" style="grid-column:1 / -1">
+                        <svg class="ico" viewBox="0 0 24 24" fill="none">
+                          <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+                          <path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                        <a class="lnk" href="https://kleinfeld.io" target="_blank" rel="noopener">Kleinfeld.io</a>
+                      </div>
+                    </div>
+                    <div class="hint">↻ Click card to view career statistics</div>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
 
-        <!-- BACK -->
-        <div class="face back">
-          <div class="inner">
-            <div class="back-head">
-              <div class="back-title">CAREER STATISTICS</div>
-              <div class="back-sub">Saul B. Kleinfeld • Senior Product Manager</div>
-              <div class="back-meta"><span>CARD #027</span><span>•</span><span>2025–2026 SEASON</span><span>•</span><span>PRODUCT LEAGUE</span></div>
-            </div>
-
-            <div class="back-scroll">
-              <!-- Highlights -->
-              <div class="section-label">
-                <div class="hr"></div><div class="tag">SEASON HIGHLIGHTS</div><div class="hr"></div>
+          <!-- BACK -->
+          <div class="face back">
+            <div class="inner">
+              <div class="back-head">
+                <div class="back-title">CAREER STATISTICS</div>
+                <div class="back-sub">Saul B. Kleinfeld • Senior Product Manager</div>
+                <div class="back-meta"><span>CARD #027</span><span>•</span><span>2025–2026 SEASON</span><span>•</span><span>PRODUCT LEAGUE</span></div>
               </div>
 
-              <div class="perf">
-                <div class="perf-h"><strong>RazorMetrics</strong> · <span class="muted">Sep 2024 – Nov 2025</span><div class="muted" style="font-size:12px">Senior Product Manager</div></div>
-                <div class="perf-grid">
-                  <div><span class="muted">Feature throughput:</span> <strong>+25%</strong></div>
-                  <div><span class="muted">On-time releases:</span> <strong>+15 pts</strong></div>
-                  <div><span class="muted">Config cycle time:</span> <strong>-40%</strong></div>
-                  <div><span class="muted">Post-release rework:</span> <strong>-27%</strong></div>
+              <div class="back-scroll">
+                <div class="section-label">
+                  <div class="hr"></div><div class="tag">SEASON HIGHLIGHTS</div><div class="hr"></div>
                 </div>
-              </div>
 
-              <div class="g" style="height:10px"></div>
-
-              <div class="perf">
-                <div class="perf-h"><strong>TeleVox</strong> · <span class="muted">Apr 2023 – Apr 2024</span><div class="muted" style="font-size:12px">Senior PM (Contract)</div></div>
-                <div class="perf-grid">
-                  <div><span class="muted">DAU growth:</span> <strong>+17%</strong></div>
-                  <div><span class="muted">90-day retention:</span> <strong>+24%</strong></div>
-                  <div><span class="muted">Release cycle:</span> <strong>-30%</strong></div>
-                  <div><span class="muted">Decision velocity:</span> <strong>+40%</strong></div>
+                <div class="perf">
+                  <div class="perf-h"><strong>RazorMetrics</strong> · <span class="muted">Sep 2024 – Nov 2025</span><div class="muted" style="font-size:12px">Senior Product Manager</div></div>
+                  <div class="perf-grid">
+                    <div><span class="muted">Feature throughput:</span> <strong>+25%</strong></div>
+                    <div><span class="muted">On-time releases:</span> <strong>+15 pts</strong></div>
+                    <div><span class="muted">Config cycle time:</span> <strong>-40%</strong></div>
+                    <div><span class="muted">Post-release rework:</span> <strong>-27%</strong></div>
+                  </div>
                 </div>
-              </div>
 
-              <div class="g" style="height:10px"></div>
+                <div style="height:8px"></div>
 
-              <div class="perf">
-                <div class="perf-h"><strong>7-Eleven</strong> · <span class="muted">Apr 2022 – Apr 2023</span><div class="muted" style="font-size:12px">Senior PM (Contract)</div></div>
-                <div class="perf-grid">
-                  <div><span class="muted">Trial starts:</span> <strong>+30%</strong></div>
-                  <div><span class="muted">Redemption rate:</span> <strong>10% → 50%</strong></div>
-                  <div><span class="muted">Campus cohort:</span> <strong>+10%</strong></div>
-                  <div><span class="muted">Engagement:</span> <strong>+12%</strong></div>
+                <div class="perf">
+                  <div class="perf-h"><strong>TeleVox</strong> · <span class="muted">Apr 2023 – Apr 2024</span><div class="muted" style="font-size:12px">Senior PM (Contract)</div></div>
+                  <div class="perf-grid">
+                    <div><span class="muted">DAU growth:</span> <strong>+17%</strong></div>
+                    <div><span class="muted">90-day retention:</span> <strong>+24%</strong></div>
+                    <div><span class="muted">Release cycle:</span> <strong>-30%</strong></div>
+                    <div><span class="muted">Decision velocity:</span> <strong>+40%</strong></div>
+                  </div>
                 </div>
-              </div>
 
-              <!-- Competencies -->
-              <div class="section-label" style="margin-top:16px">
-                <div class="hr"></div><div class="tag">CORE COMPETENCIES</div><div class="hr"></div>
-              </div>
-              <div class="skills">
-                <div class="skill">Strategy & Roadmap</div>
-                <div class="skill">KPI Dashboards</div>
-                <div class="skill">A/B Testing</div>
-                <div class="skill">Mobile Apps</div>
-                <div class="skill">Loyalty & Rewards</div>
-                <div class="skill">Agile/Scrum</div>
-                <div class="skill">Subscription Funnel</div>
-                <div class="skill">User Engagement</div>
-                <div class="skill">Analytics</div>
-              </div>
+                <div style="height:8px"></div>
 
-              <!-- Education & Certs -->
-              <div class="flex g" style="margin-top:16px">
-                <div class="edu" style="flex:1">
-                  <h4><span class="bar"></span>EDUCATION</h4>
-                  <div class="li"><span class="dot"></span>MBA — University of Phoenix</div>
-                  <div class="li"><span class="dot"></span>MA Sports Admin (In Progress) — Northwestern University</div>
-                  <div class="li"><span class="dot"></span>BBA Management — UTEP</div>
+                <div class="perf">
+                  <div class="perf-h"><strong>7-Eleven</strong> · <span class="muted">Apr 2022 – Apr 2023</span><div class="muted" style="font-size:12px">Senior PM (Contract)</div></div>
+                  <div class="perf-grid">
+                    <div><span class="muted">Trial starts:</span> <strong>+30%</strong></div>
+                    <div><span class="muted">Redemption rate:</span> <strong>10% → 50%</strong></div>
+                    <div><span class="muted">Campus cohort:</span> <strong>+10%</strong></div>
+                    <div><span class="muted">Engagement:</span> <strong>+12%</strong></div>
+                  </div>
                 </div>
-                <div class="edu" style="flex:1">
-                  <h4><span class="bar"></span>CERTIFICATIONS</h4>
-                  <div class="li"><span class="dot"></span>CSPO (Certified Scrum PO)</div>
-                  <div class="li"><span class="dot"></span>Six Sigma White Belt</div>
-                  <div class="li"><span class="dot"></span>Product School (AI, Growth)</div>
-                </div>
-              </div>
 
-              <div class="hint" style="color:#64748b; margin-top:14px">↻ Click to flip back</div>
+                <div class="section-label" style="margin-top:12px">
+                  <div class="hr"></div><div class="tag">CORE COMPETENCIES</div><div class="hr"></div>
+                </div>
+                <div class="skills">
+                  <div class="skill">Strategy & Roadmap</div>
+                  <div class="skill">KPI Dashboards</div>
+                  <div class="skill">A/B Testing</div>
+                  <div class="skill">Mobile Apps</div>
+                  <div class="skill">Loyalty & Rewards</div>
+                  <div class="skill">Agile/Scrum</div>
+                  <div class="skill">Subscription Funnel</div>
+                  <div class="skill">User Engagement</div>
+                  <div class="skill">Analytics</div>
+                </div>
+
+                <div class="flex g" style="margin-top:12px">
+                  <div class="edu" style="flex:1">
+                    <h4><span class="bar"></span>EDUCATION</h4>
+                    <div class="li"><span class="dot"></span>MBA — University of Phoenix</div>
+                    <div class="li"><span class="dot"></span>MA Sports Admin (In Progress) — Northwestern University</div>
+                    <div class="li"><span class="dot"></span>BBA Management — UTEP</div>
+                  </div>
+                  <div class="edu" style="flex:1">
+                    <h4><span class="bar"></span>CERTIFICATIONS</h4>
+                    <div class="li"><span class="dot"></span>CSPO (Certified Scrum PO)</div>
+                    <div class="li"><span class="dot"></span>Six Sigma White Belt</div>
+                    <div class="li"><span class="dot"></span>Product School (AI, Growth)</div>
+                  </div>
+                </div>
+
+                <div class="hint" style="color:#64748b; margin-top:12px">↻ Click to flip back</div>
+              </div>
             </div>
           </div>
         </div>
@@ -409,9 +386,10 @@
   </main>
 
   <script>
-    // simple flip
-    document.getElementById('card').addEventListener('click', function(){
-      this.classList.toggle('is-flipped');
+    const card = document.getElementById('card');
+    card.addEventListener('click', () => {
+      card.classList.toggle('is-flipped');
+      card.setAttribute('aria-expanded', card.classList.contains('is-flipped'));
     });
   </script>
 </body>
