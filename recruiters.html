@@ -1,395 +1,392 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Saul B. Kleinfeld — Baseball Card</title>
-<meta name="color-scheme" content="dark light" />
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<style>
-  :root{
-    --ink:#0b1220;
-    --panel:#0f1728;
-    --panel-2:#111a2d;
-    --accent:#2af27a;          /* warm NTABL-ish neon for chips hover */
-    --navy:#0C2340;            /* primary card navy */
-    --navy-2:#17325a;
-    --edge:#e7eef6;            /* metallic edge */
-    --muted:#a7b3c7;
-    --good:#37d67a;
-    --warn:#ffd166;
-    --glow: 0 10px 40px rgba(42, 146, 255,.35);
-  }
-  *{box-sizing:border-box}
-  html,body{height:100%}
-  body{
-    margin:0;
-    color:#e6edf6;
-    font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
-    background:
-      radial-gradient(1200px 600px at 50% -10%, rgba(64,150,255,.14), transparent 60%),
-      radial-gradient(900px 500px at 90% 10%, rgba(120,255,180,.08), transparent 70%),
-      #0a0f18;
-    /* subtle topographic lines */
-    --line: radial-gradient(100% 100% at 50% 0%, rgba(255,255,255,.04), rgba(255,255,255,0) 65%);
-    background-image:
-      repeating-linear-gradient(90deg, rgba(255,255,255,.03) 0 1px, transparent 1px 8px),
-      repeating-linear-gradient(0deg, rgba(255,255,255,.02) 0 1px, transparent 1px 10px),
-      radial-gradient(1000px 400px at 50% -20%, rgba(53,101,255,.12), transparent 60%),
-      linear-gradient(180deg,#060a12 0%, #090f1a 100%);
-    background-blend-mode: soft-light,soft-light,screen,normal;
-  }
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Saul B. Kleinfeld — Baseball Card</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#0b1220;
+      --ink:#e8eef7;
+      --muted:#a8b3c7;
+      --brand:#0C2340;           /* deep navy */
+      --brand-2:#1b3d66;         /* mid navy */
+      --accent:#7fb7ff;          /* subtle blue highlight */
+      --card:#0f1a2c;
+      --glass:rgba(255,255,255,.06);
+      --white:#fff;
+      --shadow:0 10px 30px rgba(0,0,0,.35);
+      --radius:18px;
+    }
 
-  .wrap{
-    min-height:100%;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    padding:48px 20px 72px;
-  }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family:Inter, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol", sans-serif;
+      color:var(--ink);
+      background:
+        radial-gradient(1200px 600px at 50% -10%, rgba(74,217,142,.08), transparent 60%),
+        radial-gradient(1200px 600px at 50% 110%, rgba(127,183,255,.06), transparent 60%),
+        #0a111f;
+      /* subtle grid/contours */
+      background-image:
+        radial-gradient(circle at 50% 20%, rgba(127,183,255,.06), transparent 45%),
+        repeating-linear-gradient(90deg, rgba(255,255,255,.04) 0 1px, transparent 1px 24px),
+        repeating-linear-gradient(0deg, rgba(255,255,255,.03) 0 1px, transparent 1px 24px);
+      background-blend-mode: soft-light, overlay, normal;
+    }
 
-  /* 3D Scene */
-  .scene{
-    width:min(1100px, 94vw);
-    perspective:1800px;
-    position:relative;
-  }
-  .card{
-    width:100%;
-    aspect-ratio: 16 / 9;
-    position:relative;
-    transform-style:preserve-3d;
-    transition: transform .7s cubic-bezier(.2,.7,.2,1);
-  }
-  .card.is-flipped{ transform: rotateY(180deg); }
+    .wrap{
+      min-height:100%;
+      display:grid;
+      place-items:center;
+      padding:clamp(16px,3vw,32px);
+    }
 
-  .face{
-    position:absolute;
-    inset:0;
-    backface-visibility:hidden;
-    border-radius:22px;
-    overflow:hidden;
-    box-shadow: 0 20px 55px rgba(0,0,0,.45), 0 5px 20px rgba(0,0,0,.35);
-  }
+    /* --- Card stage --- */
+    .stage{
+      width:min(1100px, 92vw);
+      perspective:1600px;
+    }
+    .card{
+      position:relative;
+      width:100%;
+      aspect-ratio: 16/9;
+      transform-style:preserve-3d;
+      transition:transform .7s cubic-bezier(.2,.7,.2,1);
+      will-change:transform;
+    }
+    .card.flipped{ transform: rotateY(180deg); }
+    .face{
+      position:absolute; inset:0;
+      display:flex; flex-direction:column;
+      background:linear-gradient(180deg, var(--brand) 0%, var(--brand-2) 100%);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      border:8px solid rgba(255,255,255,.85);
+      overflow:hidden;
+      backface-visibility:hidden;
+    }
+    .face.back{
+      transform: rotateY(180deg);
+      background:linear-gradient(180deg, #f6f8fb 0%, #ffffff 70%);
+      color:#0b1220;
+    }
 
-  /* Metallic edge + soft inner glow */
-  .frame{
-    position:absolute; inset:0;
-    padding:10px;
-    background:
-      linear-gradient(180deg, #ffffff 0, #e0e9f5 18%, #cfd9e6 38%, #dbe7f5 62%, #ffffff 100%);
-    border-radius:22px;
-    box-shadow:
-      0 0 0 1px rgba(255,255,255,.35) inset,
-      0 0 60px rgba(78,143,255,.2) inset;
-  }
-  .plate{
-    position:absolute; inset:10px;
-    border-radius:16px;
-    background:
-      radial-gradient(180% 120% at 0% 0%, rgba(255,255,255,.08), transparent 60%),
-      linear-gradient(180deg, var(--navy) 0, var(--navy-2) 100%);
-  }
-  .scanlines::before{
-    content:"";
-    position:absolute; inset:0;
-    background: repeating-linear-gradient(180deg, rgba(255,255,255,.04) 0 2px, transparent 2px 6px);
-    mix-blend-mode: soft-light;
-    pointer-events:none;
-  }
+    /* header chip */
+    .chip{
+      display:flex; align-items:center; gap:12px;
+      background: rgba(255,255,255,.94);
+      color:#0b1220;
+      border-radius:12px;
+      padding:10px 14px;
+      margin:16px;
+      width:max-content;
+      box-shadow:0 6px 16px rgba(0,0,0,.12);
+      border:1px solid rgba(20,30,50,.08);
+    }
+    .chip .avatar{
+      width:40px; height:40px; border-radius:10px; overflow:hidden; flex:0 0 auto;
+      border:1px solid rgba(20,30,50,.1);
+    }
+    .chip .avatar img{ width:100%; height:100%; object-fit:cover; display:block; }
+    .chip .title{ font-weight:800; letter-spacing:.3px; }
+    .chip .sub{ font:600 .8rem/1 Inter,system-ui; opacity:.7; margin-top:2px; }
 
-  /* FRONT */
-  .front .grid{
-    position:absolute; inset:16px;
-    display:grid;
-    grid-template-columns: 1.1fr 1.6fr;
-    grid-template-rows:auto 1fr auto;
-    gap:16px;
-  }
-  .badge{
-    grid-column:1/-1;
-    display:flex; gap:12px; align-items:center;
-  }
-  .badge .head{
-    width:92px; height:92px; border-radius:12px; overflow:hidden;
-    border:2px solid rgba(255,255,255,.5);
-    background:#d6dbe4;
-    box-shadow:0 8px 26px rgba(0,0,0,.35);
-  }
-  .badge img{ width:100%; height:100%; object-fit:cover; display:block;}
-  .badge h1{
-    margin:0 0 4px; font-size:28px; letter-spacing:.02em; font-weight:800;
-  }
-  .subtitle{
-    color:#d9e2f1; font-weight:600; font-size:12.5px; letter-spacing:.12em;
-    text-transform:uppercase;
-    opacity:.9;
-  }
-  .chips{
-    display:grid; gap:12px;
-    grid-template-columns: repeat(3, minmax(0,1fr));
-    align-self:end;
-  }
-  .chip{
-    background: linear-gradient(180deg,#ffffff,#eaf0f9);
-    color:#0c1730;
-    border-radius:12px;
-    padding:10px 12px;
-    box-shadow: 0 8px 30px rgba(0,0,0,.25);
-    border:1px solid #e9f0fb;
-  }
-  .chip strong{display:block; font-size:18px}
-  .chip small{ color:#556481 }
+    /* front layout */
+    .front-grid{
+      display:grid;
+      grid-template-columns: 1.15fr 1fr 1fr;
+      grid-template-rows: 1fr auto;
+      gap:14px;
+      padding:8px 16px 16px;
+      height:100%;
+    }
 
-  /* name plate on right */
-  .name-plate{
-    background:linear-gradient(180deg, rgba(255,255,255,.98), rgba(240,246,255,.96));
-    border:1px solid #e0e9f5;
-    border-radius:10px;
-    padding:12px 14px;
-    box-shadow: 0 8px 28px rgba(0,0,0,.25);
-  }
-  .name-plate h2{
-    margin:0 0 4px;
-    color:#0f2347; letter-spacing:.02em; font-size:22px; font-weight:800;
-  }
-  .name-plate span{ color:#446085; font-weight:600; font-size:12px; letter-spacing:.12em }
+    .badge{
+      align-self:end;
+      grid-column:1 / -1;
+      display:grid;
+      grid-template-columns: repeat(5,1fr);
+      gap:12px;
+      padding:0 4px 2px;
+    }
+    .stat{
+      background:#ecf2ff;
+      color:#0b1220;
+      border-radius:12px;
+      padding:12px 14px;
+      box-shadow:0 8px 18px rgba(0,0,0,.12);
+      border:1px solid rgba(30,50,90,.1);
+    }
+    .stat .v{ font-weight:800; font-size:1.05rem; }
+    .stat .k{ opacity:.7; font-size:.8rem; margin-top:2px; }
 
-  .role-tag{
-    grid-column:1;
-    align-self:end;
-    background:linear-gradient(180deg, rgba(255,255,255,.98), rgba(240,246,255,.96));
-    border:1px solid #e0e9f5;
-    color:#0f2347;
-    border-radius:10px;
-    padding:10px 12px;
-    font-weight:700;
-    letter-spacing:.18em;
-    text-transform:uppercase;
-    font-size:12px;
-    box-shadow: 0 8px 28px rgba(0,0,0,.25);
-  }
+    .role{
+      grid-column:1 / span 2;
+      background:rgba(255,255,255,.9);
+      color:#0b1220;border-radius:12px;
+      padding:12px 14px;
+      width:fit-content;
+      font-weight:700; letter-spacing:.12em; text-transform:uppercase;
+      border:1px solid rgba(30,50,90,.12);
+      box-shadow:0 8px 18px rgba(0,0,0,.12);
+      margin:0 0 10px 16px;
+    }
 
-  .avatar{
-    border-radius:12px;
-    overflow:hidden;
-    border: 2px solid rgba(255,255,255,.5);
-    box-shadow: 0 12px 38px rgba(0,0,0,.5);
-  }
+    /* Large hero art area (uses your headshot as a circle stamp on the chip; the canvas keeps things sleek) */
+    .hero{
+      grid-column:1 / -1;
+      border-radius:14px;
+      background:
+        radial-gradient(800px 300px at 50% 40%, rgba(255,255,255,.06), transparent 50%),
+        repeating-linear-gradient(90deg, rgba(255,255,255,.05) 0 1px, transparent 1px 18px);
+      border:1px solid rgba(255,255,255,.12);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.06);
+    }
 
-  /* BACK */
-  .back{ transform: rotateY(180deg); }
-  .back .plate{
-    background:
-      radial-gradient(160% 120% at 0% 0%, rgba(255,255,255,.08), transparent 60%),
-      linear-gradient(180deg, #0f1a30 0, #0b1425 100%);
-  }
-  .sheet{
-    position:absolute; inset:18px;
-    background:linear-gradient(180deg,#ffffff,#f6f9ff);
-    border:1px solid #e1e9f4;
-    border-radius:14px;
-    box-shadow: 0 10px 45px rgba(0,0,0,.35);
-    display:flex; flex-direction:column;
-    overflow:hidden;
-  }
-  .sheet .bar{
-    background: linear-gradient(180deg,#11315d,#0e2648);
-    color:#e8f0ff;
-    font-weight:800;
-    letter-spacing:.18em;
-    text-transform:uppercase;
-    padding:14px 18px;
-    border-bottom:1px solid rgba(255,255,255,.45);
-  }
-  .sheet .body{
-    padding:18px;
-    overflow:auto;
-  }
-  .sect{ margin:12px 0 22px }
-  .sect h3{
-    margin:0 0 8px; color:#11315d; letter-spacing:.08em; font-size:13px;
-  }
-  .kv{ display:grid; grid-template-columns: 1fr 1fr; gap:6px 20px; }
-  .kv div{ display:flex; gap:8px; align-items:baseline; }
-  .kv small{ color:#5b6c83 }
+    /* hint & flip button */
+    .hint{
+      position:absolute; left:16px; bottom:14px;
+      font-size:.78rem; color:rgba(255,255,255,.75);
+      display:flex; align-items:center; gap:8px;
+      user-select:none;
+    }
+    .hint .dot{width:6px; height:6px; border-radius:50%; background:rgba(255,255,255,.6)}
+    .flip-btn{
+      position:absolute; right:16px; bottom:12px;
+      background:linear-gradient(180deg,#ffffff,#f3f6fb);
+      color:#0b1220; border:1px solid rgba(0,0,0,.08);
+      padding:8px 12px; border-radius:10px; font-weight:700;
+      cursor:pointer; box-shadow:0 6px 16px rgba(0,0,0,.15);
+    }
+    .flip-btn:active{ transform:translateY(1px) }
 
-  /* Controls */
-  .cta{
-    position:absolute; left:50%; transform:translateX(-50%);
-    bottom:-46px;
-    display:inline-flex; gap:10px; align-items:center;
-    font-size:13px; color:#a8b7d0;
-    opacity:.9;
-  }
-  .cta kbd{
-    font:inherit; color:#0e2246; background:#e9f1ff;
-    border:1px solid #ccdcf5; border-bottom-width:3px;
-    border-radius:8px; padding:3px 8px; font-weight:700;
-  }
+    /* --- Back side --- */
+    .back-head{
+      background:linear-gradient(180deg, var(--brand) 0%, var(--brand-2) 100%);
+      color:#fff; padding:14px 18px; font-weight:800; letter-spacing:.16em;
+      font-size:.9rem; border-bottom:6px solid rgba(255,255,255,.9);
+    }
+    .back-body{
+      display:grid; grid-template-columns:1fr;
+      gap:18px; padding:18px;
+      overflow:auto; /* scroll inside card */
+    }
+    .panel{
+      background:#fff; border-radius:14px; border:1px solid #e6e9f2;
+      box-shadow:0 10px 20px rgba(10,20,40,.08);
+      overflow:hidden;
+    }
+    .panel .hd{
+      background:linear-gradient(90deg, rgba(12,35,64,.12), rgba(12,35,64,.05));
+      padding:10px 14px; font-weight:800; letter-spacing:.06em; color:#0c2340;
+      border-bottom:1px solid #e8edf7;
+    }
+    .panel .bd{ padding:14px }
+    .two-col{
+      display:grid; grid-template-columns:1fr 1fr; gap:12px;
+    }
+    .row{ display:flex; gap:10px; justify-content:space-between; padding:6px 0; border-bottom:1px dashed #edf1f7 }
+    .row:last-child{ border-bottom:0 }
+    .row b{ color:#0c2340 }
+    .pill{
+      display:inline-block; background:#eef4ff; color:#0c2340; font-weight:700;
+      border:1px solid #dce7ff; padding:6px 10px; border-radius:999px; margin:6px 6px 0 0;
+      font-size:.85rem;
+    }
+    .back-actions{
+      display:flex; justify-content:center; gap:10px; padding:8px 0 16px;
+    }
+    .ghost{
+      background:transparent; color:#0c2340; border:1px solid #d2d9e8;
+      padding:8px 12px; border-radius:10px; font-weight:700; cursor:pointer;
+    }
+    .solid{
+      background:linear-gradient(180deg,#0c2340,#122c52); color:#fff; border:1px solid rgba(0,0,0,.2);
+      padding:8px 12px; border-radius:10px; font-weight:800; cursor:pointer;
+      box-shadow:0 8px 18px rgba(12,35,64,.25);
+    }
 
-  /* Responsive */
-  @media (max-width: 900px){
-    .chips{ grid-template-columns: repeat(2, minmax(0,1fr)); }
-    .badge h1{ font-size:22px }
-    .name-plate h2{ font-size:18px }
-  }
-  @media (max-width: 720px){
-    .front .grid{ grid-template-columns:1fr; grid-template-rows:auto auto 1fr auto }
-    .badge{ grid-column:1; }
-    .role-tag{ grid-row:auto; }
-  }
-
-  footer{
-    text-align:center; color:#7f8aa1; font-size:12px;
-    margin-top:28px;
-  }
-</style>
+    /* responsive tweaks */
+    @media (max-width: 860px){
+      .chip{margin:12px}
+      .front-grid{ gap:10px; padding:6px 12px 12px }
+      .badge{ grid-template-columns: 1fr 1fr 1fr; }
+      .stat{ padding:10px 12px }
+      .role{ margin-left:12px }
+    }
+  </style>
 </head>
 <body>
   <div class="wrap">
-    <div class="scene" id="scene">
-      <div class="card" id="card" aria-live="polite" aria-label="Interactive profile card. Click to flip.">
-        <!-- ========== FRONT ========== -->
-        <section class="face front scanlines" role="region" aria-roledescription="Front of card">
-          <div class="frame"></div>
-          <div class="plate"></div>
-
-          <div class="grid">
-            <!-- Name / Avatar -->
-            <div class="badge">
-              <div class="head avatar">
-                <!-- Replace src with your headshot path if different -->
-                <img src="SBK-Headshot.jpeg" alt="Saul B. Kleinfeld headshot" />
-              </div>
-              <div class="name-plate">
-                <h2>SAUL B. KLEINFELD</h2>
-                <span>PRODUCT MANAGER</span>
-              </div>
-            </div>
-
-            <!-- Role tag -->
-            <div class="role-tag">Senior Product Manager</div>
-
-            <!-- Stat chips -->
-            <div class="chips">
-              <div class="chip"><strong>+25%</strong><small>Revenue Growth</small></div>
-              <div class="chip"><strong>+17%</strong><small>DAU Lift</small></div>
-              <div class="chip"><strong>99.8%</strong><small>Quality Rate</small></div>
-              <div class="chip"><strong>-30%</strong><small>Cycle Time</small></div>
-              <div class="chip"><strong>+40%</strong><small>Decision Velocity</small></div>
-              <div class="chip"><strong>+24%</strong><small>Retention</small></div>
+    <div class="stage">
+      <div id="card" class="card" aria-live="polite">
+        <!-- ============ FRONT ============ -->
+        <section class="face front" aria-label="Front of card">
+          <div class="chip" aria-hidden="true">
+            <span class="avatar"><img src="SBK-Headshot.jpeg" alt=""></span>
+            <div>
+              <div class="title">SAUL B. KLEINFELD</div>
+              <div class="sub">PRODUCT MANAGER</div>
             </div>
           </div>
 
-          <div class="cta" aria-hidden="true">
-            <kbd>Click</kbd> or <kbd>Space</kbd> to flip
+          <div class="front-grid">
+            <div class="hero" aria-hidden="true"></div>
+
+            <div class="badge" style="grid-row:2">
+              <div class="stat">
+                <div class="v">+25%</div>
+                <div class="k">Revenue Growth</div>
+              </div>
+              <div class="stat">
+                <div class="v">+17%</div>
+                <div class="k">DAU Lift</div>
+              </div>
+              <div class="stat">
+                <div class="v">99.8%</div>
+                <div class="k">Quality Rate</div>
+              </div>
+              <div class="stat">
+                <div class="v">-30%</div>
+                <div class="k">Cycle Time</div>
+              </div>
+              <div class="stat">
+                <div class="v">+40%</div>
+                <div class="k">Decision Velocity</div>
+              </div>
+            </div>
           </div>
+
+          <div class="role">Senior Product Manager</div>
+
+          <div class="hint"><span class="dot"></span> Click or press <b>F</b> to flip</div>
+          <button class="flip-btn" id="flipFront" type="button" aria-label="Flip to back">View Stats ↻</button>
         </section>
 
-        <!-- ========== BACK ========== -->
-        <section class="face back scanlines" role="region" aria-roledescription="Back of card">
-          <div class="frame"></div>
-          <div class="plate"></div>
-
-          <div class="sheet" id="sheet">
-            <div class="bar">Career Statistics</div>
-            <div class="body">
-              <div class="sect">
-                <h3>RazorMetrics <small style="color:#6b7d97;font-weight:600">Sep 2024 – Nov 2025</small></h3>
-                <div class="kv">
-                  <div><small>Feature throughput</small><strong style="color:#0f2347">+25%</strong></div>
-                  <div><small>On-time releases</small><strong style="color:#0f2347">+15 pts</strong></div>
-                  <div><small>Config cycle time</small><strong style="color:#0f2347">-40%</strong></div>
-                  <div><small>Post-release rework</small><strong style="color:#0f2347">-27%</strong></div>
+        <!-- ============ BACK ============ -->
+        <section class="face back" aria-label="Back of card">
+          <div class="back-head">CAREER STATISTICS</div>
+          <div class="back-body">
+            <div class="panel">
+              <div class="hd">RazorMetrics <span style="font-weight:600;opacity:.6">Sep 2024 – Nov 2025</span></div>
+              <div class="bd two-col">
+                <div>
+                  <div class="row"><span>Feature throughput</span><b>+25%</b></div>
+                  <div class="row"><span>On-time releases</span><b>+15 pts</b></div>
+                  <div class="row"><span>Config cycle time</span><b>-40%</b></div>
                 </div>
-              </div>
-
-              <div class="sect">
-                <h3>TeleVox <small style="color:#6b7d97;font-weight:600">Apr 2023 – Apr 2024</small></h3>
-                <div class="kv">
-                  <div><small>DAU growth</small><strong style="color:#0f2347">+17%</strong></div>
-                  <div><small>90-day retention</small><strong style="color:#0f2347">+24%</strong></div>
-                  <div><small>Release cycle</small><strong style="color:#0f2347">-30%</strong></div>
-                  <div><small>Decision velocity</small><strong style="color:#0f2347">+40%</strong></div>
-                </div>
-              </div>
-
-              <div class="sect">
-                <h3>7-Eleven <small style="color:#6b7d97;font-weight:600">Apr 2022 – Apr 2023</small></h3>
-                <div class="kv">
-                  <div><small>Trial starts</small><strong style="color:#0f2347">+30%</strong></div>
-                  <div><small>Redemption rate</small><strong style="color:#0f2347">10% → 50%</strong></div>
-                  <div><small>Campus cohort</small><strong style="color:#0f2347">+10%</strong></div>
-                  <div><small>Engagement</small><strong style="color:#0f2347">+12%</strong></div>
-                </div>
-              </div>
-
-              <div class="sect">
-                <h3>Core Competencies</h3>
-                <div class="kv" style="grid-template-columns:repeat(3,minmax(0,1fr));">
-                  <div><small>Strategy & Roadmap</small><strong style="color:#0f2347">Lead</strong></div>
-                  <div><small>KPI Dashboards</small><strong style="color:#0f2347">Own</strong></div>
-                  <div><small>A/B Testing</small><strong style="color:#0f2347">Design</strong></div>
-                  <div><small>Mobile Apps</small><strong style="color:#0f2347">iOS/Android</strong></div>
-                  <div><small>Loyalty & Rewards</small><strong style="color:#0f2347">Growth</strong></div>
-                  <div><small>Agile/Scrum</small><strong style="color:#0f2347">CSPO</strong></div>
-                  <div><small>Subscription Funnel</small><strong style="color:#0f2347">Own</strong></div>
-                  <div><small>User Engagement</small><strong style="color:#0f2347">Lift</strong></div>
-                  <div><small>Analytics</small><strong style="color:#0f2347">Mixpanel/GA</strong></div>
-                </div>
-              </div>
-
-              <div class="sect">
-                <h3>Education</h3>
-                <div class="kv">
-                  <div><small>MBA</small><strong style="color:#0f2347">University of Phoenix</strong></div>
-                  <div><small>MA Sports Admin </small><strong style="color:#0f2347">Northwestern (in progress)</strong></div>
-                  <div><small>BBA Management</small><strong style="color:#0f2347">UTEP</strong></div>
+                <div>
+                  <div class="row"><span>Post-release rework</span><b>-27%</b></div>
+                  <div class="row"><span>Release predictability</span><b>↑</b></div>
+                  <div class="row"><span>Stakeholder NPS</span><b>+18</b></div>
                 </div>
               </div>
             </div>
-          </div>
 
-          <div class="cta" aria-hidden="true" style="bottom:-44px">
-            <kbd>Click</kbd> or <kbd>Space</kbd> to flip back
+            <div class="panel">
+              <div class="hd">TeleVox <span style="font-weight:600;opacity:.6">Apr 2023 – Apr 2024</span></div>
+              <div class="bd two-col">
+                <div>
+                  <div class="row"><span>DAU growth</span><b>+17%</b></div>
+                  <div class="row"><span>90-day retention</span><b>+24%</b></div>
+                </div>
+                <div>
+                  <div class="row"><span>Release cycle</span><b>-30%</b></div>
+                  <div class="row"><span>Decision velocity</span><b>+40%</b></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="panel">
+              <div class="hd">7-Eleven <span style="font-weight:600;opacity:.6">Apr 2022 – Apr 2023</span></div>
+              <div class="bd two-col">
+                <div>
+                  <div class="row"><span>Trial starts</span><b>+30%</b></div>
+                  <div class="row"><span>Redemption rate</span><b>10% → 50%</b></div>
+                </div>
+                <div>
+                  <div class="row"><span>Campus cohort</span><b>+10%</b></div>
+                  <div class="row"><span>Engagement</span><b>+12%</b></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="panel">
+              <div class="hd">Core Competencies</div>
+              <div class="bd">
+                <span class="pill">Strategy & Roadmap</span>
+                <span class="pill">KPI Dashboards</span>
+                <span class="pill">A/B Testing</span>
+                <span class="pill">Mobile Apps</span>
+                <span class="pill">Loyalty & Rewards</span>
+                <span class="pill">Agile/Scrum</span>
+                <span class="pill">Subscription Funnel</span>
+                <span class="pill">User Engagement</span>
+                <span class="pill">Analytics</span>
+              </div>
+            </div>
+
+            <div class="panel">
+              <div class="hd">Education & Certifications</div>
+              <div class="bd two-col">
+                <div>
+                  <div class="row"><span>MBA</span><b>University of Phoenix</b></div>
+                  <div class="row"><span>MA Sports Admin (in progress)</span><b>Northwestern University</b></div>
+                  <div class="row"><span>BBA Management</span><b>UTEP</b></div>
+                </div>
+                <div>
+                  <div class="row"><span>CSPO</span><b>Certified Scrum PO</b></div>
+                  <div class="row"><span>Six Sigma</span><b>White Belt</b></div>
+                  <div class="row"><span>Product School</span><b>AI • Growth</b></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="back-actions">
+              <button class="ghost" type="button" id="flipBackGhost">Flip Front</button>
+              <button class="solid" type="button" id="flipBack">Done ↺</button>
+            </div>
           </div>
         </section>
       </div>
-      <footer>© 2025 Saul B. Kleinfeld</footer>
     </div>
   </div>
 
-<script>
-  (function(){
-    const card  = document.getElementById('card');
-    const sheet = document.getElementById('sheet');
+  <script>
+    (function(){
+      const card = document.getElementById('card');
+      const flipFront = document.getElementById('flipFront');
+      const flipBack = document.getElementById('flipBack');
+      const flipBackGhost = document.getElementById('flipBackGhost');
 
-    function toggleFlip(){
-      card.classList.toggle('is-flipped');
-    }
+      const toggle = () => card.classList.toggle('flipped');
 
-    // Click anywhere on card to flip (but let back side scroll)
-    card.addEventListener('click', (e)=>{
-      // If we clicked interactive content on the back, don't flip.
-      const inScrollable = sheet.contains(e.target);
-      if(inScrollable && card.classList.contains('is-flipped')) return;
-      toggleFlip();
-    });
+      // Click-to-flip (only when clicking buttons or empty zones – avoids accidental drags)
+      flipFront.addEventListener('click', toggle);
+      flipBack.addEventListener('click', toggle);
+      flipBackGhost.addEventListener('click', toggle);
 
-    // Keyboard: Space/Enter to flip
-    document.addEventListener('keydown', (e)=>{
-      if(e.code === 'Space' || e.key === 'Enter'){
-        e.preventDefault();
-        toggleFlip();
-      }
-    });
+      // Keyboard shortcut: F to flip
+      document.addEventListener('keydown', (e)=>{
+        if(e.key.toLowerCase()==='f') toggle();
+      });
 
-    // Prevent accidental flip while scrolling inside the back sheet
-    sheet.addEventListener('wheel', (e)=> e.stopPropagation(), {passive:true});
-    sheet.addEventListener('touchmove', (e)=> e.stopPropagation(), {passive:true});
-  })();
-</script>
+      // Prevent scroll hijack (let inner back body scroll)
+      document.querySelectorAll('.back-body').forEach(node=>{
+        node.addEventListener('wheel', (e)=>{
+          const el = e.currentTarget;
+          const atTop = el.scrollTop === 0 && e.deltaY < 0;
+          const atBottom = Math.ceil(el.scrollTop + el.clientHeight) >= el.scrollHeight && e.deltaY > 0;
+          if(atTop || atBottom){ e.preventDefault(); }
+        }, {passive:false});
+      });
+    })();
+  </script>
 </body>
 </html>
