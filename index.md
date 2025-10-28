@@ -10,7 +10,6 @@ permalink: /
   <div class="tag">Systems Builder &amp; Playbook Architect — Product × Sports</div>
 
   <div class="chips">
-    <span class="chip c1">Senior PM @ RazorMetrics</span>
     <span class="chip c2">VP, Rookie League (NTABL)</span>
     <span class="chip c3">MSA — Northwestern</span>
   </div>
