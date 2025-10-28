@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="robots" content="noindex, nofollow" />
+<title>Saul B. Kleinfeld — Recruiter Card</title>
+<style>
+  :root{
+    --bg:#0b0f12; --ink:#d9e2ef; --muted:#9fb3c8; --accent:#9ef01a;
+    --navy:#103053; --navy-2:#0b2442; --glass:rgba(255,255,255,.08);
+  }
+  body{
+    margin:0; color:var(--ink);
+    background:
+      radial-gradient(1200px 600px at 50% -20%, rgba(158,240,26,.15), transparent 60%),
+      radial-gradient(1000px 500px at 80% 110%, rgba(158,240,26,.08), transparent 60%),
+      repeating-linear-gradient(0deg, rgba(255,255,255,.03) 0 1px, transparent 1px 24px),
+      repeating-linear-gradient(90deg, rgba(255,255,255,.02) 0 1px, transparent 1px 24px),
+      var(--bg);
+    font:14px/1.45 system-ui, -apple-system, Segoe UI, Roboto, Inter, Helvetica, Arial, sans-serif;
+  }
+  .wrap{max-width:min(1200px,92vw); margin:clamp(18px,2.5vw,28px) auto;}
+  .stage{perspective:1600px; position:relative; margin-inline:auto; width:min(1100px,100%); height:clamp(560px,68vh,720px);}
+  .card3d{position:relative; width:100%; height:100%; transform-style:preserve-3d; transition:transform 700ms cubic-bezier(.2,.7,.2,1);}
+  .card3d.is-back{transform:rotateY(180deg);}
+  .face{position:absolute; inset:0; border-radius:18px; overflow:hidden; backface-visibility:hidden;
+        box-shadow:0 20px 60px rgba(0,0,0,.55), inset 0 0 0 2px rgba(255,255,255,.07);}
+  /* FRONT */
+  .front{background:radial-gradient(120% 85% at 60% 30%, rgba(255,255,255,.08), transparent 60%), linear-gradient(180deg, #163d6a 0%, #0f2e52 50%, #0c2543 100%); display:grid; grid-template-rows:auto 1fr auto;}
+  .idbar{display:flex; align-items:center; gap:12px; background:rgba(255,255,255,.08); border-bottom:1px solid rgba(255,255,255,.08); padding:14px 16px;}
+  .avatar{width:42px; height:42px; border-radius:10px; overflow:hidden; box-shadow:0 6px 18px rgba(0,0,0,.35), inset 0 0 0 1px rgba(255,255,255,.35); background:#0a1627;}
+  .avatar img{width:100%; height:100%; object-fit:cover; display:block;}
+  .name{font-weight:800; letter-spacing:.5px; font-size:clamp(16px,1.8vw,20px);}
+  .role{color:var(--muted); font-size:12px; letter-spacing:.3px; margin-top:2px;}
+  .front-main{display:grid; grid-template-columns:1.1fr 1.2fr 1.2fr; grid-template-rows:1fr auto; gap:14px; padding:16px;}
+  .portrait{grid-row:1 / span 2; border-radius:14px; background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02)); border:1px solid rgba(255,255,255,.08);
+           display:flex; align-items:center; justify-content:center; overflow:hidden;}
+  .portrait img{width:100%; height:100%; object-fit:cover; filter:saturate(.9) contrast(1.05);}
+  .hero{grid-column:2 / -1; border-radius:14px; border:1px solid rgba(255,255,255,.08);
+        background:repeating-linear-gradient(90deg, rgba(255,255,255,.04) 0 2px, transparent 2px 12px),
+                   radial-gradient(160% 120% at 60% 40%, rgba(158,240,26,.18), rgba(158,240,26,0) 50%),
+                   linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02)); position:relative;}
+  .hero h2{position:absolute; left:18px; top:14px; font-weight:700; letter-spacing:.3px; margin:0; font-size:clamp(18px,2vw,22px);}
+  .tags{position:absolute; left:18px; top:48px; display:flex; gap:8px; flex-wrap:wrap;}
+  .tag{font-size:12px; padding:6px 10px; border-radius:999px; color:#0e2139; background:linear-gradient(180deg,#eaffc8,#b9ff6a);
+       border:1px solid #a2eb54; box-shadow:0 8px 18px rgba(158,240,26,.25); font-weight:700;}
+  .pills{grid-column:2 / -1; display:grid; grid-template-columns:repeat(5,1fr); gap:12px;}
+  .pill{background:#eef2f7; border:2px solid #fff; border-radius:12px; padding:10px 12px; color:#0b2240; box-shadow:0 10px 24px rgba(0,0,0,.18);}
+  .pill b{font-size:16px; display:block;} .pill span{font-size:11px; color:#3b4a64;}
+  .ribbon{grid-column:1 / -1; margin:0 16px 16px 16px; background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.15); border-radius:10px; padding:10px 14px; letter-spacing:.5px; font-weight:800; width:max-content;}
+  .front-cta{position:absolute; right:16px; bottom:14px;}
+  /* BACK */
+  .back{transform:rotateY(180deg); background:linear-gradient(180deg,#f5f7fb,#ffffff); color:#0b2240; display:flex; flex-direction:column;}
+  .back-head{background:linear-gradient(180deg,#15406e,#0f2f54); color:#fff; padding:14px 18px; border-bottom:1px solid rgba(255,255,255,.25);
+             display:flex; align-items:center; justify-content:space-between;}
+  .back-body{padding:14px 18px; display:grid; grid-template-columns:1.1fr 1.1fr; gap:14px; font-size:13px;}
+  .section{background:#ffffff; border:1px solid #e7eef7; border-radius:12px; padding:12px; box-shadow:0 10px 26px rgba(13,35,64,.10);}
+  .section h4{margin:0 0 8px; font-size:12px; letter-spacing:.25px; color:#51627d;}
+  .job{border-radius:10px; border:1px solid #e9eef6; background:linear-gradient(180deg,#f9fbff,#f3f7fd); padding:10px 10px 8px;}
+  .job .row{display:flex; justify-content:space-between; gap:8px; margin-bottom:6px; font-weight:700; color:#0d2b4d; font-size:13px;}
+  .bullets{display:grid; grid-template-columns:1fr 1fr; gap:6px 12px;} .bullets div{font-size:12px; color:#375070;}
+  .chips{display:flex; flex-wrap:wrap; gap:8px;} .chip{background:#0f2e54; color:#e9f3ff; padding:6px 10px; border-radius:999px; border:1px solid #0a2748; font-size:12px;}
+  .btn{appearance:none; border:0; border-radius:10px; padding:10px 14px; font-weight:800; letter-spacing:.3px; cursor:pointer; background:#0f2e54; color:#e7f1ff; box-shadow:0 8px 18px rgba(15,46,84,.35);}
+  .btn.secondary{background:var(--glass); color:var(--ink); border:1px solid rgba(255,255,255,.35);} .btn:active{transform:translateY(1px);}
+  .foot{text-align:center; color:rgba(255,255,255,.6); font-size:12px; margin-top:min(4vh,22px);}
+  @media (max-width:980px){ .front-main{grid-template-columns:.95fr 1fr; grid-template-rows:.9fr auto auto;}
+    .portrait{grid-row:1 / span 3;} .hero{grid-column:2 / -1; min-height:180px;} .pills{grid-column:2 / -1; grid-template-columns:repeat(3,1fr);} }
+  @media (max-width:720px){ .stage{height:560px;} .front-main{grid-template-columns:1fr;}
+    .portrait{grid-row:auto; height:220px;} .hero{grid-column:auto; height:160px;}
+    .pills{grid-column:auto; grid-template-columns:repeat(2,1fr);} .back-body{grid-template-columns:1fr;} }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="stage">
+      <div class="card3d" id="card3d">
+        <!-- FRONT -->
+        <section class="face front">
+          <div class="idbar">
+            <div class="avatar"><img src="SBK-Headshot.jpeg" alt="Saul B. Kleinfeld headshot" /></div>
+            <div><div class="name">SAUL B. KLEINFELD</div><div class="role">PRODUCT MANAGER</div></div>
+          </div>
+          <div class="front-main">
+            <figure class="portrait"><img src="SBK-Headshot.jpeg" alt="Saul B. Kleinfeld" /></figure>
+            <div class="hero">
+              <h2>Building products that move the scoreboard</h2>
+              <div class="tags">
+                <span class="tag">Mobile Apps</span><span class="tag">Loyalty & Rewards</span><span class="tag">KPI-Led Roadmaps</span>
+              </div>
+            </div>
+            <div class="pills">
+              <div class="pill"><b>+25%</b><span>Revenue Growth</span></div>
+              <div class="pill"><b>+17%</b><span>DAU Lift</span></div>
+              <div class="pill"><b>99.8%</b><span>Quality Rate</span></div>
+              <div class="pill"><b>-30%</b><span>Cycle Time</span></div>
+              <div class="pill"><b>+40%</b><span>Decision Velocity</span></div>
+            </div>
+          </div>
+          <div class="ribbon">SENIOR PRODUCT MANAGER</div>
+          <div class="front-cta"><button class="btn" id="toBack">View Stats ↻</button></div>
+        </section>
+
+        <!-- BACK -->
+        <section class="face back">
+          <header class="back-head">
+            <strong>CAREER STATISTICS</strong>
+            <button class="btn secondary" id="toFront">Flip Front</button>
+          </header>
+          <div class="back-body">
+            <div class="col">
+              <div class="section job">
+                <div class="row"><span>RazorMetrics</span><span>Sep 2024 – Nov 2025</span></div>
+                <div class="bullets">
+                  <div><strong>+25%</strong> feature throughput</div>
+                  <div><strong>+15 pts</strong> on-time releases</div>
+                  <div><strong>-40%</strong> config cycle time</div>
+                  <div><strong>-27%</strong> post-release rework</div>
+                </div>
+              </div>
+              <div class="section job">
+                <div class="row"><span>TeleVox</span><span>Apr 2023 – Apr 2024</span></div>
+                <div class="bullets">
+                  <div><strong>+17%</strong> DAU growth</div>
+                  <div><strong>-30%</strong> release cycle</div>
+                  <div><strong>+24%</strong> 90-day retention</div>
+                  <div><strong>+40%</strong> decision velocity</div>
+                </div>
+              </div>
+              <div class="section job">
+                <div class="row"><span>7-Eleven</span><span>Apr 2022 – Apr 2023</span></div>
+                <div class="bullets">
+                  <div><strong>+30%</strong> trial starts</div>
+                  <div>Redemption <strong>10% → 50%</strong></div>
+                  <div><strong>+10%</strong> campus cohort</div>
+                  <div><strong>+12%</strong> engagement</div>
+                </div>
+              </div>
+            </div>
+            <div class="col">
+              <div class="section">
+                <h4>Core Competencies</h4>
+                <div class="chips">
+                  <span class="chip">Strategy & Roadmap</span><span class="chip">KPI Dashboards</span><span class="chip">A/B Testing</span>
+                  <span class="chip">Mobile Apps</span><span class="chip">Loyalty & Rewards</span><span class="chip">Agile/Scrum</span>
+                  <span class="chip">Subscription Funnel</span><span class="chip">User Engagement</span><span class="chip">Analytics</span>
+                </div>
+              </div>
+              <div class="section">
+                <h4>Education & Certifications</h4>
+                <div class="bullets" style="grid-template-columns:1fr;">
+                  <div><strong>MBA</strong> — University of Phoenix</div>
+                  <div><strong>MA Sports Admin</strong> (in progress) — Northwestern University</div>
+                  <div><strong>BBA</strong> — UTEP</div>
+                  <div><strong>CSPO</strong> (Certified Scrum PO)</div>
+                  <div>Six Sigma (White Belt)</div>
+                  <div>Product School — AI & Growth</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+    <div class="foot">© 2025 Saul B. Kleinfeld</div>
+  </div>
+
+<script>
+  const card = document.getElementById('card3d');
+  document.getElementById('toBack').addEventListener('click', ()=>card.classList.add('is-back'));
+  document.getElementById('toFront').addEventListener('click', ()=>card.classList.remove('is-back'));
+  window.addEventListener('keydown', (e)=>{
+    if(e.key==='Escape') card.classList.remove('is-back');
+    if(e.key===' ' || e.key==='Enter'){ e.preventDefault(); card.classList.toggle('is-back'); }
+  }, {passive:false});
+</script>
+</body>
+</html>
